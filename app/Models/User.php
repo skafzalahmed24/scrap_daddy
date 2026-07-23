@@ -44,6 +44,9 @@ class User extends Authenticatable
         'platform_type',
         'latitude',
         'longitude',
+        'otp',
+        'is_verified',
+        'otp_expires_at',
     ];
 
     /**
