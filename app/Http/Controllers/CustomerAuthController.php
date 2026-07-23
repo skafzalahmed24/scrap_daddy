@@ -387,6 +387,20 @@ class CustomerAuthController extends Controller
     // --- CATEGORY METHODS ---
     public function categories(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'search' => 'nullable|string',
+            'min' => 'nullable|integer|min:0',
+            'max' => 'nullable|integer|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $query = Category::where('status', 1);
 
         if ($request->has('search') && !empty($request->search)) {
@@ -415,9 +429,23 @@ class CustomerAuthController extends Controller
     }
 
     // --- SUBCATEGORY METHODS ---
-    public function subcategories(Request $request, $category_uuid)
+    public function subcategories(Request $request)
     {
-        $query = Subcategory::where('category_id', $category_uuid)
+        $validator = Validator::make($request->all(), [
+            'category_uuid' => 'required|exists:categories,uuid',
+            'search' => 'nullable|string',
+            'sort' => 'nullable|string|in:asc,desc'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $query = Subcategory::where('category_id', $request->category_uuid)
                             ->where('status', 1);
 
         if ($request->has('search') && !empty($request->search)) {
@@ -513,11 +541,23 @@ class CustomerAuthController extends Controller
         ]);
     }
 
-    public function showOrder(Request $request, $id)
+    public function showOrder(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $order = Order::with(['category', 'subcategory'])
                       ->where('user_uuid', $request->user()->uuid)
-                      ->where('id', $id)
+                      ->where('id', $request->order_id)
                       ->first();
 
         if (!$order) {
@@ -547,8 +587,21 @@ class CustomerAuthController extends Controller
     }
 
     // --- STATIC PAGE METHODS ---
-    public function page($type)
+    public function page(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $type = $request->type;
         $page = StaticPage::where('slug', $type)
                           ->orWhere('title', str_replace('-', ' ', $type))
                           ->first();

@@ -26,14 +26,14 @@ Route::prefix('customer')->group(function () {
     Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword']);
     
     // Public Data Routes
-    Route::get('/categories', [CustomerAuthController::class, 'categories']);
-    Route::get('/subcategories/{category_uuid}', [CustomerAuthController::class, 'subcategories']);
-    Route::get('/pages/{type}', [CustomerAuthController::class, 'page']);
+    Route::post('/categories', [CustomerAuthController::class, 'categories']);
+    Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
+    Route::post('/pages', [CustomerAuthController::class, 'page']);
 
     // Protected Routes (Require Authentication)
     Route::middleware('auth:sanctum')->group(function () {
         // Profile
-        Route::get('/user', [CustomerAuthController::class, 'user']);
+        Route::post('/user', [CustomerAuthController::class, 'user']);
         Route::post('/update-profile', [CustomerAuthController::class, 'updateProfile']);
         Route::post('/change-password', [CustomerAuthController::class, 'changePassword']);
         Route::post('/refresh-token', [CustomerAuthController::class, 'refreshToken']);
@@ -42,9 +42,9 @@ Route::prefix('customer')->group(function () {
 
         // Orders & Payments
         Route::post('/orders/create', [CustomerAuthController::class, 'createOrder']);
-        Route::get('/orders', [CustomerAuthController::class, 'orders']);
-        Route::get('/orders/{id}', [CustomerAuthController::class, 'showOrder']);
-        Route::get('/payments', [CustomerAuthController::class, 'payments']);
+        Route::post('/orders', [CustomerAuthController::class, 'orders']);
+        Route::post('/order-details', [CustomerAuthController::class, 'showOrder']);
+        Route::post('/payments', [CustomerAuthController::class, 'payments']);
     });
 });
 
