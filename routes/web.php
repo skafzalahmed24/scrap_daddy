@@ -27,30 +27,53 @@ Route::get('/customer/register', function () {
     return view('customer-register');
 });
 
-Route::get('/customer/home', function () {
-    return redirect()->route('customer.orders');
-})->name('customer.home');
+Route::get('/customer/verify-otp', function () {
+    return view('customer-verify-otp');
+});
 
-Route::get('/customer/profile', function () {
-    return view('customer.profile');
-})->name('customer.profile');
+Route::get('/customer/forgot-password', function () {
+    return view('customer-forgot-password');
+});
 
-Route::post('/customer/profile/update', [\App\Http\Controllers\CustomerAuthController::class, 'updateProfile'])->name('customer.profile.update');
+Route::get('/customer/reset-password', function () {
+    return view('customer-reset-password');
+});
 
-Route::get('/customer/payments', function () {
-    return view('customer.payments');
-})->name('customer.payments');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/customer/home', function () {
+        return view('customer.home');
+    })->name('customer.home');
 
-// User Orders & Feedback
-Route::get('/customer/orders', [OrderController::class, 'index'])->name('customer.orders');
-Route::get('/customer/request-pickup', [OrderController::class, 'create'])->name('customer.orders.create');
-Route::post('/customer/orders', [OrderController::class, 'store'])->name('customer.orders.store');
-Route::post('/customer/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('customer.orders.cancel');
-Route::post('/customer/feedback', [FeedbackController::class, 'store'])->name('customer.feedback.store');
+    Route::get('/customer/rewards', function () {
+        return view('customer.rewards');
+    })->name('customer.rewards');
 
-// Payments
-Route::get('/customer/payment/{orderId}', [PaymentController::class, 'initiatePayment'])->name('customer.payment.initiate');
-Route::post('/customer/payment/callback', [PaymentController::class, 'paymentCallback'])->name('customer.payment.callback');
+    Route::get('/customer/profile', function () {
+        return view('customer.profile');
+    })->name('customer.profile');
+
+    Route::post('/customer/profile/update', [\App\Http\Controllers\CustomerAuthController::class, 'updateProfile'])->name('customer.profile.update');
+
+    Route::get('/customer/payments', function () {
+        return view('customer.payments');
+    })->name('customer.payments');
+
+    Route::get('/customer/change-password', function () {
+        return view('customer.change-password');
+    })->name('customer.change-password');
+
+    // User Orders & Feedback
+    Route::get('/customer/orders', [OrderController::class, 'index'])->name('customer.orders');
+    Route::get('/customer/order/{id}', [OrderController::class, 'show'])->name('customer.order.show');
+    Route::get('/customer/request-pickup', [OrderController::class, 'create'])->name('customer.orders.create');
+    Route::post('/customer/orders', [OrderController::class, 'store'])->name('customer.orders.store');
+    Route::post('/customer/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('customer.orders.cancel');
+    Route::post('/customer/feedback', [FeedbackController::class, 'store'])->name('customer.feedback.store');
+
+    // Payments
+    Route::get('/customer/payment/{orderId}', [PaymentController::class, 'initiatePayment'])->name('customer.payment.initiate');
+    Route::post('/customer/payment/callback', [PaymentController::class, 'paymentCallback'])->name('customer.payment.callback');
+});
 
 // Static Pages
 Route::get('/page/{slug}', [PageController::class, 'show'])->name('page.show');

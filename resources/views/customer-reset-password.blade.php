@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Register - Scrap Daddy</title>
+    <title>Reset Password - Scrap Daddy</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -16,41 +16,27 @@
 <div class="split-layout">
     <!-- Image Section -->
     <div class="split-image">
-        <img src="/customerregister (2).png" alt="Customer Register">
+        <img src="/customerlogin.png" alt="Reset Password">
     </div>
     
     <!-- Form Section -->
     <div class="split-form">
         <div class="form-content-wrapper">
-            <h2 class="fw-bold mb-1">Create <span class="text-primary">Account!</span></h2>
-            <p class="text-muted mb-4">Register as a new customer</p>
+            <h2 class="fw-bold mb-1">Reset <span class="text-primary">Password</span></h2>
+            <p class="text-muted mb-4">Enter the OTP and your new password</p>
 
-            <form id="registerForm">
+            <form id="resetForm">
                 <div id="errorAlert" class="alert alert-danger d-none"></div>
-                <div class="mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text text-muted">
-                            <i class="bi bi-person"></i>
-                        </span>
-                        <input type="text" class="form-control" name="full_name" placeholder="Full Name" required>
-                    </div>
-                </div>
+                <div id="successAlert" class="alert alert-success d-none"></div>
+
+                <input type="hidden" id="loginInput" name="login">
 
                 <div class="mb-3">
                     <div class="input-group">
                         <span class="input-group-text text-muted">
-                            <i class="bi bi-envelope"></i>
+                            <i class="bi bi-shield-check"></i>
                         </span>
-                        <input type="email" class="form-control" name="email" placeholder="Email Address">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text text-muted">
-                            <i class="bi bi-telephone"></i>
-                        </span>
-                        <input type="tel" class="form-control" name="phone_number" placeholder="Phone Number" required>
+                        <input type="text" class="form-control" name="otp" placeholder="Enter 6-digit OTP" required maxlength="6">
                     </div>
                 </div>
 
@@ -59,7 +45,7 @@
                         <span class="input-group-text text-muted">
                             <i class="bi bi-lock"></i>
                         </span>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="New Password" required>
                         <button class="btn border-0 bg-white text-muted" style="border-left: none; border-radius: 0 0.375rem 0.375rem 0;" type="button" id="togglePassword">
                             <i class="bi bi-eye"></i>
                         </button>
@@ -71,17 +57,17 @@
                         <span class="input-group-text text-muted">
                             <i class="bi bi-shield-lock"></i>
                         </span>
-                        <input type="password" class="form-control" name="password_confirmation" placeholder="Confirm Password" required>
+                        <input type="password" class="form-control" name="password_confirmation" placeholder="Confirm New Password" required>
                     </div>
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary py-2 fw-semibold" id="registerBtn">Register</button>
+                    <button type="submit" class="btn btn-primary py-2 fw-semibold" id="resetBtn">Reset Password</button>
                 </div>
             </form>
 
             <div class="text-center mt-4 text-muted">
-                Already have an account? <a href="/customer/login" class="text-primary text-decoration-none fw-semibold">Login</a>
+                <a href="/customer/login" class="text-primary text-decoration-none fw-semibold">Back to Login</a>
             </div>
         </div>
     </div>
@@ -103,16 +89,23 @@
         }
     });
 
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    // Get login param from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const loginValue = urlParams.get('login');
+    if(loginValue) {
+        document.getElementById('loginInput').value = loginValue;
+    } else {
+        window.location.href = '/customer/forgot-password';
+    }
+
+    document.getElementById('resetForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const btn = document.getElementById('registerBtn');
+        const btn = document.getElementById('resetBtn');
         const alertBox = document.getElementById('errorAlert');
+        const successBox = document.getElementById('successAlert');
         const formData = new FormData(this);
         
-        // Add default web platform type
-        formData.append('platform_type', 1);
-
         // Check password confirmation
         if (formData.get('password') !== formData.get('password_confirmation')) {
             alertBox.innerText = 'Passwords do not match.';
@@ -121,11 +114,12 @@
         }
 
         btn.disabled = true;
-        btn.innerText = 'Registering...';
+        btn.innerText = 'Resetting...';
         alertBox.classList.add('d-none');
+        successBox.classList.add('d-none');
 
         try {
-            const response = await fetch('/api/customer/register', {
+            const response = await fetch('/api/customer/reset-password', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json'
@@ -136,22 +130,27 @@
             const data = await response.json();
 
             if (response.ok || data.status === 1) {
-                // Success! Redirect to OTP verification
-                window.location.href = `/customer/verify-otp?login=${encodeURIComponent(formData.get('phone_number'))}`;
+                successBox.innerText = 'Password reset successfully! Redirecting to login...';
+                successBox.classList.remove('d-none');
+                
+                setTimeout(() => {
+                    window.location.href = '/customer/login';
+                }, 1500);
             } else {
-                let errorText = data.message || 'Registration failed.';
+                let errorText = data.message || 'Password reset failed.';
                 if (data.errors) {
                     errorText = Object.values(data.errors).map(err => err.join(', ')).join('<br>');
                 }
                 alertBox.innerHTML = errorText;
                 alertBox.classList.remove('d-none');
+                btn.disabled = false;
+                btn.innerText = 'Reset Password';
             }
         } catch (error) {
             alertBox.innerText = 'An unexpected error occurred. Please try again.';
             alertBox.classList.remove('d-none');
-        } finally {
             btn.disabled = false;
-            btn.innerText = 'Register';
+            btn.innerText = 'Reset Password';
         }
     });
 </script>

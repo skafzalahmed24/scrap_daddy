@@ -65,7 +65,7 @@
 
     @auth
     @php
-        $user = auth()->user() ?? \App\Models\User::first() ?? new \App\Models\User(['full_name' => 'Shaik Afzal', 'phone_number' => '+91 9876543210']);
+        $user = auth()->user();
         $recentOrders = \App\Models\Order::with('subcategory')->where('user_uuid', $user->uuid)->latest()->take(5)->get();
     @endphp
     <section class="container mt-5 mb-4">

@@ -17,6 +17,12 @@ class OrderController extends Controller
         return view('customer.orders', compact('orders'));
     }
 
+    public function show($id)
+    {
+        $order = Order::with(['category', 'subcategory'])->findOrFail($id);
+        return view('customer.order-details', compact('order'));
+    }
+
     public function create()
     {
         $subcategories = \App\Models\Subcategory::where('status', true)->get();
@@ -49,7 +55,7 @@ class OrderController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect('/')->with('success', 'Confirmed! Our admin team will connect with you shortly within 24 to 48 hours to finalize the pickup.');
+        return redirect('/customer/home')->with('success', 'Confirmed! Our admin team will connect with you shortly within 24 to 48 hours to finalize the pickup.');
     }
 
     public function cancel($id)

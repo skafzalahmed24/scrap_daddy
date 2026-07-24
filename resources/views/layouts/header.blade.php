@@ -1,3 +1,5 @@
+<!-- Hide entire header on mobile across the app -->
+<div class="d-none d-lg-block">
 <!-- Top Header -->
 <div class="top-header">
     <div class="container">
@@ -7,14 +9,8 @@
                     <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="height: 60px;">
                 </a>
             </div>
-            <div class="col-lg-5 col-md-8 mb-3 mb-lg-0">
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search for scrap...">
-                    <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-            </div>
             <div
-                class="col-lg-4 text-lg-end d-none d-custom-flex justify-content-lg-end justify-content-center align-items-center gap-3">
+                class="col-lg-4 ms-auto text-lg-end d-none d-custom-flex justify-content-lg-end justify-content-center align-items-center gap-3">
                 <div class="header-actions" id="desktopAuthActions">
                     <a href="/customer/login" class="btn btn-header-outline"><i class="fa-regular fa-user me-1"></i>
                         Login</a>
@@ -44,11 +40,15 @@
                 location...</span>
         </div>
 
+        @if(!request()->is('customer*') && !request()->is('/'))
         <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
             data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
             <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
         </button>
+        @else
+        <button class="navbar-toggler ms-auto d-none" type="button" aria-hidden="true"></button>
+        @endif
         <div class="collapse navbar-collapse justify-content-between align-items-center mt-3 mt-custom-0"
             id="secondaryNavContent">
 
@@ -122,3 +122,4 @@
         window.location.href = '/customer/login';
     }
 </script>
+</div> <!-- End conditional header wrapper -->

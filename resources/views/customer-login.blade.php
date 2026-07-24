@@ -55,7 +55,7 @@
                             Remember me
                         </label>
                     </div>
-                    <a href="#" class="text-primary text-decoration-none fw-medium">Forgot Password?</a>
+                    <a href="/customer/forgot-password" class="text-primary text-decoration-none fw-medium">Forgot Password?</a>
                 </div>
 
                 <div class="d-grid gap-2">
@@ -111,10 +111,10 @@
 
             const data = await response.json();
 
-            if (response.ok) {
+            if (response.ok || data.status === 1) {
                 // Success! Store token in localStorage
-                localStorage.setItem('auth_token', data.access_token);
-                localStorage.setItem('user_data', JSON.stringify(data.user));
+                localStorage.setItem('auth_token', data.data.access_token);
+                localStorage.setItem('user_data', JSON.stringify(data.data.user));
                 
                 // Check for redirect query parameter
                 const urlParams = new URLSearchParams(window.location.search);
@@ -127,6 +127,10 @@
                     window.location.href = '/customer/home';
                 }
             } else {
+                if (data.data && data.data.requires_verification) {
+                    window.location.href = `/customer/verify-otp?login=${encodeURIComponent(formData.get('login'))}`;
+                    return;
+                }
                 let errorText = data.message || 'Login failed.';
                 if (data.errors) {
                     errorText = Object.values(data.errors).map(err => err.join(', ')).join('<br>');

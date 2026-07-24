@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class CustomerAuthController extends Controller
 {
@@ -21,8 +22,18 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:users',
-            'phone_number' => 'required|string|max:20|unique:users',
+            'email' => [
+                'nullable', 'string', 'email', 'max:255',
+                Rule::unique('users')->where(function ($query) {
+                    return $query->where('status', 1);
+                })
+            ],
+            'phone_number' => [
+                'required', 'string', 'max:20',
+                Rule::unique('users')->where(function ($query) {
+                    return $query->where('status', 1);
+                })
+            ],
             'password' => 'required|string|min:6',
             'pin_code' => 'nullable|string|max:10',
             'location' => 'nullable|string|max:255',
@@ -42,7 +53,15 @@ class CustomerAuthController extends Controller
 
         $otp = '123456';
 
-        $user = User::create([
+        // Find existing deleted user to reuse the row (so DB unique constraints don't crash)
+        $existingUser = User::where('status', 0)->where(function($q) use ($request) {
+            $q->where('phone_number', $request->phone_number);
+            if ($request->email) {
+                $q->orWhere('email', $request->email);
+            }
+        })->first();
+
+        $userData = [
             'full_name' => $request->full_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
@@ -54,9 +73,17 @@ class CustomerAuthController extends Controller
             'device_details' => $request->device_details,
             'platform_type' => $request->platform_type,
             'otp' => $otp,
+            'status' => 1,
             'is_verified' => false,
             'otp_expires_at' => Carbon::now()->addMinutes(10),
-        ]);
+        ];
+
+        if ($existingUser) {
+            $existingUser->update($userData);
+            $user = $existingUser;
+        } else {
+            $user = User::create($userData);
+        }
 
         Log::info("OTP for Registration (User: {$user->phone_number}): {$otp}");
 
@@ -90,6 +117,13 @@ class CustomerAuthController extends Controller
             return response()->json(['status' => 0, 'message' => 'User not found'], 404);
         }
 
+        if ($user->status == 0) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Your account has been deleted.'
+            ], 403);
+        }
+
         if ($user->otp !== $request->otp) {
             return response()->json(['status' => 0, 'message' => 'Invalid OTP'], 400);
         }
@@ -104,8 +138,14 @@ class CustomerAuthController extends Controller
             'otp_expires_at' => null,
         ]);
 
+        // Enforce single active device session by deleting old tokens
+        $user->tokens()->delete();
+
         $accessToken = $user->createToken('auth_token', ['access'])->plainTextToken;
         $refreshToken = $user->createToken('refresh_token', ['refresh'])->plainTextToken;
+
+        // Also log them into the web session without remember_token
+        auth()->guard('web')->login($user);
 
         return response()->json([
             'status' => 1,
@@ -141,7 +181,17 @@ class CustomerAuthController extends Controller
                     ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['status' => 0, 'message' => 'Invalid login credentials'], 401);
+            return response()->json([
+                'status' => 0,
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        if ($user->status == 0) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Your account has been deleted. Please register again or contact support.'
+            ], 403);
         }
 
         if (!$user->is_verified) {
@@ -166,8 +216,16 @@ class CustomerAuthController extends Controller
             ]);
         }
 
+        // Enforce single active device session by deleting old tokens
+        $user->tokens()->delete();
+
         $accessToken = $user->createToken('auth_token', ['access'])->plainTextToken;
         $refreshToken = $user->createToken('refresh_token', ['refresh'])->plainTextToken;
+
+        // Also log them into the web session if platform is web
+        if ($request->platform_type == 1) {
+            auth()->guard('web')->login($user);
+        }
 
         return response()->json([
             'status' => 1,
@@ -337,6 +395,7 @@ class CustomerAuthController extends Controller
             'phone_number' => 'nullable|string|max:20|unique:users,phone_number,' . $request->user()->uuid . ',uuid',
             'pin_code' => 'nullable|string|max:10',
             'location' => 'nullable|string|max:255',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -348,10 +407,28 @@ class CustomerAuthController extends Controller
         }
 
         $user = $request->user();
+        $data = $request->only(['full_name', 'email', 'phone_number', 'pin_code', 'location']);
         
-        $user->update($request->only([
-            'full_name', 'email', 'phone_number', 'pin_code', 'location'
-        ]));
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $targetDir = public_path('profiles');
+            
+            if (!File::exists($targetDir)) {
+                File::makeDirectory($targetDir, 0755, true);
+            }
+            
+            file_put_contents($targetDir . '/' . $imageName, file_get_contents($image->getRealPath()));
+            
+            // Delete old profile image if it exists
+            if ($user->profile_image && File::exists(public_path($user->profile_image))) {
+                File::delete(public_path($user->profile_image));
+            }
+            
+            $data['profile_image'] = 'profiles/' . $imageName;
+        }
+        
+        $user->update($data);
         
         return response()->json([
             'status' => 1,
@@ -362,9 +439,15 @@ class CustomerAuthController extends Controller
         ]);
     }
 
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+
+        // Also logout from web session
+        auth()->guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json([
             'status' => 1,
@@ -376,7 +459,12 @@ class CustomerAuthController extends Controller
     {
         $user = $request->user();
         $user->tokens()->delete();
-        $user->delete();
+        $user->update(['status' => 0]);
+
+        // Also logout from web session
+        auth()->guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json([
             'status' => 1,
@@ -434,7 +522,9 @@ class CustomerAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'category_uuid' => 'required|exists:categories,uuid',
             'search' => 'nullable|string',
-            'sort' => 'nullable|string|in:asc,desc'
+            'sort' => 'nullable|string|in:asc,desc',
+            'min' => 'nullable|integer|min:0',
+            'max' => 'nullable|integer|min:1'
         ]);
 
         if ($validator->fails()) {
@@ -460,8 +550,16 @@ class CustomerAuthController extends Controller
         if ($request->has('sort') && in_array(strtolower($request->sort), ['asc', 'desc'])) {
             $sort = strtolower($request->sort);
         }
+        $query->orderBy('name', $sort);
 
-        $subcategories = $query->orderBy('name', $sort)->get();
+        if ($request->has('min') && is_numeric($request->min)) {
+            $query->offset((int)$request->min);
+        }
+        if ($request->has('max') && is_numeric($request->max)) {
+            $query->limit((int)$request->max);
+        }
+
+        $subcategories = $query->get();
 
         return response()->json([
             'status' => 1,
@@ -529,10 +627,27 @@ class CustomerAuthController extends Controller
 
     public function orders(Request $request)
     {
-        $orders = Order::with(['category', 'subcategory'])
+        $validator = Validator::make($request->all(), [
+            'min' => 'nullable|integer|min:0',
+            'max' => 'nullable|integer|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 0, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
+        }
+
+        $query = Order::with(['category', 'subcategory'])
                        ->where('user_uuid', $request->user()->uuid)
-                       ->orderBy('created_at', 'desc')
-                       ->get();
+                       ->orderBy('created_at', 'desc');
+
+        if ($request->has('min') && is_numeric($request->min)) {
+            $query->offset((int)$request->min);
+        }
+        if ($request->has('max') && is_numeric($request->max)) {
+            $query->limit((int)$request->max);
+        }
+
+        $orders = $query->get();
 
         return response()->json([
             'status' => 1,
@@ -573,11 +688,30 @@ class CustomerAuthController extends Controller
 
     public function payments(Request $request)
     {
-        $orders = Order::where('user_uuid', $request->user()->uuid)
-                       ->whereNotNull('payment_id')
-                       ->orWhere('payment_status', '!=', 'pending')
-                       ->orderBy('created_at', 'desc')
-                       ->get(['id', 'total_amount', 'payment_status', 'payment_id', 'created_at']);
+        $validator = Validator::make($request->all(), [
+            'min' => 'nullable|integer|min:0',
+            'max' => 'nullable|integer|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 0, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
+        }
+
+        $query = Order::where('user_uuid', $request->user()->uuid)
+                       ->where(function ($q) {
+                           $q->whereNotNull('payment_id')
+                             ->orWhere('payment_status', '!=', 'pending');
+                       })
+                       ->orderBy('created_at', 'desc');
+
+        if ($request->has('min') && is_numeric($request->min)) {
+            $query->offset((int)$request->min);
+        }
+        if ($request->has('max') && is_numeric($request->max)) {
+            $query->limit((int)$request->max);
+        }
+
+        $orders = $query->get(['id', 'total_amount', 'payment_status', 'payment_id', 'created_at']);
 
         return response()->json([
             'status' => 1,

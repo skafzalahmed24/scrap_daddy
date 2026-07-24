@@ -16,7 +16,7 @@
         <!-- Main Content -->
         <div class="col-xl-9 col-lg-9">
             @php
-                $user = auth()->user() ?? \App\Models\User::first() ?? new \App\Models\User(['full_name' => 'Shaik Afzal', 'phone_number' => '+91 9876543210']);
+                $user = auth()->user();
                 $ordersList = \App\Models\Order::with('subcategory')->where('user_uuid', $user->uuid)->latest()->get();
                 
                 $pendingPayments = $ordersList->where('status', 'completed')->where('payment_status', 'pending');
@@ -41,33 +41,9 @@
                 }
             @endphp
             
-            <div class="d-flex justify-content-end mb-3">
-                <a href="{{ route('customer.orders.create') }}" class="btn btn-success px-4 py-2 shadow-sm rounded-pill fw-bold"><i class="fa-solid fa-plus me-2"></i>New Pickup</a>
-            </div>
-
-            <!-- Hero Banner -->
-            @include('partials.customer.hero-banner', [
-                'title' => 'My Pickups',
-                'subtitle' => 'Track your current pickups and view your order history.'
-            ])
-
-            <div class="middle-card">
+            <div class="orders-container mt-4">
                 
-                <!-- Filter Buttons -->
-                <div class="filter-btn-group">
-                    <button class="filter-btn active" data-filter="all">
-                        <i class="fa-solid fa-list-ul text-secondary"></i> All Pickups
-                    </button>
-                    <button class="filter-btn border-start border-end" style="border-radius: 0;" data-filter="action-required">
-                        <i class="fa-solid fa-triangle-exclamation text-warning"></i> Action Required
-                    </button>
-                    <button class="filter-btn" data-filter="active-pickups">
-                        <i class="fa-solid fa-paper-plane text-success"></i> Active Pickups
-                    </button>
-                    <button class="filter-btn border-start" style="border-radius: 0;" data-filter="other-pickups">
-                        <i class="fa-solid fa-box text-purple" style="color: #6f42c1;"></i> Other Pickups
-                    </button>
-                </div>
+
                 
                 @if(session('success'))
                     <!-- Toast Notification -->
@@ -92,7 +68,6 @@
                 <!-- Action Required / Pending Payments -->
                 <div class="pickup-section" id="section-action-required">
                 @if($pendingPayments->isNotEmpty())
-                <h5 class="section-header-h5 text-danger"><i class="fa-solid fa-circle-exclamation me-2"></i>Action Required</h5>
                 <div class="mb-5">
                     @foreach($pendingPayments as $order)
                         @php $det = getStatusDetails($order); @endphp
@@ -100,29 +75,29 @@
                         <div class="card border-0 mb-4 bg-white" style="box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 12px; border-left: 6px solid #fd7e14 !important;">
                             <div class="card-body p-4">
                                 <!-- Header -->
-                                <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+                                <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
                                     <div class="d-flex gap-3 align-items-center">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(253, 126, 20, 0.1); color: #fd7e14; display: flex; align-items: center; justify-content: center;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(253, 126, 20, 0.1); color: #fd7e14; display: flex; align-items: center; justify-content: center;">
                                             <i class="fa-solid fa-file-invoice-dollar fs-4"></i>
                                         </div>
                                         <div>
-                                            <h5 class="mb-1 fw-bold" style="color: #0d2b4d;">Payment Pending</h5>
-                                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">Pickup: <span class="fw-bold" style="color: #fd7e14;">{{ $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('D, d M') : '--' }}</span></p>
+                                            <h5 class="mb-1 fw-bold fs-6 text-nowrap" style="color: #0d2b4d;">Pending</h5>
+                                            <p class="mb-0 text-muted text-nowrap" style="font-size: 0.8rem;"><span class="fw-bold" style="color: #fd7e14;">{{ $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('d M') : '--' }}</span></p>
                                         </div>
                                     </div>
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ route('customer.payment.initiate', $order->id) }}" class="btn btn-sm text-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="background: #fd7e14; border-radius: 8px;">
+                                    <div class="d-flex gap-2 flex-shrink-0">
+                                        <a href="{{ route('customer.payment.initiate', $order->id) }}" class="btn btn-sm text-white fw-bold d-flex align-items-center justify-content-center gap-1 px-2 py-2 shadow-sm text-nowrap" style="background: #fd7e14; border-radius: 8px;">
                                             <i class="fa-solid fa-credit-card"></i> Pay ₹{{ number_format($order->total_amount, 2) }}
                                         </a>
-                                        <button type="button" class="btn btn-sm bg-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#orderDetailsModal-{{ $order->id }}">
+                                        <a href="{{ route('customer.order.show', $order->id) }}" class="btn btn-sm bg-white fw-bold d-flex align-items-center justify-content-center gap-1 px-2 py-2 shadow-sm text-nowrap" style="color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 8px;">
                                             <i class="fa-regular fa-eye"></i> View
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                                 
                                 <!-- Info Box -->
                                 <div class="p-3 rounded-4 mb-3 d-flex align-items-center gap-3" style="background: rgba(253, 126, 20, 0.05); border: 1px solid rgba(253, 126, 20, 0.1);">
-                                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 45px; height: 45px; background: #fd7e14; color: white;">
+                                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 45px; height: 45px; background: #fd7e14; color: white;">
                                         <i class="fa-solid fa-circle-exclamation fs-4"></i>
                                     </div>
                                     <div class="flex-grow-1">
@@ -139,7 +114,6 @@
 
                 <!-- Active Pickups -->
                 <div class="pickup-section" id="section-active-pickups">
-                <h5 class="section-header-h5">Active Pickups</h5>
                 <div class="mb-5">
                     @forelse($activeOrders as $order)
                         @php $det = getStatusDetails($order); @endphp
@@ -150,25 +124,25 @@
                         @endphp
                         <!-- Active Tracker Card (Light Theme) -->
                         <div class="card border-0 mb-4 bg-white" style="box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 12px; border-left: 6px solid {{ $themeColor }} !important;">
-                            <div class="card-body p-4">
+                            <div class="card-body p-3 p-md-4">
                                 <!-- Header -->
-                                <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+                                <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
                                     <div class="d-flex gap-3 align-items-center">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: {{ $themeBg }}; color: {{ $themeColor }}; display: flex; align-items: center; justify-content: center;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: {{ $themeBg }}; color: {{ $themeColor }}; display: flex; align-items: center; justify-content: center;">
                                             <i class="fa-solid fa-paper-plane fs-4"></i>
                                         </div>
                                         <div>
-                                            <h5 class="mb-1 fw-bold" style="color: #0d2b4d;">Request Submitted</h5>
-                                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">Pickup: <span class="fw-bold" style="color: {{ $themeColor }};">{{ $order->pickup_date == date('Y-m-d') ? 'Today' : \Carbon\Carbon::parse($order->pickup_date)->format('D, d M') }}</span></p>
+                                            <h5 class="mb-1 fw-bold fs-6 text-nowrap" style="color: #0d2b4d;">Submitted</h5>
+                                            <p class="mb-0 text-muted text-nowrap" style="font-size: 0.8rem;"><span class="fw-bold" style="color: {{ $themeColor }};">{{ $order->pickup_date == date('Y-m-d') ? 'Today' : \Carbon\Carbon::parse($order->pickup_date)->format('d M') }}</span></p>
                                         </div>
                                     </div>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm bg-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#orderDetailsModal-{{ $order->id }}">
+                                    <div class="d-flex gap-2 flex-shrink-0">
+                                        <a href="{{ route('customer.order.show', $order->id) }}" class="btn btn-sm bg-white fw-bold d-flex align-items-center justify-content-center gap-2 px-3 py-2 shadow-sm" style="color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 8px; flex: 1;">
                                             <i class="fa-regular fa-eye"></i> View
-                                        </button>
+                                        </a>
                                         <form action="{{ route('customer.orders.cancel', $order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this pickup?');">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm bg-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px;">
+                                            <button type="submit" class="btn btn-sm bg-white fw-bold d-flex align-items-center gap-1 px-2 py-2 shadow-sm text-nowrap" style="color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px;">
                                                 <i class="fa-solid fa-xmark"></i> Cancel
                                             </button>
                                         </form>
@@ -177,7 +151,7 @@
 
                                 <!-- Stepper -->
                                 <div class="overflow-auto pb-3 mb-4 mt-4" style="scrollbar-width: none;">
-                                    <div class="d-flex justify-content-between position-relative text-center" style="min-width: 450px;">
+                                    <div class="d-flex justify-content-between position-relative text-center w-100">
                                         <!-- connecting lines -->
                                         <div class="position-absolute" style="top: 15px; left: 10%; right: 10%; height: 2px; z-index: 1;">
                                             <div class="d-flex w-100 h-100">
@@ -189,45 +163,45 @@
                                         
                                         <!-- Step 1: Submitted -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
                                                 <i class="fa-solid fa-check fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #2e7d32;">Submitted</h6>
-                                            <small class="text-muted" style="font-size: 0.75rem;">{{ \Carbon\Carbon::parse($order->created_at)->format('d M, h:i A') }}</small>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: #2e7d32;">Submitted</h6>
+                                            <small class="text-muted" style="font-size: 0.65rem;">{{ \Carbon\Carbon::parse($order->created_at)->format('d M, h:i A') }}</small>
                                         </div>
 
                                         <!-- Step 2: Confirmed -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid {{ $isAccepted ? '#2e7d32' : '#fbbc04' }}; color: {{ $isAccepted ? '#2e7d32' : '#fbbc04' }}; background: {{ $isAccepted ? '#e8f5e9' : '#fff8e1' }} !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid {{ $isAccepted ? '#2e7d32' : '#fbbc04' }}; color: {{ $isAccepted ? '#2e7d32' : '#fbbc04' }}; background: {{ $isAccepted ? '#e8f5e9' : '#fff8e1' }} !important;">
                                                 <i class="fa-{{ $isAccepted ? 'solid fa-check' : 'regular fa-clock' }} fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: {{ $isAccepted ? '#2e7d32' : '#fbbc04' }};">Confirmed</h6>
-                                            <small class="text-muted" style="font-size: 0.75rem;">{{ $isAccepted ? \Carbon\Carbon::parse($order->updated_at)->format('d M, h:i A') : 'Waiting confirmation' }}</small>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: {{ $isAccepted ? '#2e7d32' : '#fbbc04' }};">Confirmed</h6>
+                                            <small class="text-muted" style="font-size: 0.65rem;">{{ $isAccepted ? \Carbon\Carbon::parse($order->updated_at)->format('d M, h:i A') : 'Waiting confirmation' }}</small>
                                         </div>
 
                                         <!-- Step 3: Assigned -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e0e0e0; color: #9e9e9e; background: #f5f5f5 !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #e0e0e0; color: #9e9e9e; background: #f5f5f5 !important;">
                                                 <i class="fa-solid fa-user fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #6c757d;">Assigned</h6>
-                                            <small class="text-muted" style="font-size: 0.75rem;">Pending</small>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: #6c757d;">Assigned</h6>
+                                            <small class="text-muted" style="font-size: 0.65rem;">Pending</small>
                                         </div>
 
                                         <!-- Step 4: Completed -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e0e0e0; color: #9e9e9e; background: #f5f5f5 !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #e0e0e0; color: #9e9e9e; background: #f5f5f5 !important;">
                                                 <i class="fa-solid fa-flag fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #6c757d;">Completed</h6>
-                                            <small class="text-muted" style="font-size: 0.75rem;">Pending</small>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: #6c757d;">Completed</h6>
+                                            <small class="text-muted" style="font-size: 0.65rem;">Pending</small>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Progress Box -->
                                 @php $progressWidth = $isAccepted ? 75 : 50; @endphp
-                                <div class="p-4 rounded-4 mb-4" style="background: rgba(46, 125, 50, 0.05); border: 1px solid rgba(46, 125, 50, 0.1);">
+                                <div class="p-3 rounded-4 mb-4" style="background: rgba(46, 125, 50, 0.05); border: 1px solid rgba(46, 125, 50, 0.1);">
                                     <h6 class="fw-bold mb-4 text-dark text-center">
                                         {{ $isAccepted ? 'Team is on the way...' : 'Confirming your request...' }}
                                     </h6>
@@ -265,7 +239,6 @@
 
                 <!-- Other Pickups -->
                 <div class="pickup-section" id="section-other-pickups">
-                <h5 class="section-header-h5">Other Pickups</h5>
                 <div class="mb-3">
                     @forelse($otherOrders as $order)
                         @php $det = getStatusDetails($order); @endphp
@@ -274,18 +247,18 @@
                         <!-- Cancelled Card Style (Light Theme) -->
                         <div class="card border-0 mb-4 bg-white" style="box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 12px; border-left: 6px solid #dc3545 !important;">
                             <div class="card-body p-4 pb-2">
-                                <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+                                <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
                                     <div class="d-flex gap-3 align-items-center">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: #dc3545; color: white; display: flex; align-items: center; justify-content: center;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #dc3545; color: white; display: flex; align-items: center; justify-content: center;">
                                             <i class="fa-solid fa-xmark fs-4"></i>
                                         </div>
                                         <div>
-                                            <h5 class="mb-1 fw-bold" style="color: #0d2b4d;">Request Cancelled</h5>
-                                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">Pickup: <span class="fw-bold" style="color: #dc3545;">{{ $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('D, d M') : '--' }}</span></p>
+                                            <h5 class="mb-1 fw-bold fs-6 text-nowrap" style="color: #0d2b4d;">Cancelled</h5>
+                                            <p class="mb-0 text-muted text-nowrap" style="font-size: 0.8rem;"><span class="fw-bold" style="color: #dc3545;">{{ $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('d M') : '--' }}</span></p>
                                         </div>
                                     </div>
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ route('customer.orders.create') }}" class="btn btn-sm text-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="background: #dc3545; border-radius: 8px;">
+                                    <div class="d-flex gap-2 flex-shrink-0">
+                                        <a href="{{ route('customer.orders.create') }}" class="btn btn-sm text-white fw-bold d-flex align-items-center gap-1 px-2 py-2 shadow-sm" style="background: #dc3545; border-radius: 8px;">
                                             <i class="fa-solid fa-arrow-rotate-right"></i> Re-request
                                         </a>
                                     </div>
@@ -310,7 +283,7 @@
 
                         <!-- Info tip box -->
                         <div class="p-3 rounded-3 mb-4 d-flex align-items-center gap-3" style="background: #f8fbff; border: 1px solid #e2eaf7;">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #e2eaf7; color: #4285f4;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; background: #e2eaf7; color: #4285f4;">
                                 <i class="fa-regular fa-lightbulb"></i>
                             </div>
                             <p class="mb-0 text-dark" style="font-size: 0.9rem;">
@@ -320,33 +293,33 @@
                         @else
                         <!-- Completed Card Style (Light Theme) -->
                         <div class="card border-0 mb-4 bg-white" style="box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 12px; border-left: 6px solid #2e7d32 !important;">
-                            <div class="card-body p-4">
+                            <div class="card-body p-3 p-md-4">
                                 <!-- Header -->
-                                <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+                                <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
                                     <div class="d-flex gap-3 align-items-center">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(46, 125, 50, 0.1); color: #2e7d32; display: flex; align-items: center; justify-content: center;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(46, 125, 50, 0.1); color: #2e7d32; display: flex; align-items: center; justify-content: center;">
                                             <i class="fa-solid fa-check-circle fs-4"></i>
                                         </div>
                                         <div>
-                                            <h5 class="mb-1 fw-bold" style="color: #0d2b4d;">Request Completed</h5>
-                                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">Pickup: <span class="fw-bold" style="color: #2e7d32;">{{ $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('D, d M') : '--' }}</span></p>
+                                            <h5 class="mb-1 fw-bold fs-6 text-nowrap" style="color: #0d2b4d;">Completed</h5>
+                                            <p class="mb-0 text-muted text-nowrap" style="font-size: 0.8rem;"><span class="fw-bold" style="color: #2e7d32;">{{ $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('d M') : '--' }}</span></p>
                                         </div>
                                     </div>
-                                    <div class="d-flex gap-2">
+                                    <div class="d-flex gap-2 flex-shrink-0">
                                         @if($order->payment_status == 'pending')
                                             <a href="{{ route('customer.payment.initiate', $order->id) }}" class="btn btn-sm text-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="background: #2e7d32; border-radius: 8px;">
                                                 <i class="fa-solid fa-credit-card"></i> Pay Now
                                             </a>
                                         @endif
-                                        <button type="button" class="btn btn-sm bg-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm" style="color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#orderDetailsModal-{{ $order->id }}">
+                                        <a href="{{ route('customer.order.show', $order->id) }}" class="btn btn-sm bg-white fw-bold d-flex align-items-center justify-content-center gap-2 px-3 py-2 shadow-sm" style="color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 8px; flex: 1;">
                                             <i class="fa-regular fa-eye"></i> View Details
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
 
                                 <!-- Stepper for Completed -->
                                 <div class="overflow-auto pb-3 mb-4 mt-4" style="scrollbar-width: none;">
-                                    <div class="d-flex justify-content-between position-relative text-center" style="min-width: 450px;">
+                                    <div class="d-flex justify-content-between position-relative text-center w-100">
                                         <!-- connecting lines (ALL GREEN) -->
                                         <div class="position-absolute" style="top: 15px; left: 10%; right: 10%; height: 2px; z-index: 1;">
                                             <div class="d-flex w-100 h-100">
@@ -358,38 +331,38 @@
                                         
                                         <!-- Step 1: Submitted -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
                                                 <i class="fa-solid fa-check fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #2e7d32;">Submitted</h6>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: #2e7d32;">Submitted</h6>
                                         </div>
                                         <!-- Step 2: Confirmed -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
                                                 <i class="fa-solid fa-check fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #2e7d32;">Confirmed</h6>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: #2e7d32;">Confirmed</h6>
                                         </div>
                                         <!-- Step 3: Assigned -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
                                                 <i class="fa-solid fa-check fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #2e7d32;">Assigned</h6>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: #2e7d32;">Assigned</h6>
                                         </div>
                                         <!-- Step 4: Completed -->
                                         <div class="position-relative" style="z-index: 2; width: 25%;">
-                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
+                                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
                                                 <i class="fa-solid fa-flag fs-6"></i>
                                             </div>
-                                            <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #2e7d32;">Completed</h6>
+                                            <h6 class="fw-bold mb-1" style="font-size: 0.75rem; color: #2e7d32;">Completed</h6>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Success Box -->
                                 <div class="p-3 rounded-4 mb-3 d-flex align-items-center gap-3" style="background: rgba(46, 125, 50, 0.05); border: 1px solid rgba(46, 125, 50, 0.1);">
-                                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 45px; height: 45px; background: #2e7d32; color: white;">
+                                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 45px; height: 45px; background: #2e7d32; color: white;">
                                         <i class="fa-solid fa-clipboard-check fs-4"></i>
                                     </div>
                                     <div>
@@ -410,76 +383,12 @@
                 </div>
 
             </div>
-        </div>
 
         <!-- Right Sidebar Removed -->
     </div>
 </div>
 
-<!-- Order Detail Modals -->
-@foreach($orders as $order)
-<div class="modal fade" id="orderDetailsModal-{{ $order->id }}" tabindex="-1" aria-labelledby="orderDetailsModalLabel-{{ $order->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold" id="orderDetailsModalLabel-{{ $order->id }}" style="color: var(--primary-blue, #0d2b4d);">Order #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                @php $det = getStatusDetails($order); @endphp
-                <div class="mb-4">
-                    <span class="badge {{ $det['badgeClass'] }} px-3 py-2 fs-6 rounded-pill"><i class="fa-solid {{ $det['icon'] }} me-2"></i>{{ $det['badgeText'] }} - {{ $det['subText'] }}</span>
-                </div>
 
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-muted mb-3"><i class="fa-solid fa-truck-pickup me-2"></i>Pickup Details</h6>
-                        <div class="bg-light p-3 rounded-4 border border-light h-100">
-                            <p class="mb-2"><strong class="text-dark">Date:</strong> {{ $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('l, d M Y') : 'N/A' }}</p>
-                            <p class="mb-2"><strong class="text-dark">Time Slot:</strong> <span class="badge bg-white text-dark border">{{ $order->pickup_time ?? 'N/A' }}</span></p>
-                            <p class="mb-0"><strong class="text-dark">Location:</strong> {{ $order->pickup_location ?? 'No specific location provided' }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-muted mb-3"><i class="fa-solid fa-box me-2"></i>Scrap Details</h6>
-                        <div class="bg-light p-3 rounded-4 border border-light h-100">
-                            <p class="mb-2"><strong class="text-dark">Category:</strong> {{ $order->category?->name ?? 'N/A' }}</p>
-                            <p class="mb-2"><strong class="text-dark">Subcategory:</strong> <span class="badge bg-success bg-opacity-10 text-success border">{{ $order->subcategory?->name ?? 'N/A' }}</span></p>
-                            @if($order->total_amount)
-                            <hr class="my-2 opacity-10">
-                            <p class="mb-0"><strong class="text-dark">Estimated Payout:</strong> <span class="fw-bold text-success">₹{{ number_format($order->total_amount, 2) }}</span></p>
-                            @endif
-                        </div>
-                    </div>
-                    
-                    @if($order->notes)
-                    <div class="col-12">
-                        <h6 class="fw-bold text-muted mb-2"><i class="fa-regular fa-comment-dots me-2"></i>Additional Notes</h6>
-                        <div class="bg-light p-3 rounded-4 border border-light text-secondary">
-                            {{ $order->notes }}
-                        </div>
-                    </div>
-                    @endif
-
-                    @if(!empty($order->images) && is_array($order->images) && count($order->images) > 0)
-                    <div class="col-12">
-                        <h6 class="fw-bold text-muted mb-3"><i class="fa-regular fa-image me-2"></i>Uploaded Images</h6>
-                        <div class="d-flex gap-3 flex-wrap">
-                            @foreach($order->images as $img)
-                                <img src="{{ asset(str_starts_with($img, 'storage/') ? $img : 'storage/' . $img) }}" alt="Scrap Upload {{ $img }}" class="rounded-4 shadow-sm border border-2 border-white" style="width: 120px; height: 120px; object-fit: cover;">
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
-                <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endforeach
 
 @endsection
 

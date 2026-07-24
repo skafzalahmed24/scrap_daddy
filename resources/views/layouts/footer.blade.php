@@ -1,5 +1,5 @@
     <!-- Footer -->
-    <footer style="background-color: #f8f9fa; border-top: 1px solid #eeeeee; position: relative; overflow: hidden; margin-top: 0;">
+    <footer class="d-none d-lg-block" style="background-color: #f8f9fa; border-top: 1px solid #eeeeee; position: relative; overflow: hidden; margin-top: 0;">
         <!-- Footer Watermark -->
         <i class="fa-solid fa-recycle" style="position: absolute; right: -5%; bottom: -10%; font-size: 35rem; color: rgba(46,125,50,0.03); z-index: 0; pointer-events: none; transform: rotate(-15deg);"></i>
         
