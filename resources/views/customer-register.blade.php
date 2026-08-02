@@ -22,6 +22,10 @@
     <!-- Form Section -->
     <div class="split-form">
         <div class="form-content-wrapper">
+            <!-- Mobile Logo -->
+            <div class="text-center d-md-none mb-4 mt-2">
+                <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="max-height: 80px;">
+            </div>
             <h2 class="fw-bold mb-1">Create <span class="text-primary">Account!</span></h2>
             <p class="text-muted mb-4">Register as a new customer</p>
 
