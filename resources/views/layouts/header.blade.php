@@ -32,29 +32,28 @@
 <nav class="navbar navbar-expand-custom secondary-nav">
     <div class="container">
 
+        <!-- Mobile Logo (Left Side) -->
+        <a href="/" class="brand-logo d-lg-none me-2" style="text-decoration: none;">
+            <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="height: 40px;">
+        </a>
+
         <div id="userLocationMobile" class="px-3 py-1 d-custom-none"
-            style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--primary-blue); background: rgba(27,94,32,0.05); border-radius: 20px;">
+             style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--primary-blue); background: rgba(27,94,32,0.05); border-radius: 20px;">
             <i class="fa-solid fa-location-dot"></i>
             <span id="locationTextMobile"
-                style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Detecting
+                  style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Detecting
                 location...</span>
         </div>
 
-        <div class="d-flex align-items-center ms-auto d-custom-none">
-            <a href="/" class="brand-logo me-3" style="text-decoration: none;">
-                <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="height: 40px;">
-            </a>
-
-            @if(!request()->is('customer*'))
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
-                aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
-                <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
-            </button>
-            @else
-            <button class="navbar-toggler d-none" type="button" aria-hidden="true"></button>
-            @endif
-        </div>
+        @if(!request()->is('customer*'))
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+            data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
+            aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
+            <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
+        </button>
+        @else
+        <button class="navbar-toggler ms-auto d-none" type="button" aria-hidden="true"></button>
+        @endif
         <div class="collapse navbar-collapse justify-content-between align-items-center mt-3 mt-custom-0"
             id="secondaryNavContent">
 
