@@ -39,6 +39,13 @@ Route::get('/customer/reset-password', function () {
     return view('customer-reset-password');
 });
 
+Route::get('/customer/logout-web', function () {
+    auth()->guard('web')->logout();
+    session()->invalidate();
+    session()->regenerateToken();
+    return redirect('/customer/login');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/customer/home', function () {
         return view('customer.home');

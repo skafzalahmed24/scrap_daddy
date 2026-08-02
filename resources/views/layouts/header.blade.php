@@ -134,7 +134,7 @@
         }
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
-        window.location.href = '/customer/login';
+        window.location.href = '/customer/logout-web';
     }
 </script>
 </div> <!-- End conditional header wrapper -->
