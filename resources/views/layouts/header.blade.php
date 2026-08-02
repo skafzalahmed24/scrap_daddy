@@ -110,10 +110,22 @@
 
         if (token) {
             // User is logged in
-            if (desktopAuth) desktopAuth.classList.add('d-none');
-            if (desktopUser) desktopUser.classList.remove('d-none');
-            if (mobileAuth) mobileAuth.classList.add('d-none');
-            if (mobileUser) mobileUser.classList.remove('d-none');
+            if (desktopAuth) {
+                desktopAuth.classList.add('d-none');
+                desktopAuth.classList.remove('d-flex');
+            }
+            if (desktopUser) {
+                desktopUser.classList.remove('d-none');
+                // if it needs flex, add it here, but it doesn't have d-flex initially
+            }
+            if (mobileAuth) {
+                mobileAuth.classList.add('d-none');
+                mobileAuth.classList.remove('d-flex');
+            }
+            if (mobileUser) {
+                mobileUser.classList.remove('d-none');
+                mobileUser.classList.add('d-flex');
+            }
         }
     });
 
