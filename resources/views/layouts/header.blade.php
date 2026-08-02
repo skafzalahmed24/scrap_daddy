@@ -40,7 +40,7 @@
                 location...</span>
         </div>
 
-        @if(!request()->is('customer*') && !request()->is('/'))
+        @if(!request()->is('customer*'))
         <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
             data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
