@@ -507,8 +507,10 @@ class CustomerAuthController extends Controller
         return response()->json([
             'status' => 1,
             'message' => 'Categories fetched successfully',
-            'count' => $total_count,
-            'rows' => $categories
+            'data' => [
+                'count' => $total_count,
+                'rows' => $categories
+            ]
         ]);
     }
 
@@ -562,8 +564,10 @@ class CustomerAuthController extends Controller
         return response()->json([
             'status' => 1,
             'message' => 'Subcategories fetched successfully',
-            'count' => $total_count,
-            'rows' => $subcategories
+            'data' => [
+                'count' => $total_count,
+                'rows' => $subcategories
+            ]
         ]);
     }
 
