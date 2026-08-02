@@ -27,6 +27,7 @@
         </div>
     </div>
 </div>
+</div>
 
 <!-- Secondary Nav -->
 <nav class="navbar navbar-expand-custom secondary-nav">
@@ -154,4 +155,3 @@
         window.location.href = '/customer/logout-web';
     }
 </script>
-</div> <!-- End conditional header wrapper -->
