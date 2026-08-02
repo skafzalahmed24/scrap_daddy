@@ -38,8 +38,8 @@
             <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="height: 40px;">
         </a>
 
-        <div id="userLocationMobile" class="px-3 py-1 d-custom-none"
-             style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--primary-blue); background: rgba(27,94,32,0.05); border-radius: 20px;">
+        <div id="userLocationMobile" class="px-3 py-1 d-none"
+             style="cursor: pointer; align-items: center; gap: 8px; font-weight: 600; color: var(--primary-blue); background: rgba(27,94,32,0.05); border-radius: 20px;">
             <i class="fa-solid fa-location-dot"></i>
             <span id="locationTextMobile"
                   style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Detecting
@@ -47,7 +47,7 @@
         </div>
 
         @if(!request()->is('customer*'))
-        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+        <button class="navbar-toggler ms-auto d-none" type="button" data-bs-toggle="collapse"
             data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
             <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
