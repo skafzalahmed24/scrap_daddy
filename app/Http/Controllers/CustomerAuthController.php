@@ -572,7 +572,10 @@ class CustomerAuthController extends Controller
     public function createOrder(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'subcategory_uuid' => 'required|exists:subcategories,uuid',
+            'items' => 'required|array',
+            'items.*.subcategory_uuid' => 'required|exists:subcategories,uuid',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.name' => 'required|string',
             'pickup_location' => 'required|string',
             'pickup_date' => 'required|date',
             'pickup_time' => 'required|string',
@@ -589,12 +592,12 @@ class CustomerAuthController extends Controller
             ], 422);
         }
 
-        $subcategory = Subcategory::find($request->subcategory_uuid);
+        $firstSubcategory = Subcategory::find($request->items[0]['subcategory_uuid']);
 
         $order = new Order();
         $order->user_uuid = $request->user()->uuid;
-        $order->category_uuid = $subcategory->category_id;
-        $order->subcategory_uuid = $request->subcategory_uuid;
+        $order->category_uuid = $firstSubcategory ? $firstSubcategory->category_id : null;
+        $order->items = $request->items;
         $order->status = 'pending';
         $order->pickup_location = $request->pickup_location;
         $order->pickup_date = $request->pickup_date;

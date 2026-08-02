@@ -128,7 +128,8 @@
                 <form id="pickupForm" action="{{ route('customer.orders.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="user_uuid" value="">
-                    <input type="hidden" name="subcategory_uuid" id="input_subcategory_uuid" value="{{ request('subcategory') }}">
+                    <!-- Cart inputs will be generated dynamically -->
+                    <div id="cartHiddenInputs"></div>
                     <input type="hidden" name="pickup_date" id="input_pickup_date">
                     <input type="hidden" name="pickup_time" id="input_pickup_time">
                     <div id="hiddenImagesContainer"></div>
@@ -136,34 +137,52 @@
                     <!-- STEP 1: Details & Location -->
                     <div class="step-container active" id="step-1">
                         
-                        <!-- Category Selection -->
+                        <!-- Item Selection -->
                         <div class="mb-4">
                             <div class="section-title">
                                 <div class="section-icon"><i class="fa-solid fa-house"></i></div>
                                 <h5>What are you looking to sell?</h5>
                             </div>
-                            <p class="section-subtitle">Select the type of scrap you want us to pick up</p>
+                            <p class="section-subtitle">Select the items and quantities you want us to pick up</p>
                             
-                            <div class="category-grid ms-md-5">
-                                @php
-                                    $displaySubcategories = request('subcategory') 
-                                        ? $subcategories->where('uuid', request('subcategory')) 
-                                        : $subcategories;
-                                    if ($displaySubcategories->isEmpty()) $displaySubcategories = $subcategories;
-                                @endphp
-                                @foreach($displaySubcategories as $sub)
-                                    <div class="category-card {{ request('subcategory') == $sub->uuid ? 'selected' : '' }}" data-uuid="{{ $sub->uuid }}" data-name="{{ $sub->name }}">
-                                        <i class="fa-solid fa-circle-check check-icon"></i>
-                                        <div class="category-icon-wrapper">
-                                            @if($sub->image)
-                                                <img src="/{{ $sub->image }}" alt="" style="width: 24px; object-fit: contain;">
-                                            @else
-                                                <i class="fa-solid fa-recycle"></i>
-                                            @endif
+                            <!-- Search & Filter -->
+                            <div class="search-filter-container ms-md-5 mt-3 mb-3">
+                                <div class="position-relative mb-3">
+                                    <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input type="text" id="itemSearch" class="form-control ps-5 py-2" placeholder="Search items..." style="border-radius: 20px; border: 1px solid #ddd;">
+                                    <i class="fa-solid fa-sliders position-absolute top-50 end-0 translate-middle-y me-3 text-success"></i>
+                                </div>
+                                <div class="filter-pills d-flex overflow-auto pb-2" style="white-space: nowrap; scrollbar-width: none;">
+                                    <button type="button" class="btn btn-sm rounded-pill px-3 py-1 me-2 filter-btn active" data-filter="All" style="background: var(--primary-green, #1b5e20); color: white;">All</button>
+                                    @php
+                                        // Collect unique subcategory names for filters
+                                        $filters = $subcategories->pluck('name')->unique()->take(5);
+                                    @endphp
+                                    @foreach($filters as $filter)
+                                        <button type="button" class="btn btn-sm rounded-pill px-3 py-1 me-2 filter-btn bg-white border text-dark" data-filter="{{ $filter }}">{{ $filter }}</button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="items-list ms-md-5" id="itemsList">
+                                @foreach($subcategories as $sub)
+                                    <div class="item-card bg-white border rounded-3 p-2 mb-3 d-flex align-items-center justify-content-between item-row" data-uuid="{{ $sub->uuid }}" data-name="{{ $sub->name }}" data-category="{{ $sub->name }}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="item-icon-wrapper rounded p-1 me-3" style="background: #f1f8f1; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                @if($sub->image)
+                                                    <img src="/{{ $sub->image }}" alt="{{ $sub->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                @else
+                                                    <i class="fa-solid fa-couch text-success fs-4"></i>
+                                                @endif
+                                            </div>
+                                            <div class="item-info">
+                                                <h6 class="mb-0 fw-bold text-dark">{{ $sub->name }}</h6>
+                                            </div>
                                         </div>
-                                        <div class="category-info">
-                                            <h6>{{ $sub->name }}</h6>
-                                            <p>{{ Str::limit($sub->description ?? 'Scrap items', 20) }}</p>
+                                        <div class="quantity-controls d-flex align-items-center">
+                                            <button type="button" class="btn btn-sm btn-light rounded-circle border text-success btn-minus" style="width: 32px; height: 32px; padding: 0; line-height: 1;"><i class="fa-solid fa-minus"></i></button>
+                                            <span class="mx-3 fw-bold qty-display">0</span>
+                                            <button type="button" class="btn btn-sm rounded-circle text-white btn-plus" style="background: var(--primary-green, #1b5e20); width: 32px; height: 32px; padding: 0; line-height: 1;"><i class="fa-solid fa-plus"></i></button>
                                         </div>
                                     </div>
                                 @endforeach
@@ -338,10 +357,14 @@
                             <div class="row">
                                 <div class="col-md-6 border-end-md">
                                     <div class="review-item">
-                                        <div class="review-icon"><i class="fa-solid fa-box-open"></i></div>
-                                        <div class="review-text">
-                                            <label>Category</label>
-                                            <p id="prev-category"></p>
+                                        <div class="review-text w-100">
+                                            <label class="mb-2 d-flex justify-content-between align-items-center">
+                                                Your Pickup Items 
+                                                <span class="badge rounded-pill bg-success-subtle text-success" id="prev-total-items">0 Items</span>
+                                            </label>
+                                            <div id="prev-items-list" class="border rounded-3 p-2 bg-white">
+                                                <!-- Items will be injected here -->
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="review-item">
@@ -605,12 +628,99 @@
             new bootstrap.Modal(document.getElementById('locationErrorModal')).show();
         }
 
-        // Category Card Selection
-        document.querySelectorAll('.category-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                document.getElementById('input_subcategory_uuid').value = this.dataset.uuid;
+        // --- CART LOGIC ---
+        let cart = {};
+        
+        function updateCartUI() {
+            document.querySelectorAll('.item-row').forEach(row => {
+                const uuid = row.dataset.uuid;
+                const qtyDisplay = row.querySelector('.qty-display');
+                if (cart[uuid]) {
+                    qtyDisplay.innerText = cart[uuid].quantity;
+                    row.classList.add('border-success');
+                } else {
+                    qtyDisplay.innerText = '0';
+                    row.classList.remove('border-success');
+                }
+            });
+            
+            // Generate hidden inputs for form submission
+            const container = document.getElementById('cartHiddenInputs');
+            container.innerHTML = '';
+            let index = 0;
+            for (const [uuid, item] of Object.entries(cart)) {
+                container.innerHTML += `<input type="hidden" name="items[${index}][subcategory_uuid]" value="${uuid}">`;
+                container.innerHTML += `<input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">`;
+                container.innerHTML += `<input type="hidden" name="items[${index}][name]" value="${item.name}">`;
+                index++;
+            }
+        }
+
+        document.querySelectorAll('.btn-plus').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const row = this.closest('.item-row');
+                const uuid = row.dataset.uuid;
+                const name = row.dataset.name;
+                
+                if (!cart[uuid]) {
+                    cart[uuid] = { quantity: 0, name: name, image: row.querySelector('img') ? row.querySelector('img').src : null };
+                }
+                cart[uuid].quantity++;
+                updateCartUI();
+            });
+        });
+
+        document.querySelectorAll('.btn-minus').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const row = this.closest('.item-row');
+                const uuid = row.dataset.uuid;
+                
+                if (cart[uuid] && cart[uuid].quantity > 0) {
+                    cart[uuid].quantity--;
+                    if (cart[uuid].quantity === 0) {
+                        delete cart[uuid];
+                    }
+                }
+                updateCartUI();
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active', 'text-white');
+                    b.classList.add('bg-white', 'text-dark');
+                    b.style.background = '';
+                });
+                this.classList.add('active', 'text-white');
+                this.classList.remove('bg-white', 'text-dark');
+                this.style.background = 'var(--primary-green, #1b5e20)';
+                
+                const filter = this.dataset.filter;
+                document.querySelectorAll('.item-row').forEach(row => {
+                    if (filter === 'All' || row.dataset.category === filter) {
+                        row.style.display = 'flex';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Search functionality
+        document.getElementById('itemSearch').addEventListener('input', function(e) {
+            const term = this.value.toLowerCase();
+            document.querySelectorAll('.item-row').forEach(row => {
+                const name = row.dataset.name.toLowerCase();
+                if (name.includes(term)) {
+                    row.style.display = 'flex';
+                } else {
+                    row.style.display = 'none';
+                }
             });
         });
 
@@ -640,8 +750,8 @@
             btn.addEventListener('click', function() {
                 const target = this.getAttribute('data-target');
                 if(this.classList.contains('next-step') && target == 2) {
-                    if(!document.getElementById('input_subcategory_uuid').value) {
-                        alert("Please select a scrap category."); return;
+                    if(Object.keys(cart).length === 0) {
+                        alert("Please select at least one item."); return;
                     }
                     if(!document.getElementById('pickup_location').value) {
                         alert("Please enter a pickup address."); return;
@@ -902,8 +1012,30 @@
             if(!document.getElementById('input_pickup_date').value || !document.getElementById('input_pickup_time').value) {
                 alert("Please select a date and time slot."); return;
             }
-            const selCard = document.querySelector('.category-card.selected');
-            document.getElementById('prev-category').innerText = selCard ? selCard.dataset.name : 'Not selected';
+            // Populate Preview Section
+            const prevItemsList = document.getElementById('prev-items-list');
+            prevItemsList.innerHTML = '';
+            let totalItems = 0;
+            
+            for (const [uuid, item] of Object.entries(cart)) {
+                totalItems += item.quantity;
+                let imgHtml = item.image 
+                    ? `<img src="${item.image}" alt="" style="width:40px; height:40px; object-fit:contain;" class="rounded border p-1 me-3">`
+                    : `<div style="width:40px; height:40px;" class="rounded border p-1 me-3 bg-light d-flex align-items-center justify-content-center"><i class="fa-solid fa-couch text-success"></i></div>`;
+                    
+                prevItemsList.innerHTML += `
+                    <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                        <div class="d-flex align-items-center">
+                            ${imgHtml}
+                            <div>
+                                <h6 class="mb-0 fw-bold">${item.name}</h6>
+                            </div>
+                        </div>
+                        <div class="fw-bold bg-light px-3 py-1 rounded">Qty: ${item.quantity}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('prev-total-items').innerText = `${totalItems} Items`;
             document.getElementById('prev-address').innerText = document.getElementById('pickup_location').value;
             
             // Format Date & Time

@@ -33,7 +33,10 @@ class OrderController extends Controller
     {
         $request->validate([
             'user_uuid' => 'required|exists:users,uuid',
-            'subcategory_uuid' => 'required|exists:subcategories,uuid',
+            'items' => 'required|array',
+            'items.*.subcategory_uuid' => 'required|exists:subcategories,uuid',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.name' => 'required|string',
             'pickup_location' => 'required|string',
             'pickup_date' => 'required|date',
             'pickup_time' => 'required|string',
@@ -41,12 +44,12 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $subcategory = \App\Models\Subcategory::where('uuid', $request->subcategory_uuid)->first();
+        $firstSubcategory = \App\Models\Subcategory::where('uuid', $request->items[0]['subcategory_uuid'])->first();
 
         Order::create([
             'user_uuid' => $request->user_uuid,
-            'category_uuid' => $subcategory ? $subcategory->category_id : null,
-            'subcategory_uuid' => $request->subcategory_uuid,
+            'category_uuid' => $firstSubcategory ? $firstSubcategory->category_id : null,
+            'items' => $request->items,
             'pickup_location' => $request->pickup_location,
             'pickup_date' => $request->pickup_date,
             'pickup_time' => $request->pickup_time,

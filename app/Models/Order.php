@@ -23,11 +23,13 @@ class Order extends Model
         'pickup_time',
         'images',
         'notes',
+        'items',
     ];
 
     protected $casts = [
         'images' => 'array',
         'pickup_date' => 'date',
+        'items' => 'array',
     ];
 
     public function user()

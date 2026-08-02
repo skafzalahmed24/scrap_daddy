@@ -266,21 +266,49 @@
             </div>
 
             <div class="px-3 px-lg-0 pb-5">
-                <!-- Item Info Card -->
+                <!-- Items Info Card -->
                 <div class="od-card">
-                    <div class="od-item-header">
-                        <div class="od-item-img-box">
-                            @if($order->subcategory && $order->subcategory->image)
-                                <img src="{{ asset(str_starts_with($order->subcategory->image, 'storage/') ? $order->subcategory->image : 'storage/' . $order->subcategory->image) }}" alt="{{ $order->subcategory->name }}">
-                            @else
-                                <i class="fa-solid fa-couch" style="color: #689f38; font-size: 2rem;"></i>
-                            @endif
-                        </div>
-                        <div>
-                            <h2 class="od-item-name">{{ $order->subcategory->name ?? 'Scrap Items' }}</h2>
-                            <p class="od-item-id">Order #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</p>
-                        </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="od-section-title mb-0">Order Items</h3>
+                        <p class="od-item-id mb-0">Order #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</p>
                     </div>
+                    <div class="od-divider"></div>
+                    
+                    @if($order->items && count($order->items) > 0)
+                        @foreach($order->items as $item)
+                            <div class="od-item-header mb-3 pb-3 border-bottom">
+                                <div class="od-item-img-box" style="width: 50px; height: 50px; padding: 5px;">
+                                    <i class="fa-solid fa-couch" style="color: #689f38; font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="od-item-name" style="font-size: 1rem;">{{ $item['name'] ?? 'Item' }}</h2>
+                                    </div>
+                                    <div class="fw-bold bg-light px-3 py-1 rounded text-dark">
+                                        Qty: {{ $item['quantity'] ?? 1 }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="od-item-header mb-3 pb-3 border-bottom">
+                            <div class="od-item-img-box" style="width: 50px; height: 50px; padding: 5px;">
+                                @if($order->subcategory && $order->subcategory->image)
+                                    <img src="{{ asset(str_starts_with($order->subcategory->image, 'storage/') ? $order->subcategory->image : 'storage/' . $order->subcategory->image) }}" alt="{{ $order->subcategory->name }}">
+                                @else
+                                    <i class="fa-solid fa-couch" style="color: #689f38; font-size: 1.5rem;"></i>
+                                @endif
+                            </div>
+                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="od-item-name" style="font-size: 1rem;">{{ $order->subcategory->name ?? 'Scrap Items' }}</h2>
+                                </div>
+                                <div class="fw-bold bg-light px-3 py-1 rounded text-dark">
+                                    Qty: 1
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Pickup Details Card -->
