@@ -40,15 +40,21 @@
                 location...</span>
         </div>
 
-        @if(!request()->is('customer*'))
-        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
-            data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
-            aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
-            <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
-        </button>
-        @else
-        <button class="navbar-toggler ms-auto d-none" type="button" aria-hidden="true"></button>
-        @endif
+        <div class="d-flex align-items-center ms-auto d-custom-none">
+            <a href="/" class="brand-logo me-3" style="text-decoration: none;">
+                <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="height: 40px;">
+            </a>
+
+            @if(!request()->is('customer*'))
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
+                aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
+                <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
+            </button>
+            @else
+            <button class="navbar-toggler d-none" type="button" aria-hidden="true"></button>
+            @endif
+        </div>
         <div class="collapse navbar-collapse justify-content-between align-items-center mt-3 mt-custom-0"
             id="secondaryNavContent">
 
