@@ -117,8 +117,23 @@
         }
     });
 
-    function logoutCustomer() {
+    async function logoutCustomer() {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            try {
+                await fetch('/api/customer/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Accept': 'application/json'
+                    }
+                });
+            } catch (e) {
+                console.error('Logout error:', e);
+            }
+        }
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
         window.location.href = '/customer/login';
     }
 </script>
