@@ -56,7 +56,7 @@ body, html {
         width: 50%;
         height: 100vh;
         object-fit: cover;
-        object-position: left top;
+        object-position: left 10%;
     }
 }
 
