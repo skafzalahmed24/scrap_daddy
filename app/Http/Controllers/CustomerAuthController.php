@@ -279,7 +279,6 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'login' => 'required|string',
-            'otp' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -299,13 +298,7 @@ class CustomerAuthController extends Controller
             return response()->json(['status' => 0, 'message' => 'User not found'], 404);
         }
 
-        if ($user->otp !== $request->otp) {
-            return response()->json(['status' => 0, 'message' => 'Invalid OTP'], 400);
-        }
 
-        if (Carbon::now()->greaterThan($user->otp_expires_at)) {
-            return response()->json(['status' => 0, 'message' => 'OTP has expired'], 400);
-        }
 
         $user->update([
             'password' => Hash::make($request->password),
@@ -499,6 +492,8 @@ class CustomerAuthController extends Controller
             });
         }
 
+        $total_count = $query->count();
+
         if ($request->has('min') && is_numeric($request->min)) {
             $query->offset((int)$request->min);
         }
@@ -512,6 +507,7 @@ class CustomerAuthController extends Controller
         return response()->json([
             'status' => 1,
             'message' => 'Categories fetched successfully',
+            'total_count' => $total_count,
             'data' => $categories
         ]);
     }
@@ -546,6 +542,8 @@ class CustomerAuthController extends Controller
             });
         }
 
+        $total_count = $query->count();
+
         $sort = 'asc';
         if ($request->has('sort') && in_array(strtolower($request->sort), ['asc', 'desc'])) {
             $sort = strtolower($request->sort);
@@ -564,6 +562,7 @@ class CustomerAuthController extends Controller
         return response()->json([
             'status' => 1,
             'message' => 'Subcategories fetched successfully',
+            'total_count' => $total_count,
             'data' => $subcategories
         ]);
     }
