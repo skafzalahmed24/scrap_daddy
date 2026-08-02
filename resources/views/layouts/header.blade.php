@@ -46,8 +46,15 @@
                 location...</span>
         </div>
 
+        <style>
+            @media (max-width: 991px) {
+                .navbar-expand-custom .navbar-toggler.mobile-hide {
+                    display: none !important;
+                }
+            }
+        </style>
         @if(!request()->is('customer*'))
-        <button class="navbar-toggler ms-auto d-none" type="button" data-bs-toggle="collapse"
+        <button class="navbar-toggler ms-auto mobile-hide" type="button" data-bs-toggle="collapse"
             data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
             <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
