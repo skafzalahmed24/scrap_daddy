@@ -18,6 +18,7 @@ class Banner extends Model
         'short_description',
         'uploads',
         'status',
+        'type',
     ];
 
     protected static function boot()

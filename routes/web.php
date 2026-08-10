@@ -125,5 +125,6 @@ Route::prefix('api')->group(function () {
     Route::apiResource('subcategories', SubcategoryController::class)->except(['update']);
 
     Route::post('banners/{id}', [BannerController::class, 'update']);
+    Route::post('banners/{id}/status', [BannerController::class, 'toggleStatus']);
     Route::apiResource('banners', BannerController::class)->except(['update']);
 });

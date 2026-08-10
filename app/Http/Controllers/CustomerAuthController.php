@@ -584,7 +584,7 @@ class CustomerAuthController extends Controller
             'pickup_time' => 'required|string',
             'notes' => 'nullable|string',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -607,21 +607,7 @@ class CustomerAuthController extends Controller
         $order->pickup_time = $request->pickup_time;
         $order->notes = $request->notes;
 
-        $uploadedImages = [];
-        if ($request->hasFile('images')) {
-            $targetDir = public_path('orders');
-            if (!File::exists($targetDir)) {
-                File::makeDirectory($targetDir, 0755, true);
-            }
-            
-            foreach ($request->file('images') as $image) {
-                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                file_put_contents($targetDir . '/' . $imageName, file_get_contents($image->getRealPath()));
-                $uploadedImages[] = 'orders/' . $imageName;
-            }
-        }
-        
-        $order->images = $uploadedImages;
+        $order->images = $request->images ?? [];
         $order->save();
 
         return response()->json([
@@ -754,6 +740,51 @@ class CustomerAuthController extends Controller
             'status' => 1,
             'message' => 'Page fetched successfully',
             'data' => $page
+        ]);
+    }
+
+    // --- BANNERS METHODS ---
+    public function banners(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'nullable|string|in:web,mobile',
+            'min' => 'nullable|integer|min:0',
+            'max' => 'nullable|integer|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $query = \App\Models\Banner::where('status', 1);
+
+        if ($request->has('type') && !empty($request->type)) {
+            $query->where('type', $request->type);
+        }
+
+        $total_count = $query->count();
+
+        if ($request->has('min') && is_numeric($request->min)) {
+            $query->offset((int)$request->min);
+        }
+        
+        if ($request->has('max') && is_numeric($request->max)) {
+            $query->limit((int)$request->max);
+        }
+
+        $banners = $query->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Banners fetched successfully',
+            'data' => [
+                'count' => $total_count,
+                'rows' => $banners
+            ]
         ]);
     }
 }

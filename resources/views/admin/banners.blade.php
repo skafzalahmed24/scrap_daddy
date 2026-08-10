@@ -36,6 +36,7 @@
                 <tr>
                     <th>Media</th>
                     <th>Title</th>
+                    <th>Type</th>
                     <th>Description</th>
                     <th>Status</th>
                     <th class="text-end">Actions</th>
@@ -72,6 +73,14 @@
           <div class="mb-3">
               <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="title" name="title" required>
+          </div>
+          
+          <div class="mb-3">
+              <label for="type" class="form-label">Type <span class="text-danger">*</span></label>
+              <select class="form-select" id="type" name="type" required>
+                  <option value="web">Web</option>
+                  <option value="mobile">Mobile</option>
+              </select>
           </div>
           
           <div class="mb-3">
@@ -154,14 +163,21 @@
                 }
             }
 
-            const statusBadge = banner.status 
-                ? `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">Active</span>` 
-                : `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1">Inactive</span>`;
+            let typeHtml = banner.type === 'mobile' 
+                ? '<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">Mobile</span>'
+                : '<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2 py-1">Web</span>';
+
+            const statusBadge = `
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" onchange="toggleStatus('${banner.uuid}', this.checked)" ${banner.status ? 'checked' : ''}>
+                </div>
+            `;
                 
             const row = `
                 <tr>
                     <td>${mediaHtml}</td>
                     <td class="fw-semibold">${banner.title}</td>
+                    <td>${typeHtml}</td>
                     <td class="text-truncate" style="max-width: 200px;">${banner.short_description || '-'}</td>
                     <td>${statusBadge}</td>
                     <td class="text-end text-nowrap">
@@ -209,11 +225,13 @@
         if (mode === 'add') {
             document.getElementById('bannerOffcanvasLabel').innerText = 'Add Banner';
             document.getElementById('bannerId').value = '';
+            document.getElementById('type').value = 'web';
             document.getElementById('status').checked = true;
         } else {
             document.getElementById('bannerOffcanvasLabel').innerText = 'Edit Banner';
             document.getElementById('bannerId').value = banner.uuid;
             document.getElementById('title').value = banner.title;
+            document.getElementById('type').value = banner.type || 'web';
             document.getElementById('short_description').value = banner.short_description || '';
             document.getElementById('status').checked = banner.status == 1;
             
@@ -236,6 +254,7 @@
         const formData = new FormData();
         
         formData.append('title', document.getElementById('title').value);
+        formData.append('type', document.getElementById('type').value);
         formData.append('short_description', document.getElementById('short_description').value);
         formData.append('status', document.getElementById('status').checked ? 1 : 0);
         
@@ -309,6 +328,40 @@
                 }
             }
         })
+    }
+
+    async function toggleStatus(id, isChecked) {
+        try {
+            const formData = new FormData();
+            formData.append('status', isChecked ? 1 : 0);
+            
+            const response = await fetch(`${API_URL}/${id}/status`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if(response.ok) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            } else {
+                Swal.fire('Error', data.message || 'Error updating status', 'error');
+                fetchBanners(currentPage);
+            }
+        } catch (error) {
+            Swal.fire('Error', 'An unexpected error occurred', 'error');
+            fetchBanners(currentPage);
+        }
     }
 </script>
 @endpush

@@ -17,6 +17,10 @@ class BannerController extends Controller
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
+        if ($request->has('type') && !empty($request->type)) {
+            $query->where('type', $request->type);
+        }
+
         $banners = $query->latest()->paginate(10);
         return response()->json($banners);
     }
@@ -27,10 +31,11 @@ class BannerController extends Controller
             'title' => 'required|string|max:255',
             'short_description' => 'nullable|string',
             'status' => 'required|boolean',
+            'type' => 'required|string|in:web,mobile',
             'uploads' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg|max:20480', // 20MB max
         ]);
 
-        $data = $request->only(['title', 'short_description', 'status']);
+        $data = $request->only(['title', 'short_description', 'status', 'type']);
 
         if ($request->hasFile('uploads')) {
             $file = $request->file('uploads');
@@ -68,10 +73,11 @@ class BannerController extends Controller
             'title' => 'required|string|max:255',
             'short_description' => 'nullable|string',
             'status' => 'required|boolean',
+            'type' => 'required|string|in:web,mobile',
             'uploads' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg|max:20480',
         ]);
 
-        $data = $request->only(['title', 'short_description', 'status']);
+        $data = $request->only(['title', 'short_description', 'status', 'type']);
 
         if ($request->hasFile('uploads')) {
             $file = $request->file('uploads');
@@ -110,5 +116,18 @@ class BannerController extends Controller
         $banner->delete();
 
         return response()->json(['message' => 'Banner deleted successfully']);
+    }
+
+    public function toggleStatus(Request $request, string $id)
+    {
+        $banner = Banner::findOrFail($id);
+        
+        $request->validate([
+            'status' => 'required|boolean'
+        ]);
+
+        $banner->update(['status' => $request->status]);
+
+        return response()->json(['message' => 'Status updated successfully', 'banner' => $banner]);
     }
 }

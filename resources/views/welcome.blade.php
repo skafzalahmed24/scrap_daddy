@@ -7,60 +7,121 @@
 @section('content')
     <!-- Hero Section -->
     <section class="hero-section">
-        @if($banners->count() > 0)
-            <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
-                <div class="carousel-inner h-100">
-                    @foreach($banners as $index => $banner)
-                        <div class="carousel-item h-100 {{ $index === 0 ? 'active' : '' }}">
-                            @if(preg_match('/\.(mp4|webm|ogg)$/i', $banner->uploads))
-                                <video class="hero-media" autoplay muted loop playsinline>
-                                    <source src="/{{ $banner->uploads }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
-                                </video>
-                            @else
-                                <img src="/{{ $banner->uploads }}" class="hero-media" alt="{{ $banner->title }}">
-                            @endif
-                            
-                            <div class="hero-overlay">
-                                <div class="container">
-                                    <div class="hero-content">
-                                        <h1 class="hero-title">{{ $banner->title }}</h1>
-                                        <p class="hero-subtitle">{{ $banner->short_description }}</p>
-                                        <div class="hero-buttons">
-                                            <a href="#categories" class="btn btn-primary shadow-sm"><i class="fa-regular fa-calendar-check me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                            <a href="/explore-categories" class="btn btn-outline shadow-sm"><i class="fa-solid fa-border-all me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+        <!-- Desktop/Tablet View (Web Banners) -->
+        <div class="d-none d-md-block h-100">
+            @if($webBanners->count() > 0)
+                <div id="heroCarouselWeb" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
+                    <div class="carousel-inner h-100">
+                        @foreach($webBanners as $index => $banner)
+                            <div class="carousel-item h-100 {{ $index === 0 ? 'active' : '' }}">
+                                @if(preg_match('/\.(mp4|webm|ogg)$/i', $banner->uploads))
+                                    <video class="hero-media" autoplay muted loop playsinline>
+                                        <source src="/{{ $banner->uploads }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
+                                    </video>
+                                @else
+                                    <img src="/{{ $banner->uploads }}" class="hero-media" alt="{{ $banner->title }}">
+                                @endif
+                                
+                                <div class="hero-overlay">
+                                    <div class="container">
+                                        <div class="hero-content">
+                                            <h1 class="hero-title">{{ $banner->title }}</h1>
+                                            <p class="hero-subtitle">{{ $banner->short_description }}</p>
+                                            <div class="hero-buttons d-flex gap-3 mt-4">
+                                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
+                    @if($webBanners->count() > 1)
+                    <button class="carousel-control-prev" style="z-index: 3;" type="button" data-bs-target="#heroCarouselWeb" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" style="z-index: 3;" type="button" data-bs-target="#heroCarouselWeb" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    @endif
                 </div>
-                @if($banners->count() > 1)
-                <button class="carousel-control-prev" style="z-index: 3;" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" style="z-index: 3;" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-                @endif
-            </div>
-        @else
-            <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?q=80&w=2072&auto=format&fit=crop" class="hero-media" alt="Background">
-            <div class="hero-overlay">
-                <div class="container">
-                    <div class="hero-content">
-                        <h1 class="hero-title">Global Scrap Recycling Made Simple</h1>
-                        <p class="hero-subtitle">Source bulk scrap materials locally and deliver to businesses worldwide. We control quality & stock.</p>
-                        <div class="hero-buttons">
-                            <a href="#categories" class="btn btn-primary shadow-sm"><i class="fa-regular fa-calendar-check me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                            <a href="/explore-categories" class="btn btn-outline shadow-sm"><i class="fa-solid fa-border-all me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            @else
+                <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?q=80&w=2072&auto=format&fit=crop" class="hero-media" alt="Background">
+                <div class="hero-overlay">
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Global Scrap Recycling Made Simple</h1>
+                            <p class="hero-subtitle">Source bulk scrap materials locally and deliver to businesses worldwide. We control quality & stock.</p>
+                            <div class="hero-buttons d-flex gap-3 mt-4">
+                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
+
+        <!-- Mobile View (Mobile Banners) -->
+        <div class="d-block d-md-none h-100">
+            @if($mobileBanners->count() > 0)
+                <div id="heroCarouselMobile" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
+                    <div class="carousel-inner h-100">
+                        @foreach($mobileBanners as $index => $banner)
+                            <div class="carousel-item h-100 {{ $index === 0 ? 'active' : '' }}">
+                                @if(preg_match('/\.(mp4|webm|ogg)$/i', $banner->uploads))
+                                    <video class="hero-media" autoplay muted loop playsinline>
+                                        <source src="/{{ $banner->uploads }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
+                                    </video>
+                                @else
+                                    <img src="/{{ $banner->uploads }}" class="hero-media" alt="{{ $banner->title }}">
+                                @endif
+                                
+                                <div class="hero-overlay">
+                                    <div class="container">
+                                        <div class="hero-content">
+                                            <h1 class="hero-title">{{ $banner->title }}</h1>
+                                            <p class="hero-subtitle">{{ $banner->short_description }}</p>
+                                            <div class="hero-buttons d-flex gap-3 mt-4">
+                                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    @if($mobileBanners->count() > 1)
+                    <button class="carousel-control-prev" style="z-index: 3;" type="button" data-bs-target="#heroCarouselMobile" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" style="z-index: 3;" type="button" data-bs-target="#heroCarouselMobile" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    @endif
+                </div>
+            @else
+                <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?q=80&w=2072&auto=format&fit=crop" class="hero-media" alt="Background">
+                <div class="hero-overlay">
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">Global Scrap Recycling Made Simple</h1>
+                            <p class="hero-subtitle">Source bulk scrap materials locally and deliver to businesses worldwide. We control quality & stock.</p>
+                            <div class="hero-buttons d-flex gap-3 mt-4">
+                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
     </section>
 
     @auth
@@ -68,6 +129,7 @@
         $user = auth()->user();
         $recentOrders = \App\Models\Order::with('subcategory')->where('user_uuid', $user->uuid)->latest()->take(5)->get();
     @endphp
+    @if($recentOrders->count() > 0)
     <section class="container mt-5 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold m-0" style="color: #0d2b4d;">My Active Pickups</h4>
@@ -75,7 +137,7 @@
         </div>
         
         <div class="d-flex gap-3 overflow-auto pb-3" style="scrollbar-width: none;">
-            @forelse($recentOrders as $order)
+            @foreach($recentOrders as $order)
                 @if(in_array($order->status, ['pending', 'accepted']))
                 @php 
                     $isAccepted = $order->status == 'accepted';
@@ -179,14 +241,10 @@
                     </div>
                 </div>
                 @endif
-            @empty
-                <div class="w-100 text-center py-4 bg-light rounded-4 text-muted">
-                    <i class="fa-solid fa-box-open fa-2x mb-2 opacity-50"></i>
-                    <p class="mb-0">No active pickups found. Schedule one today!</p>
-                </div>
-            @endforelse
+            @endforeach
         </div>
     </section>
+    @endif
     @endauth
 
     <!-- Features Strip -->
@@ -233,9 +291,9 @@
     <!-- Categories Section -->
     <section id="categories" class="categories-section">
         <div class="container">
-            <div class="d-flex flex-column align-items-center mb-4 gap-2 text-center">
-                <h3 class="section-heading mb-0">Shop by scrap category</h3>
-                <a href="/explore-categories" class="btn btn-outline-success rounded-pill px-4" style="border-color: var(--primary-green); color: var(--primary-green);">View More <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-heading mb-0">Categories</h3>
+                <a href="/explore-categories" class="btn rounded-pill px-4 fw-bold shadow-sm" style="border: 2px solid var(--primary-green); color: var(--primary-green); background: white; transition: all 0.3s;" onmouseover="this.style.background='var(--primary-green)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--primary-green)';">View More <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
             
             <div class="categories-grid position-relative">
@@ -284,24 +342,32 @@
     <!-- Subcategories Section -->
     <section class="subcategories-section py-5 bg-light">
         <div class="container">
-            <div class="d-flex flex-column align-items-center mb-4 gap-2 text-center">
-                <h3 class="section-heading mb-0">Explore Subcategories</h3>
-                <a href="#all-subcategories" class="btn btn-outline-success rounded-pill px-4" style="border-color: var(--primary-green); color: var(--primary-green);">View More <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-heading mb-0">Subcategories</h3>
+                <!-- <a href="#all-subcategories" class="btn rounded-pill px-4 fw-bold shadow-sm" style="border: 2px solid var(--primary-green); color: var(--primary-green); background: white; transition: all 0.3s;" onmouseover="this.style.background='var(--primary-green)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--primary-green)';">View More <i class="fa-solid fa-arrow-right ms-1"></i></a> -->
             </div>
             
-            <div class="row row-cols-3 row-cols-md-5 g-4 justify-content-center">
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-4 justify-content-center">
                 @if(isset($subcategories))
-                    @forelse($subcategories->take(15) as $index => $sub)
-                    <div class="col {{ $index >= 6 ? 'd-none d-md-flex' : 'd-flex' }} flex-column align-items-center">
-                        <a href="{{ route('customer.orders.create') }}?subcategory={{ $sub->uuid }}" class="text-decoration-none text-center">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto mb-2" style="width: 100px; height: 100px; background-color: #ffffff; border: 2px solid var(--primary-green); overflow: hidden; transition: transform 0.3s; position: relative;">
+                    @forelse($subcategories->take(12) as $index => $sub)
+                    <div class="col {{ $index >= 6 ? 'd-none d-md-flex' : 'd-flex' }} flex-column align-items-center mb-3">
+                        <a href="{{ route('customer.orders.create') }}?subcategory={{ $sub->uuid }}" class="text-decoration-none text-center group"
+                           onmouseover="this.querySelector('.subcategory-circle').style.transform='translateY(-8px)'; this.querySelector('.subcategory-circle').style.boxShadow='0 15px 30px rgba(46,125,50,0.15)'; this.querySelector('.ring-overlay').style.borderColor='var(--primary-green)'; this.querySelector('h6').style.color='var(--primary-green)';"
+                           onmouseout="this.querySelector('.subcategory-circle').style.transform='translateY(0)'; this.querySelector('.subcategory-circle').style.boxShadow='0 4px 15px rgba(0,0,0,0.05)'; this.querySelector('.ring-overlay').style.borderColor='rgba(0,0,0,0.05)'; this.querySelector('h6').style.color='#212529';">
+                            
+                            <div class="subcategory-circle position-relative mb-3 mx-auto" style="width: 120px; height: 120px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                <!-- Soft border overlay -->
+                                <div class="ring-overlay" style="position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s;"></div>
+                                <!-- Subtle gradient background -->
+                                <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(46,125,50,0.02) 0%, transparent 100%); border-radius: 50%;"></div>
+                                
                                 @if($sub->image)
-                                    <img src="/{{ $sub->image }}" alt="{{ $sub->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 15px;">
+                                    <img src="/{{ $sub->image }}" alt="{{ $sub->name }}" style="width: 65px; height: 65px; object-fit: contain; z-index: 1; transition: transform 0.3s;">
                                 @else
-                                    <i class="fa-solid fa-recycle fa-3x" style="color: var(--primary-green);"></i>
+                                    <i class="fa-solid fa-recycle fa-2x" style="color: var(--primary-green); z-index: 1;"></i>
                                 @endif
                             </div>
-                            <h6 class="fw-bold text-dark" style="font-size: 0.9rem;">{{ $sub->name }}</h6>
+                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem; transition: color 0.3s;">{{ $sub->name }}</h6>
                         </a>
                     </div>
                     @empty

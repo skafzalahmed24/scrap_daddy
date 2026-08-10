@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,9 @@ use App\Http\Controllers\UploadController;
 |
 */
 
+// Admin Login Route
+Route::post('/login', [AuthController::class, 'login']);
+
 // Customer App APIs
 Route::prefix('customer')->group(function () {
     // Public Auth Routes
@@ -24,11 +28,12 @@ Route::prefix('customer')->group(function () {
     Route::post('/verify-otp', [CustomerAuthController::class, 'verifyOtp']);
     Route::post('/forgot-password', [CustomerAuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword']);
-    
     // Public Data Routes
+    Route::post('/banners', [CustomerAuthController::class, 'banners']);
     Route::post('/categories', [CustomerAuthController::class, 'categories']);
     Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
     Route::post('/pages', [CustomerAuthController::class, 'page']);
+    Route::post('/upload-images', [UploadController::class, 'uploadImages']);
 
     // Protected Routes (Require Authentication)
     Route::middleware('auth:sanctum')->group(function () {
@@ -49,5 +54,3 @@ Route::prefix('customer')->group(function () {
 });
 
 
-// General
-Route::post('/upload-images', [UploadController::class, 'uploadImages']);

@@ -12,10 +12,12 @@ class HomeController extends Controller
     public function index()
     {
         $banners = Banner::where('status', 1)->latest()->get();
+        $webBanners = $banners->where('type', 'web')->values();
+        $mobileBanners = $banners->where('type', 'mobile')->values();
         $categories = Category::where('status', 1)->latest()->get();
         $subcategories = Subcategory::where('status', 1)->latest()->take(15)->get();
 
-        return view('welcome', compact('banners', 'categories', 'subcategories'));
+        return view('welcome', compact('webBanners', 'mobileBanners', 'categories', 'subcategories'));
     }
 
     public function categories()

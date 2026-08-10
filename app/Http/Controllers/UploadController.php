@@ -24,9 +24,11 @@ class UploadController extends Controller
         }
 
         return response()->json([
-            'success' => true,
-            'paths' => $uploadedPaths,
+            'status' => 1,
             'message' => 'Images uploaded successfully.',
+            'data' => [
+                'paths' => $uploadedPaths
+            ]
         ]);
     }
 }
