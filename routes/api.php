@@ -35,6 +35,7 @@ Route::prefix('customer')->group(function () {
     Route::post('/categories', [CustomerAuthController::class, 'categories']);
     Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
     Route::post('/pages', [CustomerAuthController::class, 'page']);
+    Route::post('/faqs', [CustomerAuthController::class, 'faqs']);
     Route::post('/upload-images', [UploadController::class, 'uploadImages']);
 
     // Protected Routes (Require Authentication)

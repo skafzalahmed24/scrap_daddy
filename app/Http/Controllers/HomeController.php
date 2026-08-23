@@ -36,4 +36,10 @@ class HomeController extends Controller
         $subcategories = Subcategory::where('category_id', $id)->where('status', 1)->get();
         return view('category', compact('category', 'subcategories', 'allCategories'));
     }
+
+    public function faqs()
+    {
+        $faqs = \App\Models\Faq::where('status', 1)->get();
+        return view('customer.faqs', compact('faqs'));
+    }
 }

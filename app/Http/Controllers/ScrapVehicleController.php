@@ -49,7 +49,7 @@ class ScrapVehicleController extends Controller
             'status' => 1,
             'message' => 'Scrap vehicle details submitted successfully',
             'data' => $scrapVehicle
-        ], 201);
+        ], 200);
     }
 
     /**

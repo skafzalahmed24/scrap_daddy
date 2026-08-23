@@ -65,6 +65,8 @@ Route::middleware(['auth'])->group(function () {
         return view('customer.payments');
     })->name('customer.payments');
 
+    Route::get('/customer/faqs', [\App\Http\Controllers\HomeController::class, 'faqs'])->name('customer.faqs');
+
     Route::get('/customer/change-password', function () {
         return view('customer.change-password');
     })->name('customer.change-password');
@@ -104,6 +106,10 @@ Route::get('/admin/banners', function () {
     return view('admin.banners');
 });
 
+Route::get('/admin/faqs', function () {
+    return view('admin.faqs');
+});
+
 // Admin Orders, Feedback & Pages
 Route::get('/admin/orders', [OrderController::class, 'adminIndex'])->name('admin.orders.index');
 Route::post('/admin/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.status');
@@ -126,6 +132,7 @@ Route::delete('/admin/pages/{id}', [PageController::class, 'destroy'])->name('ad
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\FaqController;
 
 Route::prefix('api')->group(function () {
     Route::post('categories/{id}', [CategoryController::class, 'update']);
@@ -137,4 +144,8 @@ Route::prefix('api')->group(function () {
     Route::post('banners/{id}', [BannerController::class, 'update']);
     Route::post('banners/{id}/status', [BannerController::class, 'toggleStatus']);
     Route::apiResource('banners', BannerController::class)->except(['update']);
+
+    Route::post('faqs/{id}', [FaqController::class, 'update']);
+    Route::post('faqs/{id}/status', [FaqController::class, 'toggleStatus']);
+    Route::apiResource('faqs', FaqController::class)->except(['update']);
 });

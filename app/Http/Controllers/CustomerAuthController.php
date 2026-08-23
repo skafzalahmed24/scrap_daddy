@@ -882,4 +882,15 @@ class CustomerAuthController extends Controller
             ]
         ]);
     }
+    // --- FAQS METHOD ---
+    public function faqs(Request $request)
+    {
+        $faqs = \App\Models\Faq::where('status', 1)->get();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'FAQs fetched successfully',
+            'data' => $faqs
+        ]);
+    }
 }

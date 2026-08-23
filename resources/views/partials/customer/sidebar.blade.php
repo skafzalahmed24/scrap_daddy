@@ -22,6 +22,7 @@
                 <li><a href="{{ route('customer.profile') }}" class="{{ request()->is('customer/profile') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> Profile Details</a></li>
                 <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
                 <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>
+                <li><a href="{{ route('customer.faqs') }}" class="{{ request()->is('customer/faqs') ? 'active' : '' }}"><i class="fa-regular fa-circle-question"></i> FAQs</a></li>
                 <li><a href="{{ route('page.show', 'help-and-support') }}" class="{{ request()->is('page/help-and-support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
                 <li><a href="{{ route('page.show', 'privacy-policy') }}" class="{{ request()->is('page/privacy-policy') ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a></li>
                 <li><a href="{{ route('page.show', 'terms-and-conditions') }}" class="{{ request()->is('page/terms-and-conditions') ? 'active' : '' }}"><i class="fa-regular fa-file-lines"></i> Terms & Conditions</a></li>
@@ -54,6 +55,7 @@
             <li><a href="{{ route('customer.profile') }}" class="{{ request()->is('customer/profile') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> Profile Details</a></li>
             <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
             <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>
+            <li><a href="{{ route('customer.faqs') }}" class="{{ request()->is('customer/faqs') ? 'active' : '' }}"><i class="fa-regular fa-circle-question"></i> FAQs</a></li>
             <li><a href="{{ route('page.show', 'help-and-support') }}" class="{{ request()->is('page/help-and-support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
             <li><a href="{{ route('page.show', 'privacy-policy') }}" class="{{ request()->is('page/privacy-policy') ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a></li>
             <li><a href="{{ route('page.show', 'terms-and-conditions') }}" class="{{ request()->is('page/terms-and-conditions') ? 'active' : '' }}"><i class="fa-regular fa-file-lines"></i> Terms & Conditions</a></li>

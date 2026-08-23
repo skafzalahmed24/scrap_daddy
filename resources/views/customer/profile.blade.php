@@ -187,7 +187,7 @@
                         <i class="fa-solid fa-chevron-right profile-chevron"></i>
                     </a>
 
-                    <a href="{{ route('page.show', 'faqs') }}" class="profile-menu-item">
+                    <a href="{{ route('customer.faqs') }}" class="profile-menu-item">
                         <div class="profile-icon-box" style="background-color: rgba(156, 39, 176, 0.1); color: #9c27b0;">
                             <i class="fa-regular fa-circle-question"></i>
                         </div>

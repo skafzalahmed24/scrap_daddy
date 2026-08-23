@@ -42,6 +42,9 @@
             <a href="{{ route('admin.pages.index') }}" class="nav-item {{ request()->is('admin/pages*') ? 'active' : '' }}">
                 <i class="fa-regular fa-file-lines"></i> Pages
             </a>
+            <a href="/admin/faqs" class="nav-item {{ request()->is('admin/faqs') ? 'active' : '' }}">
+                <i class="fa-regular fa-circle-question"></i> FAQs
+            </a>
             <a href="#" class="nav-item">
                 <i class="fa-solid fa-envelope-open-text"></i> ENQUIRES
             </a>
