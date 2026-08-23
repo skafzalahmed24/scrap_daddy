@@ -22,12 +22,6 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
-            'email' => [
-                'nullable', 'string', 'email', 'max:255',
-                Rule::unique('users')->where(function ($query) {
-                    return $query->where('status', 1);
-                })
-            ],
             'phone_number' => [
                 'required', 'string', 'max:20',
                 Rule::unique('users')->where(function ($query) {
@@ -47,23 +41,19 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0, 
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $otp = '123456';
 
         // Find existing deleted user to reuse the row (so DB unique constraints don't crash)
-        $existingUser = User::where('status', 0)->where(function($q) use ($request) {
-            $q->where('phone_number', $request->phone_number);
-            if ($request->email) {
-                $q->orWhere('email', $request->email);
-            }
-        })->first();
+        $existingUser = User::where('status', 0)->where('phone_number', $request->phone_number)->first();
 
         $userData = [
             'full_name' => $request->full_name,
-            'email' => $request->email,
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
             'pin_code' => $request->pin_code,
@@ -97,7 +87,7 @@ class CustomerAuthController extends Controller
     public function verifyOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'login' => 'required|string', // phone or email
+            'phone_number' => 'required|string',
             'otp' => 'required|string',
         ]);
 
@@ -105,13 +95,13 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0, 
                 'message' => 'Validation error', 
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
-        $user = User::where('email', $request->login)
-                    ->orWhere('phone_number', $request->login)
-                    ->first();
+        $user = User::where('phone_number', $request->phone_number)->first();
 
         if (!$user) {
             return response()->json(['status' => 0, 'message' => 'User not found'], 404);
@@ -121,7 +111,7 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Your account has been deleted.'
-            ], 403);
+            ], 200);
         }
 
         if ($user->otp !== $request->otp) {
@@ -162,7 +152,7 @@ class CustomerAuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'login' => 'required|string', // Can be email or phone
+            'phone_number' => 'required|string',
             'password' => 'required|string',
             'device_id' => 'nullable|string|max:255',
             'platform_type' => 'nullable|integer|in:1,2,3',
@@ -172,13 +162,13 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0, 
                 'message' => 'Validation error', 
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
-        $user = User::where('email', $request->login)
-                    ->orWhere('phone_number', $request->login)
-                    ->first();
+        $user = User::where('phone_number', $request->phone_number)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
@@ -191,7 +181,7 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Your account has been deleted. Please register again or contact support.'
-            ], 403);
+            ], 200);
         }
 
         if (!$user->is_verified) {
@@ -206,7 +196,7 @@ class CustomerAuthController extends Controller
                 'status' => 0,
                 'message' => 'Please verify your account first. A new OTP has been sent.',
                 'data' => ['requires_verification' => true]
-            ], 403);
+            ], 200);
         }
 
         if ($request->has('device_id') || $request->has('platform_type')) {
@@ -242,20 +232,20 @@ class CustomerAuthController extends Controller
     public function forgotPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'login' => 'required|string', // phone or email
+            'phone_number' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 0, 
                 'message' => 'Validation error', 
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
-        $user = User::where('email', $request->login)
-                    ->orWhere('phone_number', $request->login)
-                    ->first();
+        $user = User::where('phone_number', $request->phone_number)->first();
 
         if (!$user) {
             return response()->json(['status' => 0, 'message' => 'User not found'], 404);
@@ -278,7 +268,7 @@ class CustomerAuthController extends Controller
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'login' => 'required|string',
+            'phone_number' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -286,13 +276,13 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0, 
                 'message' => 'Validation error', 
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
-        $user = User::where('email', $request->login)
-                    ->orWhere('phone_number', $request->login)
-                    ->first();
+        $user = User::where('phone_number', $request->phone_number)->first();
 
         if (!$user) {
             return response()->json(['status' => 0, 'message' => 'User not found'], 404);
@@ -324,8 +314,10 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0, 
                 'message' => 'Validation error', 
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $user = $request->user();
@@ -361,7 +353,7 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Invalid refresh token.'
-            ], 403);
+            ], 200);
         }
         
         $request->user()->currentAccessToken()->delete(); // Revoke current refresh token
@@ -384,7 +376,6 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'full_name' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:users,email,' . $request->user()->uuid . ',uuid',
             'phone_number' => 'nullable|string|max:20|unique:users,phone_number,' . $request->user()->uuid . ',uuid',
             'pin_code' => 'nullable|string|max:10',
             'location' => 'nullable|string|max:255',
@@ -395,12 +386,14 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0, 
                 'message' => 'Validation error', 
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $user = $request->user();
-        $data = $request->only(['full_name', 'email', 'phone_number', 'pin_code', 'location']);
+        $data = $request->only(['full_name', 'phone_number', 'pin_code', 'location']);
         
         if ($request->hasFile('profile_image')) {
             $image = $request->file('profile_image');
@@ -478,8 +471,10 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $query = Category::where('status', 1);
@@ -529,8 +524,10 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $query = Subcategory::where('category_id', $request->category_uuid)
@@ -591,8 +588,10 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $firstSubcategory = Subcategory::find($request->items[0]['subcategory_uuid']);
@@ -625,12 +624,18 @@ class CustomerAuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 0, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
+            return response()->json(['status' => 0, 'message' => 'Validation error', 'data' => [
+                'errors' => $validator->errors()
+            ]
+        ], 422);
         }
 
         $query = Order::with(['category', 'subcategory'])
-                       ->where('user_uuid', $request->user()->uuid)
-                       ->orderBy('created_at', 'desc');
+                       ->where('user_uuid', $request->user()->uuid);
+
+        $total_count = $query->count();
+
+        $query->orderBy('created_at', 'desc');
 
         if ($request->has('min') && is_numeric($request->min)) {
             $query->offset((int)$request->min);
@@ -639,12 +644,28 @@ class CustomerAuthController extends Controller
             $query->limit((int)$request->max);
         }
 
-        $orders = $query->get();
+        $orders = $query->get()->toArray();
+
+        foreach ($orders as &$order) {
+            if (!empty($order['pickup_date'])) {
+                $date = \Carbon\Carbon::parse($order['pickup_date']);
+                if ($date->isToday()) {
+                    $order['pickup_date'] = 'Today';
+                } elseif ($date->isTomorrow()) {
+                    $order['pickup_date'] = 'Tomorrow';
+                } else {
+                    $order['pickup_date'] = $date->format('Y-m-d');
+                }
+            }
+        }
 
         return response()->json([
             'status' => 1,
             'message' => 'Orders fetched successfully',
-            'data' => $orders
+            'data' => [
+                'count' => $total_count,
+                'rows' => $orders
+            ]
         ]);
     }
 
@@ -658,8 +679,10 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $order = Order::with(['category', 'subcategory'])
@@ -686,7 +709,10 @@ class CustomerAuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 0, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
+            return response()->json(['status' => 0, 'message' => 'Validation error', 'data' => [
+                'errors' => $validator->errors()
+            ]
+        ], 422);
         }
 
         $query = Order::where('user_uuid', $request->user()->uuid)
@@ -695,6 +721,8 @@ class CustomerAuthController extends Controller
                              ->orWhere('payment_status', '!=', 'pending');
                        })
                        ->orderBy('created_at', 'desc');
+
+        $total_count = $query->count();
 
         if ($request->has('min') && is_numeric($request->min)) {
             $query->offset((int)$request->min);
@@ -708,7 +736,10 @@ class CustomerAuthController extends Controller
         return response()->json([
             'status' => 1,
             'message' => 'Payments fetched successfully',
-            'data' => $orders
+            'data' => [
+                'count' => $total_count,
+                'rows' => $orders
+            ]
         ]);
     }
 
@@ -723,8 +754,10 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $type = $request->type;
@@ -743,6 +776,66 @@ class CustomerAuthController extends Controller
         ]);
     }
 
+    // --- HOME METHOD ---
+    public function home(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string',
+            'type' => 'nullable|string|in:web,mobile'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
+        }
+
+        // Fetch Banners
+        $bannerQuery = \App\Models\Banner::where('status', 1);
+        if ($request->has('type') && !empty($request->type)) {
+            $bannerQuery->where('type', $request->type);
+        }
+        $banners = $bannerQuery->orderBy('created_at', 'desc')->take(5)->get();
+
+        // Fetch Live Pickups
+        $livePickups = Order::with(['category', 'subcategory'])
+            ->where('user_uuid', $request->user_id)
+            ->whereNotIn('status', ['completed', 'cancelled', 'rejected'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get()->toArray();
+            
+        foreach ($livePickups as &$order) {
+            if (!empty($order['pickup_date'])) {
+                $date = Carbon::parse($order['pickup_date']);
+                if ($date->isToday()) {
+                    $order['pickup_date'] = 'Today';
+                } elseif ($date->isTomorrow()) {
+                    $order['pickup_date'] = 'Tomorrow';
+                } else {
+                    $order['pickup_date'] = $date->format('Y-m-d');
+                }
+            }
+        }
+
+        // Fetch Categories
+        $categories = \App\Models\Category::where('status', 1)->take(6)->get();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Home data fetched successfully',
+            'data' => [
+                'banners' => $banners,
+                'live_pickups' => $livePickups,
+                'categories' => $categories
+            ]
+        ]);
+    }
+
     // --- BANNERS METHODS ---
     public function banners(Request $request)
     {
@@ -756,8 +849,10 @@ class CustomerAuthController extends Controller
             return response()->json([
                 'status' => 0,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => [
+                    'errors' => $validator->errors()
+                ]
+            ], 200);
         }
 
         $query = \App\Models\Banner::where('status', 1);

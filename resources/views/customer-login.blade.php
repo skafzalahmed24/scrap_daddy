@@ -36,7 +36,7 @@
                         <span class="input-group-text text-muted">
                             <i class="bi bi-person"></i>
                         </span>
-                        <input type="text" class="form-control" name="login" placeholder="Phone Number or Email" required>
+                        <input type="text" class="form-control" name="phone_number" placeholder="Phone Number" required>
                     </div>
                 </div>
 
@@ -132,7 +132,7 @@
                 }
             } else {
                 if (data.data && data.data.requires_verification) {
-                    window.location.href = `/customer/verify-otp?login=${encodeURIComponent(formData.get('login'))}`;
+                    window.location.href = `/customer/verify-otp?login=${encodeURIComponent(formData.get('phone_number'))}`;
                     return;
                 }
                 let errorText = data.message || 'Login failed.';

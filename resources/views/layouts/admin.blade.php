@@ -48,6 +48,9 @@
             <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->is('admin/orders') ? 'active' : '' }}">
                 <i class="fa-solid fa-cart-shopping"></i> ORDERS
             </a>
+            <a href="{{ route('admin.scrap-vehicles.index') }}" class="nav-item {{ request()->is('admin/scrap-vehicles') ? 'active' : '' }}">
+                <i class="fa-solid fa-truck-monster"></i> Scrap Vehicles
+            </a>
             <a href="#" class="nav-item">
                 <i class="fa-solid fa-credit-card"></i> PAYMENTS
             </a>

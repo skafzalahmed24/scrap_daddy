@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ScrapVehicleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,7 @@ Route::prefix('customer')->group(function () {
     Route::post('/forgot-password', [CustomerAuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword']);
     // Public Data Routes
+    Route::post('/home', [CustomerAuthController::class, 'home']);
     Route::post('/banners', [CustomerAuthController::class, 'banners']);
     Route::post('/categories', [CustomerAuthController::class, 'categories']);
     Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
@@ -50,7 +52,15 @@ Route::prefix('customer')->group(function () {
         Route::post('/orders', [CustomerAuthController::class, 'orders']);
         Route::post('/order-details', [CustomerAuthController::class, 'showOrder']);
         Route::post('/payments', [CustomerAuthController::class, 'payments']);
+
+        // Scrap Vehicles
+        Route::post('/scrap-vehicles', [ScrapVehicleController::class, 'store']);
+        Route::post('/scrap-vehicles/list', [ScrapVehicleController::class, 'customerIndex']);
     });
 });
 
-
+// Admin APIs
+Route::prefix('admin')->group(function () {
+    Route::post('/scrap-vehicles', [ScrapVehicleController::class, 'index']);
+    Route::post('/scrap-vehicles/status', [ScrapVehicleController::class, 'updateStatus']);
+});

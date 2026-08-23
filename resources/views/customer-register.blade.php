@@ -40,14 +40,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text text-muted">
-                            <i class="bi bi-envelope"></i>
-                        </span>
-                        <input type="email" class="form-control" name="email" placeholder="Email Address">
-                    </div>
-                </div>
+
 
                 <div class="mb-3">
                     <div class="input-group">

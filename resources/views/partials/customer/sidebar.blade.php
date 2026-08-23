@@ -20,7 +20,7 @@
                 <li><a href="{{ route('customer.orders') }}" class="{{ request()->is('customer/orders') ? 'active' : '' }}"><i class="fa-solid fa-truck"></i> My Pickups</a></li>
                 <li><a href="#"><i class="fa-solid fa-gift"></i> Rewards</a></li>
                 <li><a href="{{ route('customer.profile') }}" class="{{ request()->is('customer/profile') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> Profile Details</a></li>
-                <li><a href="#"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
+                <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
                 <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>
                 <li><a href="{{ route('page.show', 'help-and-support') }}" class="{{ request()->is('page/help-and-support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
                 <li><a href="{{ route('page.show', 'privacy-policy') }}" class="{{ request()->is('page/privacy-policy') ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a></li>
@@ -52,7 +52,7 @@
             <li><a href="{{ route('customer.orders') }}" class="{{ request()->is('customer/orders') ? 'active' : '' }}"><i class="fa-solid fa-truck"></i> My Pickups</a></li>
             <li><a href="#"><i class="fa-solid fa-gift"></i> Rewards</a></li>
             <li><a href="{{ route('customer.profile') }}" class="{{ request()->is('customer/profile') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> Profile Details</a></li>
-            <li><a href="#"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
+            <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
             <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>
             <li><a href="{{ route('page.show', 'help-and-support') }}" class="{{ request()->is('page/help-and-support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
             <li><a href="{{ route('page.show', 'privacy-policy') }}" class="{{ request()->is('page/privacy-policy') ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a></li>

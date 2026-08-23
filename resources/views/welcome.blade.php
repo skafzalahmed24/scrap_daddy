@@ -124,7 +124,48 @@
         </div>
     </section>
 
-    @auth
+<!-- Features Strip -->
+    <div class="container features-strip-container d-none d-md-block">
+        <div class="features-strip">
+            <div class="feature-item">
+                <i class="fa-solid fa-warehouse feature-icon"></i>
+                <div class="feature-text">
+                    <h6>Our Own Store & Warehouse</h6>
+                    <p>We Control Quality & Stock</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-box-open feature-icon"></i>
+                <div class="feature-text">
+                    <h6>No Minimum Quantity</h6>
+                    <p>Sell Any Amount of Scrap</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-tags feature-icon"></i>
+                <div class="feature-text">
+                    <h6>Competitive Market Prices</h6>
+                    <p>Better Margins For You</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-truck-fast feature-icon"></i>
+                <div class="feature-text">
+                    <h6>Free Doorstep Pickup</h6>
+                    <p>Hassle-Free Collection</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-shield-halved feature-icon"></i>
+                <div class="feature-text">
+                    <h6>Secure & Reliable</h6>
+                    <p>Instant Digital Payments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@auth
     @php
         $user = auth()->user();
         $recentOrders = \App\Models\Order::with('subcategory')->where('user_uuid', $user->uuid)->latest()->take(5)->get();
@@ -247,46 +288,9 @@
     @endif
     @endauth
 
-    <!-- Features Strip -->
-    <div class="container features-strip-container d-none d-md-block">
-        <div class="features-strip">
-            <div class="feature-item">
-                <i class="fa-solid fa-warehouse feature-icon"></i>
-                <div class="feature-text">
-                    <h6>Our Own Store & Warehouse</h6>
-                    <p>We Control Quality & Stock</p>
-                </div>
-            </div>
-            <div class="feature-item">
-                <i class="fa-solid fa-box-open feature-icon"></i>
-                <div class="feature-text">
-                    <h6>No Minimum Quantity</h6>
-                    <p>Sell Any Amount of Scrap</p>
-                </div>
-            </div>
-            <div class="feature-item">
-                <i class="fa-solid fa-tags feature-icon"></i>
-                <div class="feature-text">
-                    <h6>Competitive Market Prices</h6>
-                    <p>Better Margins For You</p>
-                </div>
-            </div>
-            <div class="feature-item">
-                <i class="fa-solid fa-truck-fast feature-icon"></i>
-                <div class="feature-text">
-                    <h6>Free Doorstep Pickup</h6>
-                    <p>Hassle-Free Collection</p>
-                </div>
-            </div>
-            <div class="feature-item">
-                <i class="fa-solid fa-shield-halved feature-icon"></i>
-                <div class="feature-text">
-                    <h6>Secure & Reliable</h6>
-                    <p>Instant Digital Payments</p>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
+    
 
     <!-- Categories Section -->
     <section id="categories" class="categories-section">
