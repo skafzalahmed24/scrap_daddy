@@ -513,7 +513,7 @@ class CustomerAuthController extends Controller
     public function subcategories(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'category_uuid' => 'required|exists:categories,uuid',
+            'category_uuid' => 'nullable|exists:categories,uuid',
             'search' => 'nullable|string',
             'sort' => 'nullable|string|in:asc,desc',
             'min' => 'nullable|integer|min:0',
@@ -530,8 +530,11 @@ class CustomerAuthController extends Controller
             ], 200);
         }
 
-        $query = Subcategory::where('category_id', $request->category_uuid)
-                            ->where('status', 1);
+        $query = Subcategory::where('status', 1);
+        
+        if ($request->filled('category_uuid')) {
+            $query->where('category_id', $request->category_uuid);
+        }
 
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;

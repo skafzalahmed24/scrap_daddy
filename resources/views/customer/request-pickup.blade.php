@@ -1022,18 +1022,22 @@
             for(let i=0; i<files.length; i++) formData.append('images[]', files[i]);
             document.getElementById('uploadProgress').style.display = 'block';
             try {
-                const res = await fetch('/api/upload-images', { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
+                const res = await fetch('/api/customer/upload-images', { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
                 const data = await res.json();
-                if(data.success) {
-                    data.paths.forEach(path => {
+                if(res.ok && data.status === 1) {
+                    data.data.paths.forEach(path => {
                         const wrapper = document.createElement('div'); wrapper.className = 'image-preview-wrapper';
                         wrapper.innerHTML = `<img src="/${path}"><button type="button" class="remove-img-btn" onclick="this.parentElement.remove(); document.querySelector('input[value=\\'${path}\\']').remove();">&times;</button>`;
                         document.getElementById('imagePreviewContainer').appendChild(wrapper);
                         const hiddenInput = document.createElement('input'); hiddenInput.type = 'hidden'; hiddenInput.name = 'images[]'; hiddenInput.value = path;
                         document.getElementById('hiddenImagesContainer').appendChild(hiddenInput);
                     });
-                } else alert("Upload failed");
-            } catch(e) { alert("Upload error."); } 
+                } else {
+                    let errMsg = data.message || "Unknown error";
+                    if(data.errors) errMsg += "\n" + JSON.stringify(data.errors);
+                    alert("Upload failed: " + errMsg);
+                }
+            } catch(e) { alert("Upload error."); console.error(e); } 
             finally { document.getElementById('uploadProgress').style.display = 'none'; }
         };
 
