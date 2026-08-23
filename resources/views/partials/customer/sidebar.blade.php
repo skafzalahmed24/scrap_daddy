@@ -18,7 +18,7 @@
             </div>
             <ul class="sidebar-nav-list">
                 <li><a href="{{ route('customer.orders') }}" class="{{ request()->is('customer/orders') ? 'active' : '' }}"><i class="fa-solid fa-truck"></i> My Pickups</a></li>
-                <li><a href="#"><i class="fa-solid fa-gift"></i> Rewards</a></li>
+                <li><a href="{{ route('customer.rewards') }}" class="{{ request()->is('customer/rewards') ? 'active' : '' }}"><i class="fa-solid fa-gift"></i> Rewards</a></li>
                 <li><a href="{{ route('customer.profile') }}" class="{{ request()->is('customer/profile') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> Profile Details</a></li>
                 <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
                 <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>
@@ -51,7 +51,7 @@
         </div>
         <ul class="sidebar-nav-list">
             <li><a href="{{ route('customer.orders') }}" class="{{ request()->is('customer/orders') ? 'active' : '' }}"><i class="fa-solid fa-truck"></i> My Pickups</a></li>
-            <li><a href="#"><i class="fa-solid fa-gift"></i> Rewards</a></li>
+            <li><a href="{{ route('customer.rewards') }}" class="{{ request()->is('customer/rewards') ? 'active' : '' }}"><i class="fa-solid fa-gift"></i> Rewards</a></li>
             <li><a href="{{ route('customer.profile') }}" class="{{ request()->is('customer/profile') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> Profile Details</a></li>
             <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
             <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>

@@ -19,7 +19,29 @@
         
         <div class="dashed-box">
             <div class="amt-label">Amount to Pay</div>
-            <div class="amt-value">₹{{ number_format($amount / 100, 2) }}</div>
+            
+            @if($order->discount_applied > 0)
+                <div class="text-muted text-decoration-line-through mb-1">₹{{ number_format($order->total_amount, 2) }}</div>
+                <div class="amt-value text-success mb-0">₹{{ number_format($amount / 100, 2) }}</div>
+                <div class="badge bg-success-subtle text-success border border-success-subtle mb-3 mt-1"><i class="fa-solid fa-gift"></i> Rewards Applied (-₹{{ number_format($order->discount_applied, 2) }})</div>
+            @else
+                <div class="amt-value mb-4">₹{{ number_format($amount / 100, 2) }}</div>
+                
+                @if(isset($user) && $user->reward_coins > 0)
+                <div class="rewards-card p-3 mb-4 rounded-3 text-start" style="background-color: #f8f9fa; border: 1px dashed #2e7d32;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bold" style="color: #2e7d32;"><i class="fa-solid fa-gift me-2"></i>Available Rewards</h6>
+                            <p class="text-muted small mb-0">You have <strong>{{ $user->reward_coins }}</strong> coins (Value: <strong>₹{{ number_format($user->reward_coins * $coinValue, 2) }}</strong>).</p>
+                        </div>
+                        <form action="{{ route('customer.payment.apply-rewards', $order->id) }}" method="POST" class="m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-success rounded-pill fw-bold px-3">Apply</button>
+                        </form>
+                    </div>
+                </div>
+                @endif
+            @endif
             
             <div class="features-row">
                 <div class="feature-item">

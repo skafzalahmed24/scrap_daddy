@@ -49,6 +49,7 @@ class User extends Authenticatable
         'is_verified',
         'otp_expires_at',
         'status',
+        'reward_coins',
     ];
 
     /**
@@ -75,8 +76,27 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'user_uuid', 'uuid');
     }
 
+    public function scrapVehicles()
+    {
+        return $this->hasMany(ScrapVehicle::class, 'user_uuid', 'uuid');
+    }
+
     public function feedbacks()
     {
         return $this->hasMany(Feedback::class, 'user_uuid', 'uuid');
+    }
+
+    /**
+     * Get the dynamically calculated available reward coins for the user.
+     * It sums the available_coins of all unexpired orders.
+     */
+    public function getAvailableRewardCoins()
+    {
+        return \App\Models\Order::where('user_uuid', $this->uuid)
+            ->where('available_coins', '>', 0)
+            ->where(function($q) {
+                $q->whereNull('coins_expires_at')
+                  ->orWhere('coins_expires_at', '>', now());
+            })->sum('available_coins');
     }
 }

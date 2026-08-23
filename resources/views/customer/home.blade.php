@@ -19,7 +19,7 @@
                 $user = auth()->user();
                 $recentOrders = \App\Models\Order::with('subcategory')->where('user_uuid', $user->uuid)->latest()->take(5)->get();
                 $totalPickups = \App\Models\Order::where('user_uuid', $user->uuid)->count();
-                $rewardPoints = 150; // Mocked for now
+                $rewardPoints = $user->reward_coins ?? 0;
             @endphp
             
             <!-- DESKTOP VIEW -->
@@ -121,15 +121,24 @@
                             </div>
                             <div class="d-flex flex-column justify-content-between w-100">
                                 <div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">ScrapDaddy User &bull; +91 9876543210</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">ScrapDaddy User &bull;</div>
                                     <div class="text-dark text-truncate" style="font-size: 0.8rem; max-width: 200px;">{{ $order->pickup_location }}</div>
                                 </div>
                                 <div class="mt-3">
                                     <div class="text-muted" style="font-size: 0.75rem;">Scrapdaddy Hub</div>
-                                    <div class="text-dark text-truncate" style="font-size: 0.8rem; max-width: 200px;">Veerannapalya Main Road, 65...</div>
+                                    <div class="text-dark text-truncate" style="font-size: 0.8rem; max-width: 200px;">Bengaluru</div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="mb-3 d-flex flex-wrap gap-2">
+                        @if($order->coins_earned > 0)
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fa-solid fa-arrow-trend-up"></i> +{{ $order->coins_earned }} Coins Earned</span>
+                        @endif
+                        @if($order->coins_redeemed > 0)
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1" style="color: #ed6c02 !important;"><i class="fa-solid fa-gift"></i> -{{ $order->coins_redeemed }} Coins Redeemed (Saved ₹{{ $order->discount_applied }})</span>
+                        @endif
                     </div>
                     
                     <div>
@@ -162,7 +171,7 @@
                         <p>Track your pickup status</p>
                     </div>
                 </div>
-                <div class="quick-action-card">
+                <div class="quick-action-card" onclick="window.location.href='{{ route('customer.rewards') }}'" style="cursor: pointer;">
                     <div class="quick-action-icon bg-success bg-opacity-10 text-success"><i class="fa-solid fa-gift"></i></div>
                     <div>
                         <h6>Reward Store</h6>

@@ -401,6 +401,20 @@
                             </div>
                         </div>
 
+                        <div id="rewardsContainer" style="display: none;">
+                            <div class="rewards-card ms-md-5 mb-4 p-3 border rounded-3" style="background-color: #fcfcfc;">
+                                <div class="form-check form-switch d-flex align-items-center justify-content-between p-0" style="padding-left: 0;">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold" style="color: #222;"><i class="fa-solid fa-gift text-success me-2"></i>Apply Rewards Bonus</h6>
+                                        <p class="text-muted small mb-0">You have <strong id="rewardCoinsDisplay">0</strong> coins. Apply them to get a bonus of <strong class="text-success" id="rewardBonusDisplay">₹0.00</strong>.</p>
+                                    </div>
+                                    <div>
+                                        <input class="form-check-input m-0 fs-4" type="checkbox" name="apply_rewards" id="apply_rewards" value="1" style="cursor: pointer; position: relative;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="alert-success-custom ms-md-5 mb-4" style="background-color: #e8f5e9; border: 1px solid #c8e6c9; color: #2e7d32;">
                             <i class="fa-solid fa-shield-check"></i>
                             <div>Once confirmed, Scrapdaddy will review your request. Your request will be assigned soon. Please wait for a while.</div>
@@ -621,6 +635,32 @@
             } catch (e) {
                 console.error('Failed to parse user data', e);
             }
+        }
+        
+        // Fetch fresh user profile to get latest reward coins balance
+        if (token) {
+            fetch('/api/customer/user', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 1 && data.data && data.data.user) {
+                    const u = data.data.user;
+                    if (u.reward_coins > 0) {
+                        const coinValue = {{ $coinValue ?? 0.10 }};
+                        document.getElementById('rewardCoinsDisplay').innerText = u.reward_coins;
+                        document.getElementById('rewardBonusDisplay').innerText = '₹' + (u.reward_coins * coinValue).toFixed(2);
+                        document.getElementById('rewardsContainer').style.display = 'block';
+                    }
+                    // Update local storage so other pages have fresh data
+                    localStorage.setItem('user_data', JSON.stringify(u));
+                }
+            })
+            .catch(e => console.error('Failed to fetch user profile', e));
         }
         
         function showLocationError(msg) {

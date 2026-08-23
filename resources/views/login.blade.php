@@ -292,13 +292,13 @@
                         </svg>
                     </div>
 
-                    <div class="options-group">
+                    <!-- <div class="options-group">
                         <label class="checkbox-container">
                             <input type="checkbox" name="remember" id="remember">
                             Remember me
                         </label>
                         <a href="#" class="forgot-link">Forgot Password?</a>
-                    </div>
+                    </div> -->
 
                     <button type="submit" class="login-btn" id="loginBtn">
                         <span>Login</span>
@@ -306,9 +306,9 @@
                     </button>
                 </form>
 
-                <div class="register-text">
+                <!-- <div class="register-text">
                     Don't have an account? <a href="#">Register</a>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

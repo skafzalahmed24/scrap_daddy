@@ -160,6 +160,36 @@ class ScrapVehicleController extends Controller
     }
 
     /**
+     * Admin SSR View for Scrap Vehicles
+     */
+    public function adminIndex(Request $request)
+    {
+        $query = ScrapVehicle::with('user')->latest();
+
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('vehicle_number', 'like', "%{$search}%")
+                  ->orWhere('vehicle_brand', 'like', "%{$search}%")
+                  ->orWhere('vehicle_model', 'like', "%{$search}%")
+                  ->orWhere('vehicle_type', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('full_name', 'like', "%{$search}%")
+                         ->orWhere('phone_number', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $vehicles = $query->paginate(15);
+        
+        return view('admin.scrap_vehicles', compact('vehicles'));
+    }
+
+    /**
      * Admin API to update scrap vehicle status
      */
     public function updateStatus(Request $request)

@@ -12,6 +12,21 @@
     </div>
 @endif
 
+<div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-body">
+        <form action="{{ route('admin.orders.index') }}" method="GET" class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="search" class="form-control border-start-0" placeholder="Search by Order ID, Customer Name, or Phone..." value="{{ request('search') }}">
+            </div>
+            <button type="submit" class="btn btn-primary px-4">Search</button>
+            @if(request('search'))
+                <a href="{{ route('admin.orders.index') }}" class="btn btn-light px-3">Clear</a>
+            @endif
+        </form>
+    </div>
+</div>
+
 <div class="card shadow-sm border-0 rounded-3">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -99,6 +114,14 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <div class="card-footer bg-white border-top py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="text-muted small fw-medium">
+                Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} entries
+            </div>
+            <div class="m-0">
+                {{ $orders->appends(request()->query())->links('pagination::bootstrap-5') }}
+            </div>
         </div>
         </div>
     </div>

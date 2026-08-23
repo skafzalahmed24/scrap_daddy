@@ -15,9 +15,14 @@ Route::get('/admin/login', function () {
     return view('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-});
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminPaymentController;
+use App\Http\Controllers\AdminUserController;
+
+Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+Route::get('/admin/payments', [AdminPaymentController::class, 'index'])->name('admin.payments.index');
+Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+Route::get('/admin/users/{uuid}', [AdminUserController::class, 'show'])->name('admin.users.show');
 
 Route::get('/customer/login', function () {
     return view('customer-login');
@@ -87,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Payments
     Route::get('/customer/payment/{orderId}', [PaymentController::class, 'initiatePayment'])->name('customer.payment.initiate');
+    Route::post('/customer/payment/{orderId}/apply-rewards', [PaymentController::class, 'applyRewards'])->name('customer.payment.apply-rewards');
     Route::post('/customer/payment/callback', [PaymentController::class, 'paymentCallback'])->name('customer.payment.callback');
 });
 
@@ -110,13 +116,15 @@ Route::get('/admin/faqs', function () {
     return view('admin.faqs');
 });
 
+Route::get('/admin/rewards', function () {
+    return view('admin.rewards');
+});
+
 // Admin Orders, Feedback & Pages
 Route::get('/admin/orders', [OrderController::class, 'adminIndex'])->name('admin.orders.index');
 Route::post('/admin/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.status');
 
-Route::get('/admin/scrap-vehicles', function () {
-    return view('admin.scrap_vehicles');
-})->name('admin.scrap-vehicles.index');
+Route::get('/admin/scrap-vehicles', [App\Http\Controllers\ScrapVehicleController::class, 'adminIndex'])->name('admin.scrap-vehicles.index');
 
 Route::get('/admin/feedbacks', [FeedbackController::class, 'adminIndex'])->name('admin.feedbacks.index');
 Route::post('/admin/feedbacks/{id}/toggle', [FeedbackController::class, 'toggleApproval'])->name('admin.feedbacks.toggle');
@@ -133,6 +141,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\RewardController;
 
 Route::prefix('api')->group(function () {
     Route::post('categories/{id}', [CategoryController::class, 'update']);
@@ -148,4 +157,10 @@ Route::prefix('api')->group(function () {
     Route::post('faqs/{id}', [FaqController::class, 'update']);
     Route::post('faqs/{id}/status', [FaqController::class, 'toggleStatus']);
     Route::apiResource('faqs', FaqController::class)->except(['update']);
+
+    Route::get('rewards/settings', [RewardController::class, 'getSettings']);
+    Route::post('rewards/settings', [RewardController::class, 'updateSettings']);
+    Route::post('rewards/{id}', [RewardController::class, 'update']);
+    Route::post('rewards/{id}/status', [RewardController::class, 'toggleStatus']);
+    Route::apiResource('rewards', RewardController::class)->except(['update']);
 });

@@ -45,8 +45,8 @@
             <a href="/admin/faqs" class="nav-item {{ request()->is('admin/faqs') ? 'active' : '' }}">
                 <i class="fa-regular fa-circle-question"></i> FAQs
             </a>
-            <a href="#" class="nav-item">
-                <i class="fa-solid fa-envelope-open-text"></i> ENQUIRES
+            <a href="/admin/rewards" class="nav-item {{ request()->is('admin/rewards') ? 'active' : '' }}">
+                <i class="fa-solid fa-gift"></i> Rewards Config
             </a>
             <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->is('admin/orders') ? 'active' : '' }}">
                 <i class="fa-solid fa-cart-shopping"></i> ORDERS
@@ -54,17 +54,11 @@
             <a href="{{ route('admin.scrap-vehicles.index') }}" class="nav-item {{ request()->is('admin/scrap-vehicles') ? 'active' : '' }}">
                 <i class="fa-solid fa-truck-monster"></i> Scrap Vehicles
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->is('admin/payments') ? 'active' : '' }}">
                 <i class="fa-solid fa-credit-card"></i> PAYMENTS
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->is('admin/users*') ? 'active' : '' }}">
                 <i class="fa-solid fa-users"></i> USERS
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fa-solid fa-star"></i> REVIEWS
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fa-solid fa-gear"></i> SETTINGS
             </a>
         </nav>
 
