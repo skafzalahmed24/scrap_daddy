@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Scrap Daddy</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -259,7 +262,7 @@
     <div class="login-wrapper">
         <!-- Image Section -->
         <div class="image-section">
-            <img src="/adminloginsidenav.png" alt="Scrap Daddy Admin Login">
+            <img src="{{ asset('adminloginsidenav.png') }}" alt="Scrap Daddy Admin Login">
         </div>
 
         <!-- Form Section -->
@@ -345,7 +348,7 @@
             btnLoader.style.display = 'block';
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch("{{ url('/api/login') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

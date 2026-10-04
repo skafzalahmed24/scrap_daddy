@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password - Scrap Daddy</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -16,7 +19,7 @@
 <div class="split-layout">
     <!-- Image Section -->
     <div class="split-image">
-        <img src="/customerlogin.png" alt="Reset Password">
+        <img src="{{ asset('customerlogin.png') }}" alt="Reset Password">
     </div>
     
     <!-- Form Section -->
@@ -24,7 +27,7 @@
         <div class="form-content-wrapper">
             <!-- Mobile Logo -->
             <div class="text-center d-md-none mb-4 mt-2">
-                <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="max-height: 80px;">
+                <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="max-height: 80px;">
             </div>
             <h2 class="fw-bold mb-1">Reset <span class="text-primary">Password</span></h2>
             <p class="text-muted mb-4">Enter the OTP and your new password</p>
@@ -33,7 +36,8 @@
                 <div id="errorAlert" class="alert alert-danger d-none"></div>
                 <div id="successAlert" class="alert alert-success d-none"></div>
 
-                <input type="hidden" id="loginInput" name="login">
+                <input type="hidden" id="loginInput" name="phone_number">
+                <input type="hidden" id="loginLegacyInput" name="login">
 
                 <div class="mb-3">
                     <div class="input-group">
@@ -71,7 +75,7 @@
             </form>
 
             <div class="text-center mt-4 text-muted">
-                <a href="/customer/login" class="text-primary text-decoration-none fw-semibold">Back to Login</a>
+                <a href="{{ url('/customer/login') }}" class="text-primary text-decoration-none fw-semibold">Back to Login</a>
             </div>
         </div>
     </div>
@@ -98,8 +102,9 @@
     const loginValue = urlParams.get('login');
     if(loginValue) {
         document.getElementById('loginInput').value = loginValue;
+        document.getElementById('loginLegacyInput').value = loginValue;
     } else {
-        window.location.href = '/customer/forgot-password';
+        window.location.href = "{{ url('/customer/forgot-password') }}";
     }
 
     document.getElementById('resetForm').addEventListener('submit', async function(e) {
@@ -123,7 +128,7 @@
         successBox.classList.add('d-none');
 
         try {
-            const response = await fetch('/api/customer/reset-password', {
+            const response = await fetch("{{ url('/api/customer/reset-password') }}", {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json'
@@ -133,17 +138,19 @@
 
             const data = await response.json();
 
-            if (response.ok || data.status === 1) {
+            if (data && data.status === 1) {
                 successBox.innerText = 'Password reset successfully! Redirecting to login...';
                 successBox.classList.remove('d-none');
                 
                 setTimeout(() => {
-                    window.location.href = '/customer/login';
+                    window.location.href = "{{ url('/customer/login') }}";
                 }, 1500);
             } else {
-                let errorText = data.message || 'Password reset failed.';
-                if (data.errors) {
-                    errorText = Object.values(data.errors).map(err => err.join(', ')).join('<br>');
+                let errorText = (data && data.message) ? data.message : 'Password reset failed.';
+                if (data && data.data && data.data.errors) {
+                    errorText = Object.values(data.data.errors).map(err => Array.isArray(err) ? err.join(', ') : err).join('<br>');
+                } else if (data && data.errors) {
+                    errorText = Object.values(data.errors).map(err => Array.isArray(err) ? err.join(', ') : err).join('<br>');
                 }
                 alertBox.innerHTML = errorText;
                 alertBox.classList.remove('d-none');
@@ -151,6 +158,7 @@
                 btn.innerText = 'Reset Password';
             }
         } catch (error) {
+            console.error('Reset password error:', error);
             alertBox.innerText = 'An unexpected error occurred. Please try again.';
             alertBox.classList.remove('d-none');
             btn.disabled = false;

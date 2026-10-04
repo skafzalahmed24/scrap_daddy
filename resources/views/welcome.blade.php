@@ -16,10 +16,10 @@
                             <div class="carousel-item h-100 {{ $index === 0 ? 'active' : '' }}">
                                 @if(preg_match('/\.(mp4|webm|ogg)$/i', $banner->uploads))
                                     <video class="hero-media" autoplay muted loop playsinline>
-                                        <source src="/{{ $banner->uploads }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
+                                        <source src="{{ asset($banner->uploads) }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
                                     </video>
                                 @else
-                                    <img src="/{{ $banner->uploads }}" class="hero-media" alt="{{ $banner->title }}">
+                                    <img src="{{ asset($banner->uploads) }}" class="hero-media" alt="{{ $banner->title }}">
                                 @endif
                                 
                                 <div class="hero-overlay">
@@ -28,8 +28,8 @@
                                             <h1 class="hero-title">{{ $banner->title }}</h1>
                                             <p class="hero-subtitle">{{ $banner->short_description }}</p>
                                             <div class="hero-buttons d-flex gap-3 mt-4">
-                                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                                <a href="{{ url('/#categories') }}" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                                <a href="{{ route('categories.explore') }}" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -56,8 +56,8 @@
                             <h1 class="hero-title">Global Scrap Recycling Made Simple</h1>
                             <p class="hero-subtitle">Source bulk scrap materials locally and deliver to businesses worldwide. We control quality & stock.</p>
                             <div class="hero-buttons d-flex gap-3 mt-4">
-                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                <a href="{{ url('/#categories') }}" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                <a href="{{ route('categories.explore') }}" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
                             </div>
                         </div>
                     </div>
@@ -74,10 +74,10 @@
                             <div class="carousel-item h-100 {{ $index === 0 ? 'active' : '' }}">
                                 @if(preg_match('/\.(mp4|webm|ogg)$/i', $banner->uploads))
                                     <video class="hero-media" autoplay muted loop playsinline>
-                                        <source src="/{{ $banner->uploads }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
+                                        <source src="{{ asset($banner->uploads) }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
                                     </video>
                                 @else
-                                    <img src="/{{ $banner->uploads }}" class="hero-media" alt="{{ $banner->title }}">
+                                    <img src="{{ asset($banner->uploads) }}" class="hero-media" alt="{{ $banner->title }}">
                                 @endif
                                 
                                 <div class="hero-overlay">
@@ -86,8 +86,8 @@
                                             <h1 class="hero-title">{{ $banner->title }}</h1>
                                             <p class="hero-subtitle">{{ $banner->short_description }}</p>
                                             <div class="hero-buttons d-flex gap-3 mt-4">
-                                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                                <a href="{{ url('/#categories') }}" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                                <a href="{{ route('categories.explore') }}" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -114,8 +114,8 @@
                             <h1 class="hero-title">Global Scrap Recycling Made Simple</h1>
                             <p class="hero-subtitle">Source bulk scrap materials locally and deliver to businesses worldwide. We control quality & stock.</p>
                             <div class="hero-buttons d-flex gap-3 mt-4">
-                                <a href="#categories" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                <a href="/explore-categories" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                <a href="{{ url('/#categories') }}" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                                <a href="{{ route('categories.explore') }}" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
                             </div>
                         </div>
                     </div>
@@ -297,7 +297,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="section-heading mb-0">Categories</h3>
-                <a href="/explore-categories" class="btn rounded-pill px-4 fw-bold shadow-sm" style="border: 2px solid var(--primary-green); color: var(--primary-green); background: white; transition: all 0.3s;" onmouseover="this.style.background='var(--primary-green)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--primary-green)';">View More <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                <a href="{{ route('categories.explore') }}" class="btn rounded-pill px-4 fw-bold shadow-sm" style="border: 2px solid var(--primary-green); color: var(--primary-green); background: white; transition: all 0.3s;" onmouseover="this.style.background='var(--primary-green)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--primary-green)';">View More <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
             
             <div class="categories-grid position-relative">
@@ -305,7 +305,7 @@
                 <a href="{{ route('category.show', $category->uuid) }}" class="category-circle-item text-decoration-none">
                     <div class="category-circle">
                         @if($category->image)
-                            <img src="/{{ $category->image }}" alt="{{ $category->title }}">
+                            <img src="{{ asset($category->image) }}" alt="{{ $category->title }}">
                         @else
                             <i class="fa-solid fa-recycle"></i>
                         @endif
@@ -366,7 +366,7 @@
                                 <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(46,125,50,0.02) 0%, transparent 100%); border-radius: 50%;"></div>
                                 
                                 @if($sub->image)
-                                    <img src="/{{ $sub->image }}" alt="{{ $sub->name }}" style="width: 65px; height: 65px; object-fit: contain; z-index: 1; transition: transform 0.3s;">
+                                    <img src="{{ asset($sub->image) }}" alt="{{ $sub->name }}" style="width: 65px; height: 65px; object-fit: contain; z-index: 1; transition: transform 0.3s;">
                                 @else
                                     <i class="fa-solid fa-recycle fa-2x" style="color: var(--primary-green); z-index: 1;"></i>
                                 @endif
@@ -397,7 +397,7 @@
                     <span class="badge mb-3 px-3 py-2 rounded-pill fw-semibold" style="background: rgba(46,125,50,0.1); color: var(--primary-green); font-size: 0.9rem;">Our Process</span>
                     <h3 class="section-heading mb-4" style="font-size: 3rem; line-height: 1.2;">How It Works</h3>
                     <p class="text-muted fs-5 mb-4">Selling your scrap has never been easier. We've streamlined our entire process to make sure you get paid instantly without any of the traditional hassle.</p>
-                    <a href="#categories" class="btn btn-success px-4 py-3 rounded-pill fw-bold" style="background: var(--primary-green); border: none; box-shadow: 0 8px 20px rgba(46,125,50,0.3);">Start Selling Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                    <a href="{{ url('/#categories') }}" class="btn btn-success px-4 py-3 rounded-pill fw-bold" style="background: var(--primary-green); border: none; box-shadow: 0 8px 20px rgba(46,125,50,0.3);">Start Selling Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
                 </div>
 
                 <!-- Right Side: Vertical Steps -->

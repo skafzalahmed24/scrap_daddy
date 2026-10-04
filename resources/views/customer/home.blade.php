@@ -418,7 +418,7 @@
                 @endphp
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
                     <h5 class="fw-bold text-dark mb-0">Categories</h5>
-                    <a href="/explore-categories" class="text-success text-decoration-none fw-bold" style="font-size: 0.85rem;">View All <i class="fa-solid fa-chevron-right ms-1" style="font-size: 0.7rem;"></i></a>
+                    <a href="{{ url('/explore-categories') }}" class="text-success text-decoration-none fw-bold" style="font-size: 0.85rem;">View All <i class="fa-solid fa-chevron-right ms-1" style="font-size: 0.7rem;"></i></a>
                 </div>
                 <div class="row g-3 pb-4">
                     @forelse($mobileCategories as $category)

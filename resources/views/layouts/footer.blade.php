@@ -7,8 +7,8 @@
             <div class="row g-4">
                 <!-- Column 1: Logo & Info -->
                 <div class="col-lg-4 col-md-6">
-                    <a href="/" class="brand-logo mb-3 d-flex align-items-center" style="text-decoration: none;">
-                        <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="height: 60px;">
+                    <a href="{{ url('/') }}" class="brand-logo mb-3 d-flex align-items-center" style="text-decoration: none;">
+                        <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 60px;">
                     </a>
                     <p class="text-muted mb-4" style="font-size: 0.95rem;">
                         We deliver trusted wholesale sourcing & global shipping solutions for businesses worldwide.
@@ -24,11 +24,11 @@
                 <div class="col-lg-4 col-md-6">
                     <h5 class="fw-bold mb-4" style="color: #000;">Quick Links</h5>
                     <ul class="list-unstyled" style="line-height: 2;">
-                        <li><a href="/" class="text-muted text-decoration-none footer-link">Home</a></li>
-                        <li><a href="#categories" class="text-muted text-decoration-none footer-link">Categories</a></li>
-                        <li><a href="#services" class="text-muted text-decoration-none footer-link">Services</a></li>
-                        <li><a href="#testimonials" class="text-muted text-decoration-none footer-link">Testimonials</a></li>
-                        <li><a href="#contact" class="text-muted text-decoration-none footer-link">Contact</a></li>
+                        <li><a href="{{ url('/') }}" class="text-muted text-decoration-none footer-link">Home</a></li>
+                        <li><a href="{{ url('/#categories') }}" class="text-muted text-decoration-none footer-link">Categories</a></li>
+                        <li><a href="{{ url('/#services') }}" class="text-muted text-decoration-none footer-link">Services</a></li>
+                        <li><a href="{{ url('/#testimonials') }}" class="text-muted text-decoration-none footer-link">Testimonials</a></li>
+                        <li><a href="{{ url('/#contact') }}" class="text-muted text-decoration-none footer-link">Contact</a></li>
                     </ul>
                 </div>
 
@@ -61,8 +61,8 @@
                         <span class="text-muted" style="font-size: 0.85rem;">Copyright &copy; {{ date('Y') }}. All right reserved @ scrapdaddy | v1.0.0</span>
                     </div>
                     <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
-                        <a href="#" class="text-muted text-decoration-none me-4" style="font-size: 0.85rem;">Terms & Conditions</a>
-                        <a href="#" class="text-muted text-decoration-none" style="font-size: 0.85rem;">Privacy Policy</a>
+                        <a href="{{ route('page.show', 'terms-and-conditions') }}" class="text-muted text-decoration-none me-4" style="font-size: 0.85rem;">Terms & Conditions</a>
+                        <a href="{{ route('page.show', 'privacy-policy') }}" class="text-muted text-decoration-none" style="font-size: 0.85rem;">Privacy Policy</a>
                     </div>
                 </div>
             </div>

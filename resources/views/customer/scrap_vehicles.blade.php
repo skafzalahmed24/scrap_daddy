@@ -246,7 +246,7 @@
                 const formData = new FormData();
                 formData.append('images[]', file);
 
-                const response = await fetch('/api/customer/upload-images', {
+                const response = await fetch("{{ url('/api/customer/upload-images') }}", {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -278,7 +278,7 @@
         const div = document.createElement('div');
         div.className = 'photo-preview';
         div.innerHTML = `
-            <img src="/${imgPath}" alt="Uploaded photo">
+            <img src="{{ asset('') }}${imgPath}" alt="Uploaded photo">
             <button type="button" class="remove-photo" onclick="removePhoto('${imgPath}', this)"><i class="fa-solid fa-xmark"></i></button>
         `;
         photoPreviewContainer.appendChild(div);

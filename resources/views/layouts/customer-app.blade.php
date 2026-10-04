@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>@yield('title', 'Scrap Daddy')</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -124,8 +127,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Ensure auth token is present
-    if (!localStorage.getItem('auth_token')) {
-        window.location.href = '/customer/login';
+    const authToken = localStorage.getItem('auth_token');
+    if (!authToken || authToken === 'undefined' || authToken === 'null') {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        window.location.href = "{{ url('/customer/login') }}";
     }
 </script>
 @stack('scripts')

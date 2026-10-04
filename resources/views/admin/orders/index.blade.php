@@ -61,7 +61,7 @@
                             <div class="d-flex flex-wrap gap-1 mb-1">
                                 @if($order->images)
                                     @foreach($order->images as $img)
-                                        <a href="/{{ $img }}" target="_blank"><img src="/{{ $img }}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"></a>
+                                        <a href="{{ asset($img) }}" target="_blank"><img src="{{ asset($img) }}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"></a>
                                     @endforeach
                                 @else
                                     <small class="text-muted">No Images</small>

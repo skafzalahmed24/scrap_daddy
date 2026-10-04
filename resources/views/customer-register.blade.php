@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Register - Scrap Daddy</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -16,7 +19,7 @@
 <div class="split-layout">
     <!-- Image Section -->
     <div class="split-image">
-        <img src="/customerregister (2).png" alt="Customer Register">
+        <img src="{{ asset('customerregister (2).png') }}" alt="Customer Register">
     </div>
     
     <!-- Form Section -->
@@ -24,7 +27,7 @@
         <div class="form-content-wrapper">
             <!-- Mobile Logo -->
             <div class="text-center d-md-none mb-4 mt-2">
-                <img src="/scraplogo.jpeg" alt="Scrap Daddy Logo" style="max-height: 80px;">
+                <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="max-height: 80px;">
             </div>
             <h2 class="fw-bold mb-1">Create <span class="text-primary">Account!</span></h2>
             <p class="text-muted mb-4">Register as a new customer</p>
@@ -78,7 +81,7 @@
             </form>
 
             <div class="text-center mt-4 text-muted">
-                Already have an account? <a href="/customer/login" class="text-primary text-decoration-none fw-semibold">Login</a>
+                Already have an account? <a href="{{ url('/customer/login') }}" class="text-primary text-decoration-none fw-semibold">Login</a>
             </div>
         </div>
     </div>
@@ -122,7 +125,7 @@
         alertBox.classList.add('d-none');
 
         try {
-            const response = await fetch('/api/customer/register', {
+            const response = await fetch("{{ url('/api/customer/register') }}", {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json'
@@ -132,18 +135,21 @@
 
             const data = await response.json();
 
-            if (response.ok || data.status === 1) {
+            if (data && data.status === 1) {
                 // Success! Redirect to OTP verification
-                window.location.href = `/customer/verify-otp?login=${encodeURIComponent(formData.get('phone_number'))}`;
+                window.location.href = "{{ url('/customer/verify-otp') }}?login=" + encodeURIComponent(formData.get('phone_number'));
             } else {
-                let errorText = data.message || 'Registration failed.';
-                if (data.errors) {
-                    errorText = Object.values(data.errors).map(err => err.join(', ')).join('<br>');
+                let errorText = (data && data.message) ? data.message : 'Registration failed.';
+                if (data && data.data && data.data.errors) {
+                    errorText = Object.values(data.data.errors).map(err => Array.isArray(err) ? err.join(', ') : err).join('<br>');
+                } else if (data && data.errors) {
+                    errorText = Object.values(data.errors).map(err => Array.isArray(err) ? err.join(', ') : err).join('<br>');
                 }
                 alertBox.innerHTML = errorText;
                 alertBox.classList.remove('d-none');
             }
         } catch (error) {
+            console.error('Registration error:', error);
             alertBox.innerText = 'An unexpected error occurred. Please try again.';
             alertBox.classList.remove('d-none');
         } finally {

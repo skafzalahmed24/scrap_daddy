@@ -86,6 +86,10 @@ class CustomerAuthController extends Controller
 
     public function verifyOtp(Request $request)
     {
+        if (!$request->has('phone_number') && $request->has('login')) {
+            $request->merge(['phone_number' => $request->input('login')]);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
             'otp' => 'required|string',
@@ -151,6 +155,10 @@ class CustomerAuthController extends Controller
 
     public function login(Request $request)
     {
+        if (!$request->has('phone_number') && $request->has('login')) {
+            $request->merge(['phone_number' => $request->input('login')]);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
             'password' => 'required|string',
@@ -212,10 +220,8 @@ class CustomerAuthController extends Controller
         $accessToken = $user->createToken('auth_token', ['access'])->plainTextToken;
         $refreshToken = $user->createToken('refresh_token', ['refresh'])->plainTextToken;
 
-        // Also log them into the web session if platform is web
-        if ($request->platform_type == 1) {
-            auth()->guard('web')->login($user);
-        }
+        // Also log them into the web session
+        auth()->guard('web')->login($user);
 
         return response()->json([
             'status' => 1,
@@ -231,6 +237,10 @@ class CustomerAuthController extends Controller
 
     public function forgotPassword(Request $request)
     {
+        if (!$request->has('phone_number') && $request->has('login')) {
+            $request->merge(['phone_number' => $request->input('login')]);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
         ]);
@@ -267,6 +277,10 @@ class CustomerAuthController extends Controller
 
     public function resetPassword(Request $request)
     {
+        if (!$request->has('phone_number') && $request->has('login')) {
+            $request->merge(['phone_number' => $request->input('login')]);
+        }
+
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
             'password' => 'required|string|min:6|confirmed',

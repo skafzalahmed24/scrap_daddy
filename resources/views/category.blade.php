@@ -47,7 +47,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="section-heading mb-0 text-start">Category Explorer</h3>
-                <a href="/" class="btn btn-outline-success rounded-pill px-4" style="border-color: var(--primary-green); color: var(--primary-green);"><i class="fa-solid fa-arrow-left me-1"></i> Back to Home</a>
+                <a href="{{ url('/') }}" class="btn btn-outline-success rounded-pill px-4" style="border-color: var(--primary-green); color: var(--primary-green);"><i class="fa-solid fa-arrow-left me-1"></i> Back to Home</a>
             </div>
             
             <div class="row g-4">
@@ -55,7 +55,7 @@
                 <div class="col-lg-3">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 mb-lg-0 sticky-lg-top" style="top: 20px; z-index: 10;">
                         <div class="card-header bg-white border-bottom-0 pt-4 pb-2 d-none d-lg-block">
-                            <a href="/explore-categories" class="text-decoration-none">
+                            <a href="{{ route('categories.explore') }}" class="text-decoration-none">
                                 <h5 class="fw-bold mb-0" style="color: var(--primary-blue);">
                                     <i class="fa-solid fa-layer-group me-2" style="font-size: 1rem;"></i>All Categories
                                 </h5>
@@ -69,7 +69,7 @@
                                        class="list-group-item list-group-item-action border-0 px-4 py-3 d-flex align-items-center"
                                        style="{{ $cat->uuid === $category->uuid ? 'background-color: rgba(46,125,50,0.05); color: var(--primary-green); border-left: 4px solid var(--primary-green) !important; font-weight: 600;' : 'color: #555;' }}">
                                         @if($cat->image)
-                                            <img src="/{{ $cat->image }}" alt="" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px; margin-right: 12px;">
+                                            <img src="{{ asset($cat->image) }}" alt="" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px; margin-right: 12px;">
                                         @else
                                             <i class="fa-solid fa-recycle me-3" style="{{ $cat->uuid === $category->uuid ? 'color: var(--primary-green);' : 'color: #aaa;' }}"></i>
                                         @endif
@@ -89,7 +89,7 @@
                 <div class="col-lg-9">
                     <div class="d-flex align-items-center mb-4">
                         @if($category->image)
-                            <img src="/{{ $category->image }}" alt="" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; margin-right: 15px;">
+                            <img src="{{ asset($category->image) }}" alt="" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; margin-right: 15px;">
                         @endif
                         <h4 class="fw-bold mb-0" style="color: #333;">{{ $category->title }} Subcategories</h4>
                     </div>
@@ -101,7 +101,7 @@
                                 <a href="javascript:void(0)" class="text-decoration-none text-center subcategory-item" data-id="{{ $sub->id }}" data-uuid="{{ $sub->uuid }}" data-name="{{ $sub->name }}">
                                     <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto mb-2" style="width: 100px; height: 100px; background-color: #ffffff; border: 2px solid var(--primary-green); overflow: hidden; transition: transform 0.3s; position: relative;">
                                         @if($sub->image)
-                                            <img src="/{{ $sub->image }}" alt="{{ $sub->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 15px;">
+                                            <img src="{{ asset($sub->image) }}" alt="{{ $sub->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 15px;">
                                         @else
                                             <i class="fa-solid fa-recycle fa-3x" style="color: var(--primary-green);"></i>
                                         @endif
@@ -174,8 +174,8 @@
                     <h4 class="fw-bold mb-3">Login Required</h4>
                     <p class="text-muted mb-4">Please login or create an account to schedule a pickup for <strong id="loginSubcategoryName">this item</strong>.</p>
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="/customer/login" class="btn btn-primary px-4 py-2 rounded-pill" style="background-color: var(--primary-blue); border: none;"><i class="fa-solid fa-right-to-bracket me-2"></i>Login</a>
-                        <a href="/customer/register" class="btn btn-outline-success px-4 py-2 rounded-pill" style="color: var(--primary-green); border-color: var(--primary-green);"><i class="fa-solid fa-user-plus me-2"></i>Sign Up</a>
+                        <a href="{{ url('/customer/login') }}" class="btn btn-primary px-4 py-2 rounded-pill" style="background-color: var(--primary-blue); border: none;"><i class="fa-solid fa-right-to-bracket me-2"></i>Login</a>
+                        <a href="{{ url('/customer/register') }}" class="btn btn-outline-success px-4 py-2 rounded-pill" style="color: var(--primary-green); border-color: var(--primary-green);"><i class="fa-solid fa-user-plus me-2"></i>Sign Up</a>
                     </div>
                 </div>
             </div>
@@ -308,7 +308,7 @@
                     var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                     loginModal.show();
                 } else {
-                    window.location.href = '/customer/request-pickup?subcategory=' + this.getAttribute('data-uuid');
+                    window.location.href = "{{ url('/customer/request-pickup') }}?subcategory=" + this.getAttribute('data-uuid');
                 }
             });
         });

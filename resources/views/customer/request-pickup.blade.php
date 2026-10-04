@@ -170,7 +170,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="item-icon-wrapper rounded p-1 me-3" style="background: #f1f8f1; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                                                 @if($sub->image)
-                                                    <img src="/{{ $sub->image }}" alt="{{ $sub->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                    <img src="{{ asset($sub->image) }}" alt="{{ $sub->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                                 @else
                                                     <i class="fa-solid fa-couch text-success fs-4"></i>
                                                 @endif
@@ -619,7 +619,7 @@
         if (!token) {
             // Redirect to login, preserving query parameters like ?subcategory=...
             const currentUrl = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.href = '/customer/login?redirect=' + currentUrl;
+            window.location.href = "{{ url('/customer/login') }}?redirect=" + currentUrl;
             return;
         }
 
@@ -639,7 +639,7 @@
         
         // Fetch fresh user profile to get latest reward coins balance
         if (token) {
-            fetch('/api/customer/user', {
+            fetch("{{ url('/api/customer/user') }}", {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -1022,12 +1022,12 @@
             for(let i=0; i<files.length; i++) formData.append('images[]', files[i]);
             document.getElementById('uploadProgress').style.display = 'block';
             try {
-                const res = await fetch('/api/customer/upload-images', { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
+                const res = await fetch("{{ url('/api/customer/upload-images') }}", { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
                 const data = await res.json();
                 if(res.ok && data.status === 1) {
                     data.data.paths.forEach(path => {
                         const wrapper = document.createElement('div'); wrapper.className = 'image-preview-wrapper';
-                        wrapper.innerHTML = `<img src="/${path}"><button type="button" class="remove-img-btn" onclick="this.parentElement.remove(); document.querySelector('input[value=\\'${path}\\']').remove();">&times;</button>`;
+                        wrapper.innerHTML = `<img src="{{ asset('') }}${path}"><button type="button" class="remove-img-btn" onclick="this.parentElement.remove(); document.querySelector('input[value=\\'${path}\\']').remove();">&times;</button>`;
                         document.getElementById('imagePreviewContainer').appendChild(wrapper);
                         const hiddenInput = document.createElement('input'); hiddenInput.type = 'hidden'; hiddenInput.name = 'images[]'; hiddenInput.value = path;
                         document.getElementById('hiddenImagesContainer').appendChild(hiddenInput);
@@ -1094,7 +1094,7 @@
             
             const prevImages = document.getElementById('prev-images'); prevImages.innerHTML = '';
             document.querySelectorAll('#hiddenImagesContainer input').forEach(inp => {
-                prevImages.innerHTML += `<img src="/${inp.value}">`;
+                prevImages.innerHTML += `<img src="{{ asset('') }}${inp.value}">`;
             });
             showStep(3);
         });

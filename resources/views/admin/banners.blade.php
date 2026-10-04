@@ -114,7 +114,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
 <script>
-    const API_URL = '/api/banners';
+    const API_URL = "{{ url('/api/banners') }}";
     let currentPage = 1;
     let searchQuery = '';
     const bannerOffcanvas = new bootstrap.Offcanvas(document.getElementById('bannerOffcanvas'));
@@ -157,9 +157,9 @@
             if (banner.uploads) {
                 const isVideo = banner.uploads.match(/\.(mp4|webm|ogg)$/i);
                 if (isVideo) {
-                    mediaHtml = `<video src="/${banner.uploads}" class="banner-media" muted controls style="background: #000;"></video>`;
+                    mediaHtml = `<video src="{{ asset('') }}${banner.uploads}" class="banner-media" muted controls style="background: #000;"></video>`;
                 } else {
-                    mediaHtml = `<img src="/${banner.uploads}" class="banner-media border" alt="${banner.title}">`;
+                    mediaHtml = `<img src="{{ asset('') }}${banner.uploads}" class="banner-media border" alt="${banner.title}">`;
                 }
             }
 
@@ -239,9 +239,9 @@
                 document.getElementById('currentMediaContainer').style.display = 'block';
                 const isVideo = banner.uploads.match(/\.(mp4|webm|ogg)$/i);
                 if (isVideo) {
-                    document.getElementById('mediaPreview').innerHTML = `<video src="/${banner.uploads}" style="max-width:100%; max-height: 150px; background: #000;" controls></video>`;
+                    document.getElementById('mediaPreview').innerHTML = `<video src="{{ asset('') }}${banner.uploads}" style="max-width:100%; max-height: 150px; background: #000;" controls></video>`;
                 } else {
-                    document.getElementById('mediaPreview').innerHTML = `<img src="/${banner.uploads}" style="max-width:100%; max-height: 150px;" class="border">`;
+                    document.getElementById('mediaPreview').innerHTML = `<img src="{{ asset('') }}${banner.uploads}" style="max-width:100%; max-height: 150px;" class="border">`;
                 }
             }
         }

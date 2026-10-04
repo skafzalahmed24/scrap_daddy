@@ -118,7 +118,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
 <script>
-    const API_URL = '/api/rewards';
+    const API_URL = "{{ url('/api/rewards') }}";
     let currentPage = 1;
     const configOffcanvas = new bootstrap.Offcanvas(document.getElementById('configOffcanvas'));
     
@@ -129,7 +129,7 @@
 
     async function fetchSettings() {
         try {
-            const response = await fetch('/api/rewards/settings');
+            const response = await fetch("{{ url('/api/rewards/settings') }}");
             const data = await response.json();
             if(data && data.coin_value_in_rupees) {
                 document.getElementById('coin_value_in_rupees').value = data.coin_value_in_rupees;
@@ -149,7 +149,7 @@
         formData.append('coin_value_in_rupees', document.getElementById('coin_value_in_rupees').value);
 
         try {
-            const response = await fetch('/api/rewards/settings', {
+            const response = await fetch("{{ url('/api/rewards/settings') }}", {
                 method: 'POST',
                 body: formData,
                 headers: {

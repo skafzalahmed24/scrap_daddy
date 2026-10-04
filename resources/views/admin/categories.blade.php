@@ -98,7 +98,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
 <script>
-    const API_URL = '/api/categories';
+    const API_URL = "{{ url('/api/categories') }}";
     let currentPage = 1;
     let searchQuery = '';
     const categoryOffcanvas = new bootstrap.Offcanvas(document.getElementById('categoryOffcanvas'));
@@ -142,7 +142,7 @@
         }
 
         categories.forEach(cat => {
-            const imgUrl = cat.image ? `/${cat.image}` : 'https://via.placeholder.com/50?text=No+Img';
+            const imgUrl = cat.image ? `{{ asset('') }}${cat.image}` : 'https://via.placeholder.com/50?text=No+Img';
             const statusBadge = cat.status 
                 ? `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">Active</span>` 
                 : `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1">Inactive</span>`;
@@ -213,7 +213,7 @@
             
             if(category.image) {
                 document.getElementById('currentImageContainer').style.display = 'block';
-                document.getElementById('currentImage').src = `/${category.image}`;
+                document.getElementById('currentImage').src = `{{ asset('') }}${category.image}`;
             }
         }
         categoryOffcanvas.show();

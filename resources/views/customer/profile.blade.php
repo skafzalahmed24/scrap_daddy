@@ -338,7 +338,7 @@
                 
                 if (!token) {
                     alert('Please log in again.');
-                    window.location.href = '/customer/login';
+                    window.location.href = "{{ url('/customer/login') }}";
                     return;
                 }
 
@@ -348,7 +348,7 @@
                 submitBtn.disabled = true;
 
                 function submitForm(data) {
-                    fetch('/api/customer/update-profile', {
+                    fetch("{{ url('/api/customer/update-profile') }}", {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
@@ -402,7 +402,7 @@
     function confirmDeleteAccount() {
         if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
             const token = localStorage.getItem('auth_token');
-            fetch('/api/customer/delete-account', {
+            fetch("{{ url('/api/customer/delete-account') }}", {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
@@ -414,7 +414,7 @@
                 if (data.status === 1) {
                     localStorage.removeItem('auth_token');
                     alert(data.message);
-                    window.location.href = '/customer/login';
+                    window.location.href = "{{ url('/customer/login') }}";
                 } else {
                     alert('Error: ' + (data.message || 'Could not delete account.'));
                 }

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard') - Scrap Daddy</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
     <!-- Bootstrap 5 CSS for UI Components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for Icons -->
@@ -22,30 +25,30 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <img src="/scraplogo.jpeg" alt="Scrap Daddy" class="sidebar-logo">
+            <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy" class="sidebar-logo">
             <button class="close-sidebar" id="closeSidebar"></button>
         </div>
         
         <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
                 <i class="fa-solid fa-chart-pie"></i> DASHBOARD
             </a>
-            <a href="/admin/categories" class="nav-item {{ request()->is('admin/categories') ? 'active' : '' }}">
+            <a href="{{ url('/admin/categories') }}" class="nav-item {{ request()->is('admin/categories') ? 'active' : '' }}">
                 <i class="fa-solid fa-list"></i> Categories
             </a>
-            <a href="/admin/subcategories" class="nav-item {{ request()->is('admin/subcategories') ? 'active' : '' }}">
+            <a href="{{ url('/admin/subcategories') }}" class="nav-item {{ request()->is('admin/subcategories') ? 'active' : '' }}">
                 <i class="fa-solid fa-layer-group"></i> Subcategories
             </a>
-            <a href="/admin/banners" class="nav-item {{ request()->is('admin/banners') ? 'active' : '' }}">
+            <a href="{{ url('/admin/banners') }}" class="nav-item {{ request()->is('admin/banners') ? 'active' : '' }}">
                 <i class="fa-solid fa-images"></i> Banners
             </a>
             <a href="{{ route('admin.pages.index') }}" class="nav-item {{ request()->is('admin/pages*') ? 'active' : '' }}">
                 <i class="fa-regular fa-file-lines"></i> Pages
             </a>
-            <a href="/admin/faqs" class="nav-item {{ request()->is('admin/faqs') ? 'active' : '' }}">
+            <a href="{{ url('/admin/faqs') }}" class="nav-item {{ request()->is('admin/faqs') ? 'active' : '' }}">
                 <i class="fa-regular fa-circle-question"></i> FAQs
             </a>
-            <a href="/admin/rewards" class="nav-item {{ request()->is('admin/rewards') ? 'active' : '' }}">
+            <a href="{{ url('/admin/rewards') }}" class="nav-item {{ request()->is('admin/rewards') ? 'active' : '' }}">
                 <i class="fa-solid fa-gift"></i> Rewards Config
             </a>
             <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->is('admin/orders') ? 'active' : '' }}">
@@ -63,7 +66,7 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a href="/" class="logout-btn">
+            <a href="{{ url('/') }}" class="logout-btn">
                 <i class="fa-solid fa-right-from-bracket"></i> Logout
             </a>
         </div>

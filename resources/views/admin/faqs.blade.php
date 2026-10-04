@@ -88,7 +88,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
 <script>
-    const API_URL = '/api/faqs';
+    const API_URL = "{{ url('/api/faqs') }}";
     let currentPage = 1;
     let searchQuery = '';
     const faqOffcanvas = new bootstrap.Offcanvas(document.getElementById('faqOffcanvas'));

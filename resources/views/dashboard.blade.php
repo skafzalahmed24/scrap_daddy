@@ -125,7 +125,7 @@
             <div class="card border-0 shadow-sm" style="border-radius: 12px;">
                 <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0;">
                     <h5 class="mb-0 fw-bold">Recent Pending Pickups</h5>
-                    <a href="/admin/orders" class="btn btn-sm btn-light">View All</a>
+                    <a href="{{ url('/admin/orders') }}" class="btn btn-sm btn-light">View All</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -163,7 +163,7 @@
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
-                                        <a href="/admin/orders" class="btn btn-sm btn-primary">Process</a>
+                                        <a href="{{ url('/admin/orders') }}" class="btn btn-sm btn-primary">Process</a>
                                     </td>
                                 </tr>
                                 @empty

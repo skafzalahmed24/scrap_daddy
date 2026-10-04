@@ -165,7 +165,7 @@
                 if (photos.length > 0) {
                     photos.forEach(photo => {
                         const img = document.createElement('img');
-                        img.src = '/' + photo;
+                        img.src = "{{ asset('') }}" + photo;
                         img.className = 'img-fluid border rounded m-1';
                         img.style.maxHeight = '300px';
                         photosContainer.appendChild(img);
@@ -193,7 +193,7 @@
                     confirmButtonText: 'Yes, complete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch('/api/admin/scrap-vehicles/status', {
+                        fetch("{{ url('/api/admin/scrap-vehicles/status') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

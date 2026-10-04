@@ -74,7 +74,7 @@
                 const token = localStorage.getItem('auth_token');
                 if (!token) {
                     alert('Please log in again.');
-                    window.location.href = '/customer/login';
+                    window.location.href = "{{ url('/customer/login') }}";
                     return;
                 }
 
@@ -86,7 +86,7 @@
                 const formData = new FormData(passwordForm);
                 const data = Object.fromEntries(formData.entries());
 
-                fetch('/api/customer/change-password', {
+                fetch("{{ url('/api/customer/change-password') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
