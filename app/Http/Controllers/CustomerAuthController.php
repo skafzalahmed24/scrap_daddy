@@ -896,4 +896,172 @@ class CustomerAuthController extends Controller
             'data' => $faqs
         ]);
     }
+
+    // --- PAYMENTS & REWARDS METHODS ---
+    public function verifyPayment(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer',
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_order_id' => 'nullable|string',
+            'razorpay_signature' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'data' => ['errors' => $validator->errors()]
+            ], 200);
+        }
+
+        $order = Order::where('user_uuid', $request->user()->uuid)
+                      ->where('id', $request->order_id)
+                      ->first();
+
+        if (!$order) {
+            return response()->json(['status' => 0, 'message' => 'Order not found'], 404);
+        }
+        
+        $order->payment_status = 'completed';
+        $order->payment_id = $request->razorpay_payment_id;
+        $order->save();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Payment status updated successfully',
+            'data' => $order
+        ]);
+    }
+
+    public function getRewardSettings(Request $request)
+    {
+        $user = $request->user();
+        $settings = \Illuminate\Support\Facades\DB::table('reward_settings')->first();
+        $coinValue = $settings ? $settings->coin_value_in_rupees : 0;
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Reward settings fetched successfully',
+            'data' => [
+                'reward_coins' => $user->reward_coins ?? 0,
+                'coin_value_in_rupees' => $coinValue,
+                'total_value_in_rupees' => ($user->reward_coins ?? 0) * $coinValue
+            ]
+        ]);
+    }
+
+    public function redeemCoins(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer',
+            'coins' => 'required|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'data' => ['errors' => $validator->errors()]
+            ], 200);
+        }
+
+        $user = $request->user();
+        $coinsToRedeem = $request->coins;
+
+        if (($user->reward_coins ?? 0) < $coinsToRedeem) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Insufficient reward coins.'
+            ], 200);
+        }
+
+        $order = Order::where('user_uuid', $user->uuid)
+                      ->where('id', $request->order_id)
+                      ->first();
+
+        if (!$order) {
+            return response()->json(['status' => 0, 'message' => 'Order not found'], 404);
+        }
+
+        $settings = \Illuminate\Support\Facades\DB::table('reward_settings')->first();
+        $coinValue = $settings ? $settings->coin_value_in_rupees : 0;
+        $discountAmount = $coinsToRedeem * $coinValue;
+
+        // Deduct coins from user
+        $user->reward_coins -= $coinsToRedeem;
+        $user->save();
+
+        // Apply discount to order
+        $order->coins_redeemed = ($order->coins_redeemed ?? 0) + $coinsToRedeem;
+        $order->discount_applied = ($order->discount_applied ?? 0) + $discountAmount;
+        $order->save();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Coins redeemed successfully.',
+            'data' => [
+                'order' => $order,
+                'remaining_coins' => $user->reward_coins
+            ]
+        ]);
+    }
+
+    public function collectCoins(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Validation error',
+                'data' => ['errors' => $validator->errors()]
+            ], 200);
+        }
+
+        $user = $request->user();
+        
+        $order = Order::where('user_uuid', $user->uuid)
+                      ->where('id', $request->order_id)
+                      ->first();
+
+        if (!$order) {
+            return response()->json(['status' => 0, 'message' => 'Order not found'], 404);
+        }
+        
+        if ($order->coins_earned > 0) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Coins already collected for this order.'
+            ], 200);
+        }
+        
+        $orderAmount = $order->total_amount ?? 0;
+        $config = \Illuminate\Support\Facades\DB::table('reward_configurations')
+                    ->where('status', 1)
+                    ->where('min_amount', '<=', $orderAmount)
+                    ->where('max_amount', '>=', $orderAmount)
+                    ->first();
+                    
+        $coinsToEarn = $config ? $config->reward_coins : 5; // Default 5 coins if not matched
+
+        // Add coins to user
+        $user->reward_coins = ($user->reward_coins ?? 0) + $coinsToEarn;
+        $user->save();
+
+        // Mark on order
+        $order->coins_earned = $coinsToEarn;
+        $order->save();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Coins collected successfully.',
+            'data' => [
+                'coins_earned' => $coinsToEarn,
+                'total_coins' => $user->reward_coins
+            ]
+        ]);
+    }
 }

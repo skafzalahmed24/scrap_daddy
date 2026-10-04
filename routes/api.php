@@ -53,6 +53,12 @@ Route::prefix('customer')->group(function () {
         Route::post('/orders', [CustomerAuthController::class, 'orders']);
         Route::post('/order-details', [CustomerAuthController::class, 'showOrder']);
         Route::post('/payments', [CustomerAuthController::class, 'payments']);
+        Route::post('/orders/verify-payment', [CustomerAuthController::class, 'verifyPayment']);
+        Route::post('/orders/redeem-coins', [CustomerAuthController::class, 'redeemCoins']);
+        Route::post('/orders/collect-coins', [CustomerAuthController::class, 'collectCoins']);
+        
+        // Rewards
+        Route::post('/rewards/info', [CustomerAuthController::class, 'getRewardSettings']);
 
         // Scrap Vehicles
         Route::post('/scrap-vehicles', [ScrapVehicleController::class, 'store']);
