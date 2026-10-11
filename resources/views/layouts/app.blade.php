@@ -85,19 +85,19 @@
 
     @stack('scripts')
 
-    <!-- Mobile Bottom Navigation Bar (Only visible on small screens) -->
-    @if(request()->is('customer*') || request()->is('/'))
+    <!-- Mobile Bottom Navigation Bar (Only visible on small screens, hidden on payment/checkout) -->
+    @if((request()->is('customer*') || request()->is('/')) && !request()->is('customer/payment*'))
     <div class="bottom-nav d-flex d-lg-none">
         <a href="{{ route('customer.home') }}" class="nav-item {{ request()->routeIs('customer.home') ? 'active' : '' }}">
             <i class="fa-solid fa-house"></i>
             <span>Home</span>
         </a>
         <a href="{{ route('customer.orders') }}" class="nav-item {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
-            <i class="fa-solid fa-list-ul"></i>
+            <i class="fa-solid fa-clipboard-list"></i>
             <span>My Orders</span>
         </a>
         <a href="{{ route('customer.rewards') }}" class="nav-item {{ request()->routeIs('customer.rewards') ? 'active' : '' }}">
-            <i class="fa-solid fa-gift"></i>
+            <i class="fa-solid fa-trophy"></i>
             <span>Rewards</span>
         </a>
         <a href="{{ route('customer.profile') }}" class="nav-item {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
@@ -113,40 +113,52 @@
             left: 0;
             width: 100%;
             background: #ffffff;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #f1f5f9;
             justify-content: space-around;
             align-items: center;
-            height: 65px;
+            height: 68px;
             z-index: 1050;
             padding-bottom: env(safe-area-inset-bottom);
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
         }
 
         .bottom-nav .nav-item {
             text-decoration: none;
-            color: #6c757d;
+            color: #64748b;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             font-weight: 500;
-            transition: color 0.2s;
+            transition: all 0.2s ease;
             width: 25%;
+            position: relative;
         }
 
         .bottom-nav .nav-item i {
             font-size: 1.25rem;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
 
         .bottom-nav .nav-item.active {
-            color: var(--primary-green, #1b5e20);
+            color: #2e7d32;
+            font-weight: 700;
+        }
+
+        .bottom-nav .nav-item.active::after {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 5px;
+            background-color: #2e7d32;
+            border-radius: 50%;
+            margin: 3px auto 0 auto;
         }
         
         /* Add padding to body to prevent content from hiding behind bottom nav on mobile/tablet */
         @media (max-width: 991px) {
             body {
-                padding-bottom: 70px;
+                padding-bottom: 75px;
             }
         }
     </style>

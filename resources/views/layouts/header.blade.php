@@ -30,13 +30,23 @@
 </div>
 
 <!-- Secondary Nav -->
-<nav class="navbar navbar-expand-custom secondary-nav">
-    <div class="container">
+<nav class="navbar navbar-expand-custom secondary-nav py-2">
+    <div class="container d-flex justify-content-between align-items-center">
 
         <!-- Mobile Logo (Left Side) -->
         <a href="{{ url('/') }}" class="brand-logo d-lg-none me-2" style="text-decoration: none;">
-            <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 40px;">
+            <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 38px; object-fit: contain;">
         </a>
+
+        <!-- Right Quick Actions on Mobile (Search, Explore, User) -->
+        <div class="d-flex d-lg-none align-items-center gap-3 ms-auto">
+            <a href="{{ route('categories.explore') }}" class="text-dark" title="Explore Categories" style="font-size: 1.2rem; text-decoration: none; display: flex; align-items: center;">
+                <i class="fa-solid fa-magnifying-glass" style="color: #333;"></i>
+            </a>
+            <a href="{{ route('customer.home') }}" class="text-dark" title="Account" style="font-size: 1.2rem; text-decoration: none; display: flex; align-items: center;">
+                <i class="fa-regular fa-user" style="color: #333;"></i>
+            </a>
+        </div>
 
         <div id="userLocationMobile" class="px-3 py-1 d-none"
              style="cursor: pointer; align-items: center; gap: 8px; font-weight: 600; color: var(--primary-blue); background: rgba(27,94,32,0.05); border-radius: 20px;">
@@ -47,21 +57,10 @@
         </div>
 
         <style>
-            @media (max-width: 991px) {
-                .navbar-expand-custom .navbar-toggler.mobile-hide {
-                    display: none !important;
-                }
+            .navbar-toggler {
+                display: none !important;
             }
         </style>
-        @if(!request()->is('customer*'))
-        <button class="navbar-toggler ms-auto mobile-hide" type="button" data-bs-toggle="collapse"
-            data-bs-target="#secondaryNavContent" aria-controls="secondaryNavContent" aria-expanded="false"
-            aria-label="Toggle navigation" style="border-color: var(--primary-blue); padding: 4px 8px;">
-            <i class="fa-solid fa-bars" style="color: var(--primary-blue);"></i>
-        </button>
-        @else
-        <button class="navbar-toggler ms-auto d-none" type="button" aria-hidden="true"></button>
-        @endif
         <div class="collapse navbar-collapse justify-content-between align-items-center mt-3 mt-custom-0"
             id="secondaryNavContent">
 

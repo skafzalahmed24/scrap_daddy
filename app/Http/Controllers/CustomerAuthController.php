@@ -418,7 +418,9 @@ class CustomerAuthController extends Controller
                 File::makeDirectory($targetDir, 0755, true);
             }
             
-            file_put_contents($targetDir . '/' . $imageName, file_get_contents($image->getRealPath()));
+            $targetPath = $targetDir . '/' . $imageName;
+            file_put_contents($targetPath, file_get_contents($image->getRealPath()));
+            @chmod($targetPath, 0644);
             
             // Delete old profile image if it exists
             if ($user->profile_image && File::exists(public_path($user->profile_image))) {
@@ -811,12 +813,17 @@ class CustomerAuthController extends Controller
             ], 200);
         }
 
-        // Fetch Banners
-        $bannerQuery = \App\Models\Banner::where('status', 1);
-        if ($request->has('type') && !empty($request->type)) {
-            $bannerQuery->where('type', $request->type);
+        // Fetch Banners (Default to mobile banners for customer app API)
+        $bannerType = $request->type ?? 'mobile';
+        $banners = \App\Models\Banner::where('status', 1)
+            ->where('type', $bannerType)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        if ($banners->isEmpty() && !$request->has('type')) {
+            $banners = \App\Models\Banner::where('status', 1)->orderBy('created_at', 'desc')->take(5)->get();
         }
-        $banners = $bannerQuery->orderBy('created_at', 'desc')->take(5)->get();
 
         // Fetch Live Pickups
         $livePickups = Order::with(['category', 'subcategory'])
@@ -876,6 +883,12 @@ class CustomerAuthController extends Controller
 
         if ($request->has('type') && !empty($request->type)) {
             $query->where('type', $request->type);
+        } else {
+            // Default to mobile banners for customer API if available
+            $hasMobile = (clone $query)->where('type', 'mobile')->exists();
+            if ($hasMobile) {
+                $query->where('type', 'mobile');
+            }
         }
 
         $total_count = $query->count();

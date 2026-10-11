@@ -14,6 +14,14 @@ class HomeController extends Controller
         $banners = Banner::where('status', 1)->latest()->get();
         $webBanners = $banners->where('type', 'web')->values();
         $mobileBanners = $banners->where('type', 'mobile')->values();
+
+        if ($mobileBanners->isEmpty()) {
+            $mobileBanners = $banners;
+        }
+        if ($webBanners->isEmpty()) {
+            $webBanners = $banners;
+        }
+
         $categories = Category::where('status', 1)->latest()->get();
         $subcategories = Subcategory::where('status', 1)->latest()->take(15)->get();
 

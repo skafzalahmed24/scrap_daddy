@@ -52,8 +52,9 @@ class CategoryController extends Controller
                 File::makeDirectory($targetDir, 0755, true);
             }
             
-            // Using file_put_contents as a robust workaround for Windows/OneDrive permission locking
-            file_put_contents($targetDir . '/' . $imageName, file_get_contents($image->getRealPath()));
+            $targetPath = $targetDir . '/' . $imageName;
+            file_put_contents($targetPath, file_get_contents($image->getRealPath()));
+            @chmod($targetPath, 0644);
             
             $category->image = 'categories/' . $imageName;
         }
@@ -103,8 +104,9 @@ class CategoryController extends Controller
                 File::makeDirectory($targetDir, 0755, true);
             }
             
-            // Using file_put_contents as a robust workaround for Windows/OneDrive permission locking
-            file_put_contents($targetDir . '/' . $imageName, file_get_contents($image->getRealPath()));
+            $targetPath = $targetDir . '/' . $imageName;
+            file_put_contents($targetPath, file_get_contents($image->getRealPath()));
+            @chmod($targetPath, 0644);
             
             $category->image = 'categories/' . $imageName;
         }

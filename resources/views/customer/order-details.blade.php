@@ -149,34 +149,48 @@
             object-fit: cover;
         }
 
-        /* Timeline CSS */
+        /* Single-Line Clean Vertical Timeline */
         .od-timeline {
             position: relative;
-            padding-left: 25px;
+            padding-left: 36px;
             margin-top: 20px;
             margin-bottom: 30px;
         }
-        .od-timeline::before {
-            content: '';
-            position: absolute;
-            left: 11px;
-            top: 5px;
-            bottom: 25px;
-            width: 2px;
-            background-color: #1b5e20;
-        }
-        
+
         .od-timeline-item {
             position: relative;
-            margin-bottom: 35px;
+            padding-bottom: 30px;
         }
         .od-timeline-item:last-child {
-            margin-bottom: 0;
+            padding-bottom: 0;
         }
-        
-        .od-timeline-icon {
+
+        /* Exactly 1 Single Vertical Line connecting the items */
+        .od-timeline-item::before {
+            content: '';
             position: absolute;
             left: -25px;
+            top: 24px;
+            bottom: 0;
+            width: 2px;
+            background-color: #e2e8f0;
+            z-index: 1;
+        }
+        .od-timeline-item:last-child::before {
+            display: none !important;
+        }
+
+        .od-timeline-item.step-done::before {
+            background-color: #2e7d32;
+        }
+        .od-timeline-item.step-cancelled::before {
+            background-color: #dc3545;
+        }
+
+        /* Timeline Icons */
+        .od-timeline-icon {
+            position: absolute;
+            left: -36px;
             top: 0;
             width: 24px;
             height: 24px;
@@ -184,65 +198,51 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #1b5e20;
-            color: #fff;
-            transform: translateX(-50%);
+            background-color: #ffffff;
+            border: 2px solid #cbd5e1;
+            color: transparent;
             z-index: 2;
-            border: 2px solid #fff;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
         }
-        .od-timeline-icon.cancelled {
+
+        .od-timeline-item.step-done .od-timeline-icon {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
+            color: #ffffff;
+        }
+
+        .od-timeline-item.step-cancelled .od-timeline-icon {
             background-color: #dc3545;
+            border-color: #dc3545;
+            color: #ffffff;
         }
-        
-        .od-timeline-icon.truck {
-            background-color: #fff;
-            border: none;
-        }
-        .od-timeline-icon.truck i {
-            color: #1b5e20;
-            font-size: 1.2rem;
-            background: #fff;
-            padding: 2px 0;
+
+        .od-timeline-item.step-active .od-timeline-icon {
+            background-color: #ffffff;
+            border-color: #2e7d32;
+            color: #2e7d32;
         }
 
         .od-timeline-content h6 {
             font-weight: 700;
             font-size: 0.95rem;
-            color: #222;
+            color: #1e293b;
             margin-bottom: 4px;
-            margin-top: 2px;
-        }
-        .od-timeline-content p {
-            color: #777;
-            font-size: 0.85rem;
-            margin-bottom: 2px;
-            line-height: 1.3;
-        }
-        .od-timeline-content small {
-            color: #999;
-            font-size: 0.75rem;
+            margin-top: 0;
         }
 
-        .od-timeline-item.uncompleted ~ .od-timeline-item .od-timeline-icon,
-        .od-timeline-item.uncompleted .od-timeline-icon {
-            background-color: #fff;
-            border: 2px solid #ccc;
-            color: transparent;
+        .od-timeline-content p {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+            line-height: 1.35;
         }
-        .od-timeline-item.uncompleted ~ .od-timeline-item::before,
-        .od-timeline-item.uncompleted::before {
-            content: '';
-            position: absolute;
-            left: -25px;
-            top: 24px;
-            bottom: -35px;
-            width: 2px;
-            background-color: #ccc;
-            transform: translateX(-50%);
-            z-index: 1;
-        }
-        .od-timeline-item:last-child::before {
-            display: none;
+
+        .od-timeline-content small {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
     </style>
 @endpush
@@ -371,38 +371,47 @@
                 @endphp
 
                 <div class="od-timeline ms-2">
-                    <!-- Step 1: Submitted -->
-                    <div class="od-timeline-item">
-                        <div class="od-timeline-icon">
-                            <i class="fa-solid fa-check" style="font-size: 0.8rem;"></i>
-                        </div>
-                        <div class="od-timeline-content">
-                            <h6>Submitted</h6>
-                            <p>Your pickup request has been received.</p>
-                            <small>{{ \Carbon\Carbon::parse($order->created_at)->format('l, h:i A') }}</small>
-                        </div>
-                    </div>
-
                     @if($isCancelled)
-                        <!-- Step Cancelled -->
-                        <div class="od-timeline-item">
-                            <div class="od-timeline-icon cancelled">
-                                <i class="fa-solid fa-xmark" style="font-size: 0.9rem;"></i>
+                        <!-- Step 1: Submitted -->
+                        <div class="od-timeline-item step-cancelled">
+                            <div class="od-timeline-icon">
+                                <i class="fa-solid fa-check"></i>
                             </div>
                             <div class="od-timeline-content">
-                                <h6>Cancelled</h6>
+                                <h6>Submitted</h6>
+                                <p>Your pickup request has been received.</p>
+                                <small>{{ \Carbon\Carbon::parse($order->created_at)->format('l, h:i A') }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Cancelled -->
+                        <div class="od-timeline-item step-cancelled">
+                            <div class="od-timeline-icon">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                            <div class="od-timeline-content">
+                                <h6 class="text-danger">Cancelled</h6>
                                 <p>Your pickup request was cancelled.</p>
                                 <small>{{ \Carbon\Carbon::parse($order->updated_at)->format('l, h:i A') }}</small>
                             </div>
-                            <style>
-                                .od-timeline::before { background: linear-gradient(to bottom, #1b5e20 50%, #dc3545 50%); }
-                            </style>
                         </div>
                     @else
-                        <!-- Step 2: Confirmed -->
-                        <div class="od-timeline-item {{ (!$isAccepted && !$isCompleted) ? 'uncompleted' : '' }}">
+                        <!-- Step 1: Submitted -->
+                        <div class="od-timeline-item {{ ($isAccepted || $isCompleted) ? 'step-done' : 'step-active' }}">
                             <div class="od-timeline-icon">
-                                <i class="fa-solid fa-check" style="font-size: 0.8rem;"></i>
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <div class="od-timeline-content">
+                                <h6>Submitted</h6>
+                                <p>Your pickup request has been received.</p>
+                                <small>{{ \Carbon\Carbon::parse($order->created_at)->format('l, h:i A') }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Confirmed -->
+                        <div class="od-timeline-item {{ $isCompleted ? 'step-done' : ($isAccepted ? 'step-active' : '') }}">
+                            <div class="od-timeline-icon">
+                                <i class="fa-solid fa-check"></i>
                             </div>
                             <div class="od-timeline-content">
                                 <h6>Confirmed</h6>
@@ -412,13 +421,9 @@
                         </div>
 
                         <!-- Step 3: Assigned -->
-                        <div class="od-timeline-item {{ (!$isAccepted && !$isCompleted) ? 'uncompleted' : '' }}">
-                            <div class="od-timeline-icon {{ ($isAccepted || $isCompleted) ? 'truck' : '' }}">
-                                @if($isAccepted || $isCompleted)
-                                    <i class="fa-solid fa-truck"></i>
-                                @else
-                                    <i class="fa-solid fa-check" style="font-size: 0.8rem;"></i>
-                                @endif
+                        <div class="od-timeline-item {{ $isCompleted ? 'step-done' : ($isAccepted ? 'step-active' : '') }}">
+                            <div class="od-timeline-icon">
+                                <i class="fa-solid fa-truck"></i>
                             </div>
                             <div class="od-timeline-content">
                                 <h6>Assigned</h6>
@@ -428,24 +433,17 @@
                         </div>
 
                         <!-- Step 4: Completed -->
-                        <div class="od-timeline-item {{ (!$isCompleted) ? 'uncompleted' : '' }}">
+                        <div class="od-timeline-item {{ $isCompleted ? 'step-done' : '' }}">
                             <div class="od-timeline-icon">
-                                <i class="fa-solid fa-check" style="font-size: 0.8rem;"></i>
+                                <i class="fa-solid fa-flag"></i>
                             </div>
                             <div class="od-timeline-content">
                                 <h6>Completed</h6>
                                 <p>Driver is heading to your location.</p>
-                                <small>{{ ($isCompleted) ? \Carbon\Carbon::parse($order->updated_at)->format('l, h:i A') : 'Pending' }}</small>
+                                <small>{{ $isCompleted ? \Carbon\Carbon::parse($order->updated_at)->format('l, h:i A') : 'Pending' }}</small>
                             </div>
                         </div>
-                        
-                        @if(!$isCompleted)
-                        <style>
-                            .od-timeline::before { background: linear-gradient(to bottom, #1b5e20 {{ $isAccepted ? '66%' : '33%' }}, #ccc {{ $isAccepted ? '66%' : '33%' }}); }
-                        </style>
-                        @endif
                     @endif
-
                 </div>
             </div>
             

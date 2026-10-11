@@ -17,6 +17,23 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
+| Bind Custom Public Path (Shared Hosting / Hostinger / cPanel Support)
+|--------------------------------------------------------------------------
+| When Laravel is hosted directly inside public_html on shared hosting,
+| base_path is public_html. We dynamically set the public path so all
+| uploaded assets (banners, categories, subcategories, profiles, etc.)
+| are written and served directly from the active document root.
+|
+*/
+$baseDir = dirname(__DIR__);
+if (basename($baseDir) === 'public_html' || (isset($_SERVER['DOCUMENT_ROOT']) && realpath($_SERVER['DOCUMENT_ROOT']) === realpath($baseDir))) {
+    $app->usePublicPath($baseDir);
+} elseif (is_dir($baseDir . '/public_html')) {
+    $app->usePublicPath($baseDir . '/public_html');
+}
+
+/*
+|--------------------------------------------------------------------------
 | Bind Important Interfaces
 |--------------------------------------------------------------------------
 |

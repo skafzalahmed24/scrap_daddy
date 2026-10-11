@@ -93,7 +93,7 @@
                     </div>
 
                     <div class="text-center mt-3 border-top pt-3 border-secondary border-opacity-25">
-                        <a href="#" class="text-light text-decoration-none" style="font-size: 0.85rem;">
+                        <a href="{{ route('customer.faqs') }}" class="text-light text-decoration-none" style="font-size: 0.85rem;">
                             <i class="fa-solid fa-headset me-2"></i>Need Support? We are happy to help
                         </a>
                     </div>
@@ -234,7 +234,7 @@
                 @if($activeOrders->count() > 0)
                 <div class="d-flex overflow-x-auto gap-3 pb-3 mb-4" style="scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none;">
                     @foreach($activeOrders as $order)
-                    <div class="bg-white rounded-4 p-4 shadow-sm border border-light flex-shrink-0" style="width: 100%; min-width: 320px; scroll-snap-align: start;">
+                    <div class="bg-white rounded-4 p-3 p-sm-4 shadow-sm border border-light flex-shrink-0" style="width: 100%; min-width: 300px; max-width: 100%; scroll-snap-align: start;">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
@@ -253,49 +253,62 @@
                             <span class="badge {{ $order->status == 'pending' ? 'bg-warning' : ($order->status == 'completed' ? 'bg-success' : ($order->status == 'cancelled' ? 'bg-danger' : 'bg-primary')) }} rounded-pill" style="font-size: 0.7rem;">{{ ucfirst($order->status) }}</span>
                         </div>
 
-                        <div class="position-relative mb-5 px-3">
+                        <!-- Stepper Section -->
+                        <div class="position-relative mb-4 px-1">
                             @php
-                                $progress = 0;
-                                if($order->status == 'pending') $progress = 25;
-                                elseif($order->status == 'accepted') $progress = 50;
-                                elseif($order->status == 'assigned') $progress = 75;
-                                elseif($order->status == 'completed') $progress = 100;
+                                $st = $order->status;
+                                $isCancelled = ($st === 'cancelled');
+                                $isAccepted = in_array($st, ['accepted', 'assigned', 'completed']);
+                                $isAssigned = in_array($st, ['assigned', 'completed']);
+                                $isCompleted = ($st === 'completed');
+                                $isPending = ($st === 'pending');
+
+                                $progress = 12;
+                                if ($isAccepted) $progress = 38;
+                                if ($isAssigned) $progress = 65;
+                                if ($isCompleted) $progress = 100;
                             @endphp
-                            <div class="progress position-absolute" style="height: 4px; top: 50%; left: 10%; right: 10%; transform: translateY(-50%); z-index: 1;">
-                                <div class="progress-bar {{ $order->status == 'cancelled' ? 'bg-danger' : 'bg-success' }}" role="progressbar" style="width: {{ $order->status == 'cancelled' ? '100' : $progress }}%" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            
+                            <!-- Connecting Line behind the icons -->
+                            <div class="position-absolute" style="top: 16px; left: 12%; right: 12%; height: 3px; background: #e9ecef; z-index: 1; transform: translateY(-50%); border-radius: 2px;">
+                                <div class="h-100 {{ $isCancelled ? 'bg-danger' : 'bg-success' }}" style="width: {{ $isCancelled ? '100%' : $progress.'%' }}; border-radius: 2px; transition: width 0.4s ease;"></div>
                             </div>
+
                             <div class="d-flex justify-content-between position-relative" style="z-index: 2;">
-                                <!-- Submitted -->
-                                <div class="text-center">
-                                    <div class="rounded-circle bg-white border border-2 {{ $order->status == 'cancelled' ? 'border-danger' : 'border-success' }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 30px; height: 30px;">
-                                        <i class="fa-solid fa-check {{ $order->status == 'cancelled' ? 'text-danger' : 'text-success' }} fs-6"></i>
+                                <!-- Step 1: Submitted -->
+                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
+                                    <div class="rounded-circle bg-white border border-2 {{ $isCancelled ? 'border-danger text-danger' : 'border-success text-success' }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                                        <i class="fa-solid fa-check fs-6"></i>
                                     </div>
-                                    <div class="{{ $order->status == 'cancelled' ? 'text-danger' : 'text-success' }} fw-bold" style="font-size: 0.7rem;">Submitted</div>
-                                    <div class="text-muted" style="font-size: 0.6rem;">{{ $order->created_at ? $order->created_at->format('d M, h:i A') : 'N/A' }}</div>
+                                    <div class="{{ $isCancelled ? 'text-danger' : 'text-success' }} fw-bold text-truncate" style="font-size: 0.72rem;">Submitted</div>
+                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $order->created_at ? $order->created_at->format('d M, h:i A') : 'N/A' }}</div>
                                 </div>
-                                <!-- Confirmed -->
-                                <div class="text-center">
-                                    <div class="rounded-circle bg-white {{ in_array($order->status, ['accepted', 'assigned', 'completed']) ? 'border border-2 border-success' : ($order->status == 'pending' ? 'border border-2 border-warning' : ($order->status == 'cancelled' ? 'border border-2 border-danger' : 'border border-2 border-secondary')) }} d-flex align-items-center justify-content-center mx-auto mb-2 position-relative" style="width: 30px; height: 30px;">
-                                        <i class="fa-solid fa-truck {{ in_array($order->status, ['accepted', 'assigned', 'completed']) ? 'text-success' : ($order->status == 'pending' ? 'text-warning' : ($order->status == 'cancelled' ? 'text-danger' : 'text-muted')) }} fs-5"></i>
+
+                                <!-- Step 2: Confirmed -->
+                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
+                                    <div class="rounded-circle bg-white {{ $isAccepted ? 'border border-2 border-success text-success' : ($isPending ? 'border border-2 border-warning text-warning' : ($isCancelled ? 'border border-2 border-danger text-danger' : 'border border-2 border-secondary text-muted')) }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                                        <i class="fa-solid fa-truck fs-6"></i>
                                     </div>
-                                    <div class="{{ in_array($order->status, ['accepted', 'assigned', 'completed']) ? 'text-success' : ($order->status == 'pending' ? 'text-warning' : ($order->status == 'cancelled' ? 'text-danger' : 'text-secondary')) }} fw-bold" style="font-size: 0.7rem;">Confirmed</div>
-                                    <div class="text-muted" style="font-size: 0.6rem;">{{ $order->status == 'pending' ? 'Waiting confirm' : 'Confirmed' }}</div>
+                                    <div class="{{ $isAccepted ? 'text-success' : ($isPending ? 'text-warning' : ($isCancelled ? 'text-danger' : 'text-secondary')) }} fw-bold text-truncate" style="font-size: 0.72rem;">Confirmed</div>
+                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $isPending ? 'Waiting confirm' : 'Confirmed' }}</div>
                                 </div>
-                                <!-- Assigned -->
-                                <div class="text-center">
-                                    <div class="rounded-circle {{ in_array($order->status, ['assigned', 'completed']) ? 'bg-white border border-2 border-success' : ($order->status == 'cancelled' ? 'bg-white border border-2 border-danger' : 'bg-light') }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 30px; height: 30px;">
-                                        <i class="fa-solid fa-user {{ in_array($order->status, ['assigned', 'completed']) ? 'text-success' : ($order->status == 'cancelled' ? 'text-danger' : 'text-muted') }} fs-6"></i>
+
+                                <!-- Step 3: Assigned -->
+                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
+                                    <div class="rounded-circle {{ $isAssigned ? 'bg-white border border-2 border-success text-success' : ($isCancelled ? 'bg-white border border-2 border-danger text-danger' : 'bg-light border border-2 border-light text-muted') }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                                        <i class="fa-solid fa-user fs-6"></i>
                                     </div>
-                                    <div class="{{ in_array($order->status, ['assigned', 'completed']) ? 'text-success' : ($order->status == 'cancelled' ? 'text-danger' : 'text-secondary') }} fw-bold" style="font-size: 0.7rem;">Assigned</div>
-                                    <div class="text-muted" style="font-size: 0.6rem;">{{ in_array($order->status, ['assigned', 'completed']) ? 'Driver assigned' : 'Pending' }}</div>
+                                    <div class="{{ $isAssigned ? 'text-success' : ($isCancelled ? 'text-danger' : 'text-secondary') }} fw-bold text-truncate" style="font-size: 0.72rem;">Assigned</div>
+                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $isAssigned ? 'Driver assigned' : 'Pending' }}</div>
                                 </div>
-                                <!-- Completed -->
-                                <div class="text-center">
-                                    <div class="rounded-circle {{ $order->status == 'completed' ? 'bg-white border border-2 border-success' : ($order->status == 'cancelled' ? 'bg-white border border-2 border-danger' : 'bg-light') }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 30px; height: 30px;">
-                                        <i class="fa-solid fa-flag {{ $order->status == 'completed' ? 'text-success' : ($order->status == 'cancelled' ? 'text-danger' : 'text-muted') }} fs-6"></i>
+
+                                <!-- Step 4: Completed -->
+                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
+                                    <div class="rounded-circle {{ $isCompleted ? 'bg-white border border-2 border-success text-success' : ($isCancelled ? 'bg-white border border-2 border-danger text-danger' : 'bg-light border border-2 border-light text-muted') }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                                        <i class="fa-solid fa-flag fs-6"></i>
                                     </div>
-                                    <div class="{{ $order->status == 'completed' ? 'text-success' : ($order->status == 'cancelled' ? 'text-danger' : 'text-secondary') }} fw-bold" style="font-size: 0.7rem;">Completed</div>
-                                    <div class="text-muted" style="font-size: 0.6rem;">{{ $order->status == 'completed' ? 'Delivered' : ($order->status == 'cancelled' ? 'Cancelled' : 'Pending') }}</div>
+                                    <div class="{{ $isCompleted ? 'text-success' : ($isCancelled ? 'text-danger' : 'text-secondary') }} fw-bold text-truncate" style="font-size: 0.72rem;">Completed</div>
+                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $isCompleted ? 'Delivered' : ($isCancelled ? 'Cancelled' : 'Pending') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -342,49 +355,40 @@
 
                 <!-- Dynamic Banners -->
                 @php
-                    $banners = \App\Models\Banner::where('status', 1)->get();
+                    $banners = \App\Models\Banner::where('status', 1)->where('type', 'mobile')->get();
+                    if ($banners->isEmpty()) {
+                        $banners = \App\Models\Banner::where('status', 1)->get();
+                    }
                 @endphp
                 
                 @if($banners->count() > 0)
-                <div id="mobileBannerCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
-                    <div class="carousel-indicators" style="bottom: -35px;">
+                <div id="mobileBannerCarousel" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="4000">
+                    @if($banners->count() > 1)
+                    <div class="carousel-indicators" style="bottom: -25px;">
                         @foreach($banners as $index => $banner)
                             <button type="button" data-bs-target="#mobileBannerCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" style="width: 8px; height: 8px; border-radius: 50%; background-color: #2e7d32;"></button>
                         @endforeach
                     </div>
-                    <div class="carousel-inner rounded-4 shadow-sm" style="background: #f4f3ed;">
+                    @endif
+                    <div class="carousel-inner rounded-4 shadow-sm" style="background: #ffffff; overflow: hidden;">
                         @foreach($banners as $index => $banner)
                         <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                            <div class="position-relative" style="height: 200px;">
+                            <div class="position-relative w-100">
                                 @if($banner->uploads)
-                                    <img src="{{ asset($banner->uploads) }}" class="d-block w-100 h-100" style="object-fit: cover;" alt="{{ $banner->title }}">
-                                    <!-- Fallback overlay text if image exists but they want text on it -->
-                                    <div class="position-absolute top-0 start-0 w-100 h-100 p-4" style="background: linear-gradient(to right, rgba(255,255,255,0.9) 30%, transparent);">
-                                        <h3 class="fw-bolder mb-2" style="color: #2e3025; font-size: 1.5rem; line-height: 1.2;">{{ $banner->title }}</h3>
-                                        @if($banner->short_description)
-                                            <p class="text-muted small mb-3" style="max-width: 60%;">{{ $banner->short_description }}</p>
-                                        @endif
-                                        <button class="btn btn-sm rounded-pill text-white px-3 fw-bold" style="background: #5b7b3b; font-size: 0.75rem;">
-                                            Recycle Now <i class="fa-solid fa-arrow-right ms-1"></i>
-                                        </button>
-                                    </div>
+                                    <a href="{{ route('categories.explore') }}" class="d-block w-100">
+                                        <img src="{{ asset($banner->uploads) }}" class="d-block w-100 rounded-4" style="object-fit: cover; max-height: 220px; width: 100%;" alt="{{ $banner->title }}">
+                                    </a>
                                 @else
-                                    <div class="p-4 w-75 position-relative" style="z-index: 2;">
-                                        <h3 class="fw-bolder mb-3" style="color: #2e3025; font-size: 1.5rem; line-height: 1.2;">
+                                    <div class="p-4 w-100 position-relative text-center" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+                                        <h3 class="fw-bolder mb-2" style="color: #2e3025; font-size: 1.3rem; line-height: 1.2;">
                                             {{ $banner->title }}
                                         </h3>
                                         @if($banner->short_description)
                                             <p class="text-muted small mb-3">{{ $banner->short_description }}</p>
                                         @endif
-                                        <button class="btn btn-sm rounded-pill text-white px-3 fw-bold" style="background: #5b7b3b; font-size: 0.75rem;">
+                                        <a href="{{ route('categories.explore') }}" class="btn btn-sm rounded-pill text-white px-3 fw-bold" style="background: #5b7b3b; font-size: 0.75rem;">
                                             Recycle Now <i class="fa-solid fa-arrow-right ms-1"></i>
-                                        </button>
-                                    </div>
-                                    <!-- Absolute positioned decoration elements -->
-                                    <i class="fa-solid fa-coins text-warning position-absolute" style="font-size: 1.5rem; top: 15%; left: 10%; opacity: 0.8;"></i>
-                                    <i class="fa-solid fa-coins text-warning position-absolute" style="font-size: 2rem; top: 10%; right: 40%; opacity: 0.9;"></i>
-                                    <div class="position-absolute" style="right: 5%; bottom: -10%; z-index: 1; opacity: 0.9;">
-                                        <i class="fa-solid fa-box-open text-muted" style="font-size: 8rem; opacity: 0.1;"></i>
+                                        </a>
                                     </div>
                                 @endif
                             </div>

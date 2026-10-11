@@ -42,14 +42,14 @@ class BannerController extends Controller
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . Str::random(10) . '.' . $extension;
             
-            // Workaround for OneDrive lock issue
-            $fileContents = file_get_contents($file->getRealPath());
-            
-            if (!file_exists(public_path('uploads/banners'))) {
-                mkdir(public_path('uploads/banners'), 0777, true);
+            $targetDir = public_path('uploads/banners');
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0755, true);
             }
             
-            file_put_contents(public_path('uploads/banners/' . $filename), $fileContents);
+            $targetPath = $targetDir . '/' . $filename;
+            file_put_contents($targetPath, file_get_contents($file->getRealPath()));
+            @chmod($targetPath, 0644);
             
             $data['uploads'] = 'uploads/banners/' . $filename;
         }
@@ -84,17 +84,18 @@ class BannerController extends Controller
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . Str::random(10) . '.' . $extension;
             
-            $fileContents = file_get_contents($file->getRealPath());
-            
-            if (!file_exists(public_path('uploads/banners'))) {
-                mkdir(public_path('uploads/banners'), 0777, true);
+            $targetDir = public_path('uploads/banners');
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0755, true);
             }
             
-            file_put_contents(public_path('uploads/banners/' . $filename), $fileContents);
+            $targetPath = $targetDir . '/' . $filename;
+            file_put_contents($targetPath, file_get_contents($file->getRealPath()));
+            @chmod($targetPath, 0644);
             
             // Delete old file if exists
             if ($banner->uploads && file_exists(public_path($banner->uploads))) {
-                unlink(public_path($banner->uploads));
+                @unlink(public_path($banner->uploads));
             }
 
             $data['uploads'] = 'uploads/banners/' . $filename;
@@ -110,7 +111,7 @@ class BannerController extends Controller
         $banner = Banner::findOrFail($id);
         
         if ($banner->uploads && file_exists(public_path($banner->uploads))) {
-            unlink(public_path($banner->uploads));
+            @unlink(public_path($banner->uploads));
         }
         
         $banner->delete();

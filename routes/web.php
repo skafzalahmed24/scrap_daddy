@@ -56,6 +56,8 @@ Route::middleware(['auth'])->group(function () {
         return view('customer.home');
     })->name('customer.home');
 
+    Route::get('/customer/categories', [\App\Http\Controllers\HomeController::class, 'categories'])->name('customer.categories');
+
     Route::get('/customer/rewards', function () {
         return view('customer.rewards');
     })->name('customer.rewards');

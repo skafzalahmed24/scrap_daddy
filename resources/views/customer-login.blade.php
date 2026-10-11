@@ -11,67 +11,108 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- Customer Auth CSS -->
-    <link rel="stylesheet" href="{{ asset('css/customer-auth.css') }}">
+    <!-- Customer Auth CSS & Embedded Styles -->
+    <link rel="stylesheet" href="{{ asset('css/customer-auth.css') }}?v={{ time() }}">
+    @include('partials.customer.auth-styles')
 </head>
 <body>
 
-<div class="split-layout">
-    <!-- Image Section -->
-    <div class="split-image">
-        <img src="{{ asset('customerlogin.png') }}" alt="Customer Login">
+<!-- Mobile & Tablet Layout -->
+<div class="auth-mobile-wrapper">
+    <!-- Top Banner with Illustration & Back Button -->
+    <div class="auth-banner-header">
+        <a href="{{ url('/') }}" class="auth-back-btn" title="Back to Home">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <img src="{{ asset('authimg.png') }}" onerror="if(this.src.indexOf('/public/')===-1) this.src='{{ asset('public/authimg.png') }}';" class="auth-banner-img" alt="Scrap Daddy">
     </div>
-    
-    <!-- Form Section -->
-    <div class="split-form">
-        <div class="form-content-wrapper">
-            <!-- Mobile Logo -->
-            <div class="text-center d-md-none mb-4 mt-2">
-                <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="max-height: 80px;">
-            </div>
-            <h2 class="fw-bold mb-1">Welcome <span class="text-primary">Back!</span></h2>
-            <p class="text-muted mb-4">Login to your customer account</p>
+
+    <!-- Bottom Curved Form Sheet -->
+    <div class="auth-card-sheet">
+        <div>
+            <h2 class="auth-title">Welcome <span class="highlight-green">Back!</span></h2>
+            <p class="auth-subtitle">Login to your customer account</p>
 
             <form id="loginForm">
-                <div id="errorAlert" class="alert alert-danger d-none"></div>
-                <div class="mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text text-muted">
-                            <i class="bi bi-person"></i>
-                        </span>
-                        <input type="text" class="form-control" name="phone_number" placeholder="Phone Number" required>
-                    </div>
+                <div id="errorAlert" class="alert alert-danger auth-alert d-none"></div>
+
+                <!-- Phone Number -->
+                <div class="custom-auth-input-group">
+                    <span class="input-icon">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <input type="tel" class="form-control-custom" name="phone_number" placeholder="Enter Phone Number" required autofocus>
                 </div>
 
-                <div class="mb-4">
-                    <div class="input-group">
-                        <span class="input-group-text text-muted">
-                            <i class="bi bi-lock"></i>
-                        </span>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                        <button class="btn border-0 bg-white text-muted" style="border-left: none; border-radius: 0 0.375rem 0.375rem 0;" type="button" id="togglePassword">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </div>
+                <!-- Password -->
+                <div class="custom-auth-input-group">
+                    <span class="input-icon">
+                        <i class="bi bi-lock"></i>
+                    </span>
+                    <input type="password" class="form-control-custom" id="password" name="password" placeholder="Enter Password" required>
+                    <button class="password-toggle-btn" type="button" id="togglePassword" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye-slash"></i>
+                    </button>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="remember">
-                        <label class="form-check-label text-muted" for="remember">
-                            Remember me
-                        </label>
-                    </div>
-                    <a href="{{ url('/customer/forgot-password') }}" class="text-primary text-decoration-none fw-medium">Forgot Password?</a>
+                <!-- Forgot Password -->
+                <div class="auth-forgot-row">
+                    <a href="{{ url('/customer/forgot-password') }}" class="auth-forgot-link">Forgot Password?</a>
                 </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary py-2 fw-semibold" id="loginBtn">Login</button>
+                <!-- Login Button -->
+                <button type="submit" class="btn-auth-submit" id="loginBtn">Login</button>
+            </form>
+        </div>
+
+        <div class="auth-bottom-text">
+            Don't have an account? <a href="{{ url('/customer/register') }}">Register</a>
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Split Layout (>= 768px) -->
+<div class="desktop-auth-container">
+    <div class="desktop-auth-image-side">
+        <img src="{{ asset('authimg.png') }}" onerror="if(this.src.indexOf('/public/')===-1) this.src='{{ asset('public/authimg.png') }}';" alt="Scrap Daddy">
+    </div>
+    <div class="desktop-auth-form-side">
+        <a href="{{ url('/') }}" class="auth-back-btn" title="Back to Home">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div class="desktop-auth-card-box">
+            <h2 class="auth-title text-start mb-1">Welcome <span class="highlight-green">Back!</span></h2>
+            <p class="auth-subtitle text-start mb-4">Login to your customer account</p>
+
+            <form id="desktopLoginForm">
+                <div id="desktopErrorAlert" class="alert alert-danger auth-alert d-none"></div>
+
+                <div class="custom-auth-input-group">
+                    <span class="input-icon">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <input type="tel" class="form-control-custom" name="phone_number" placeholder="Enter Phone Number" required>
                 </div>
+
+                <div class="custom-auth-input-group">
+                    <span class="input-icon">
+                        <i class="bi bi-lock"></i>
+                    </span>
+                    <input type="password" class="form-control-custom" id="desktopPassword" name="password" placeholder="Enter Password" required>
+                    <button class="password-toggle-btn" type="button" id="desktopTogglePassword" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye-slash"></i>
+                    </button>
+                </div>
+
+                <div class="auth-forgot-row">
+                    <a href="{{ url('/customer/forgot-password') }}" class="auth-forgot-link">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-auth-submit" id="desktopLoginBtn">Login</button>
             </form>
 
-            <div class="text-center mt-4 text-muted">
-                Don't have an account? <a href="{{ url('/customer/register') }}" class="text-primary text-decoration-none fw-semibold">Register</a>
+            <div class="auth-bottom-text text-start mt-4">
+                Don't have an account? <a href="{{ url('/customer/register') }}">Register</a>
             </div>
         </div>
     </div>
@@ -79,33 +120,36 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.getElementById('togglePassword').addEventListener('click', function (e) {
-        const passwordInput = document.getElementById('password');
-        const icon = this.querySelector('i');
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
-        }
-    });
+    // Password visibility toggles
+    function setupPasswordToggle(btnId, inputId) {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+        if (!btn || !input) return;
+        btn.addEventListener('click', function () {
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            }
+        });
+    }
 
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const btn = document.getElementById('loginBtn');
-        const alertBox = document.getElementById('errorAlert');
-        const formData = new FormData(this);
-        
-        // Add platform type 1 for web
+    setupPasswordToggle('togglePassword', 'password');
+    setupPasswordToggle('desktopTogglePassword', 'desktopPassword');
+
+    // Login Submission Handler
+    async function handleLogin(formElement, btnElement, alertElement) {
+        const formData = new FormData(formElement);
         formData.append('platform_type', 1);
 
-        btn.disabled = true;
-        btn.innerText = 'Logging in...';
-        alertBox.classList.add('d-none');
+        btnElement.disabled = true;
+        btnElement.innerText = 'Logging in...';
+        alertElement.classList.add('d-none');
 
         try {
             const response = await fetch("{{ url('/api/customer/login') }}", {
@@ -119,20 +163,17 @@
             const data = await response.json();
 
             if (data && data.status === 1) {
-                // Success! Store token in localStorage
                 if (data.data && data.data.access_token) {
                     localStorage.setItem('auth_token', data.data.access_token);
                     localStorage.setItem('user_data', JSON.stringify(data.data.user));
                 }
                 
-                // Check for redirect query parameter
                 const urlParams = new URLSearchParams(window.location.search);
                 const redirectUrl = urlParams.get('redirect');
                 
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
                 } else {
-                    // Redirect to home/dashboard screen
                     window.location.href = "{{ url('/customer/home') }}";
                 }
             } else {
@@ -146,18 +187,34 @@
                 } else if (data && data.errors) {
                     errorText = Object.values(data.errors).map(err => Array.isArray(err) ? err.join(', ') : err).join('<br>');
                 }
-                alertBox.innerHTML = errorText;
-                alertBox.classList.remove('d-none');
+                alertElement.innerHTML = errorText;
+                alertElement.classList.remove('d-none');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alertBox.innerText = 'An unexpected error occurred. Please try again.';
-            alertBox.classList.remove('d-none');
+            alertElement.innerText = 'An unexpected error occurred. Please try again.';
+            alertElement.classList.remove('d-none');
         } finally {
-            btn.disabled = false;
-            btn.innerText = 'Login';
+            btnElement.disabled = false;
+            btnElement.innerText = 'Login';
         }
-    });
+    }
+
+    const mobileForm = document.getElementById('loginForm');
+    if (mobileForm) {
+        mobileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleLogin(this, document.getElementById('loginBtn'), document.getElementById('errorAlert'));
+        });
+    }
+
+    const desktopForm = document.getElementById('desktopLoginForm');
+    if (desktopForm) {
+        desktopForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleLogin(this, document.getElementById('desktopLoginBtn'), document.getElementById('desktopErrorAlert'));
+        });
+    }
 </script>
 </body>
 </html>

@@ -1,7 +1,78 @@
 @extends('layouts.app')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}?v={{ time() }}">
+    <style>
+        @media (max-width: 767.98px) {
+            .hero-section {
+                height: 190px !important;
+                min-height: 190px !important;
+                max-height: 190px !important;
+                width: 100% !important;
+                background: #ffffff !important;
+                overflow: hidden !important;
+                margin-bottom: 15px !important;
+            }
+            .hero-mobile-wrapper, 
+            .hero-mobile-wrapper .carousel, 
+            .hero-mobile-wrapper .carousel-inner, 
+            .hero-mobile-wrapper .carousel-item {
+                width: 100% !important;
+                height: 190px !important;
+                max-height: 190px !important;
+                background: #ffffff !important;
+            }
+            .hero-mobile-img {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 190px !important;
+                max-height: 190px !important;
+                object-fit: cover !important;
+                object-position: center !important;
+                display: block !important;
+                margin: 0 auto !important;
+            }
+            .hero-mobile-fallback {
+                width: 100% !important;
+                height: 190px !important;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .custom-mobile-indicators {
+                position: absolute;
+                bottom: 6px;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                z-index: 5;
+                margin: 0;
+                padding: 0;
+                background: transparent;
+            }
+            .custom-mobile-indicators button {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background-color: var(--primary-green);
+                opacity: 0.35;
+                border: none;
+                padding: 0;
+                margin: 0;
+                transition: all 0.3s ease;
+            }
+            .custom-mobile-indicators button.active {
+                opacity: 1;
+                width: 18px;
+                border-radius: 9px;
+                background-color: var(--primary-green);
+            }
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -66,60 +137,46 @@
         </div>
 
         <!-- Mobile View (Mobile Banners) -->
-        <div class="d-block d-md-none h-100">
+        <div class="d-block d-md-none hero-mobile-wrapper">
             @if($mobileBanners->count() > 0)
-                <div id="heroCarouselMobile" class="carousel slide carousel-fade h-100" data-bs-ride="carousel">
-                    <div class="carousel-inner h-100">
+                <div id="heroCarouselMobile" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+                    <div class="carousel-inner">
                         @foreach($mobileBanners as $index => $banner)
-                            <div class="carousel-item h-100 {{ $index === 0 ? 'active' : '' }}">
-                                @if(preg_match('/\.(mp4|webm|ogg)$/i', $banner->uploads))
-                                    <video class="hero-media" autoplay muted loop playsinline>
-                                        <source src="{{ asset($banner->uploads) }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
-                                    </video>
-                                @else
-                                    <img src="{{ asset($banner->uploads) }}" class="hero-media" alt="{{ $banner->title }}">
-                                @endif
-                                
-                                <div class="hero-overlay">
-                                    <div class="container">
-                                        <div class="hero-content">
-                                            <h1 class="hero-title">{{ $banner->title }}</h1>
-                                            <p class="hero-subtitle">{{ $banner->short_description }}</p>
-                                            <div class="hero-buttons d-flex gap-3 mt-4">
-                                                <a href="{{ url('/#categories') }}" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                                <a href="{{ route('categories.explore') }}" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                            </div>
+                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                <a href="{{ url('/#categories') }}" class="d-block w-100 text-decoration-none">
+                                    @if($banner->uploads)
+                                        @if(preg_match('/\.(mp4|webm|ogg)$/i', $banner->uploads))
+                                            <video class="hero-mobile-img" autoplay muted loop playsinline style="width: 100% !important; height: 190px !important; object-fit: cover !important; display: block !important; margin: 0 auto !important;">
+                                                <source src="{{ asset($banner->uploads) }}" type="video/{{ pathinfo($banner->uploads, PATHINFO_EXTENSION) }}">
+                                            </video>
+                                        @else
+                                            <img src="{{ asset($banner->uploads) }}" class="hero-mobile-img" style="width: 100% !important; height: 190px !important; object-fit: cover !important; display: block !important; margin: 0 auto !important;" alt="{{ $banner->title }}">
+                                        @endif
+                                    @else
+                                        <div class="hero-mobile-fallback p-3 text-center">
+                                            <h2 class="hero-mobile-title">{{ $banner->title }}</h2>
+                                            @if($banner->short_description)
+                                                <p class="hero-mobile-subtitle">{{ $banner->short_description }}</p>
+                                            @endif
+                                            <span class="btn btn-primary btn-sm rounded-pill mt-1 fw-bold px-3" style="background: var(--primary-green); border: none; color: white;">Book Pickup <i class="fa-solid fa-arrow-right ms-1"></i></span>
                                         </div>
-                                    </div>
-                                </div>
+                                    @endif
+                                </a>
                             </div>
                         @endforeach
                     </div>
                     @if($mobileBanners->count() > 1)
-                    <button class="carousel-control-prev" style="z-index: 3;" type="button" data-bs-target="#heroCarouselMobile" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" style="z-index: 3;" type="button" data-bs-target="#heroCarouselMobile" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
+                    <div class="custom-mobile-indicators">
+                        @foreach($mobileBanners as $index => $banner)
+                            <button type="button" data-bs-target="#heroCarouselMobile" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                        @endforeach
+                    </div>
                     @endif
                 </div>
             @else
-                <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?q=80&w=2072&auto=format&fit=crop" class="hero-media" alt="Background">
-                <div class="hero-overlay">
-                    <div class="container">
-                        <div class="hero-content">
-                            <h1 class="hero-title">Global Scrap Recycling Made Simple</h1>
-                            <p class="hero-subtitle">Source bulk scrap materials locally and deliver to businesses worldwide. We control quality & stock.</p>
-                            <div class="hero-buttons d-flex gap-3 mt-4">
-                                <a href="{{ url('/#categories') }}" class="btn btn-primary rounded-pill shadow-sm px-4 py-2 fw-bold" style="background: var(--primary-green); border: none; color: white;"><i class="fa-solid fa-truck-fast me-2"></i> Book Pickup Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                                <a href="{{ route('categories.explore') }}" class="btn btn-light rounded-pill shadow-sm px-4 py-2 fw-bold" style="color: var(--primary-green);"><i class="fa-solid fa-layer-group me-2"></i> Explore Categories <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <a href="{{ url('/#categories') }}" class="d-block w-100 text-decoration-none">
+                    <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?q=80&w=2072&auto=format&fit=crop" class="hero-mobile-img" style="width: 100% !important; height: 190px !important; object-fit: cover !important; display: block !important; margin: 0 auto !important;" alt="Background">
+                </a>
             @endif
         </div>
     </section>

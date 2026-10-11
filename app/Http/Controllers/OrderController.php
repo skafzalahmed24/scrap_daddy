@@ -10,10 +10,17 @@ class OrderController extends Controller
     // User Methods
     public function index()
     {
-        // Assuming user is authenticated via some mechanism, normally auth()->user()
-        // but here the session or auth might be custom based on the uuid.
-        // For now, getting all for demonstration if auth is not fully configured
-        $orders = Order::with('user', 'subcategory')->latest()->get(); // Ideally: auth()->user()->orders
+        $user = auth()->user();
+        if ($user) {
+            $orders = Order::with(['user', 'subcategory', 'category'])
+                ->where('user_uuid', $user->uuid)
+                ->latest()
+                ->get();
+        } else {
+            $orders = Order::with(['user', 'subcategory', 'category'])
+                ->latest()
+                ->get();
+        }
         return view('customer.orders', compact('orders'));
     }
 

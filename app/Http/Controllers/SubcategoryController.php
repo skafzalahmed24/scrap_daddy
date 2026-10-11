@@ -47,8 +47,9 @@ class SubcategoryController extends Controller
                 File::makeDirectory($destinationPath, 0755, true);
             }
             
-            $fileContent = file_get_contents($file->getRealPath());
-            file_put_contents($destinationPath . '/' . $filename, $fileContent);
+            $targetPath = $destinationPath . '/' . $filename;
+            file_put_contents($targetPath, file_get_contents($file->getRealPath()));
+            @chmod($targetPath, 0644);
             
             $data['image'] = 'subcategories/' . $filename;
         }
@@ -92,8 +93,9 @@ class SubcategoryController extends Controller
                 File::makeDirectory($destinationPath, 0755, true);
             }
             
-            $fileContent = file_get_contents($file->getRealPath());
-            file_put_contents($destinationPath . '/' . $filename, $fileContent);
+            $targetPath = $destinationPath . '/' . $filename;
+            file_put_contents($targetPath, file_get_contents($file->getRealPath()));
+            @chmod($targetPath, 0644);
             
             $data['image'] = 'subcategories/' . $filename;
         }
