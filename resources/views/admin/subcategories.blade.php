@@ -126,7 +126,7 @@
             select.innerHTML = '<option value="">Select Category...</option>';
             if(data.data) {
                 data.data.forEach(cat => {
-                    select.innerHTML += `<option value="${cat.uuid}">${cat.title}</option>`;
+                    select.innerHTML += `<option value="${cat.uuid}">${escapeHtml(cat.title)}</option>`;
                 });
             }
         } catch(e) {
@@ -177,9 +177,9 @@
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><img src="${imgUrl}" class="category-img border" alt="${cat.name}"></td>
-                <td class="text-muted">${cat.category ? cat.category.title : 'None'}</td>
-                <td class="fw-semibold">${cat.name}</td>
+                <td><img src="${imgUrl}" class="category-img border" alt="${escapeHtml(cat.name)}"></td>
+                <td class="text-muted">${cat.category ? escapeHtml(cat.category.title) : 'None'}</td>
+                <td class="fw-semibold">${escapeHtml(cat.name)}</td>
                 <td>${statusBadge}</td>
                 <td class="text-end text-nowrap">
                     <button class="btn btn-sm btn-light text-brand me-1" onclick='openModal("edit", ${JSON.stringify(cat).replace(/'/g, "&#39;")})'>

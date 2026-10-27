@@ -13,10 +13,24 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if ($credentials['email'] === 'admin@scrapedaddy.com' && $credentials['password'] === 'Vzario@123') {
+        $validEmail = hash_equals((string) config('admin.email'), $credentials['email']);
+        $validPassword = hash_equals((string) config('admin.password'), $credentials['password']);
+
+        if ($validEmail && $validPassword) {
+            $request->session()->regenerate();
+            $request->session()->put('is_admin', true);
+
             return response()->json(['success' => true, 'redirect' => url('/dashboard')]);
         }
 
         return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->session()->forget('is_admin');
+        $request->session()->regenerateToken();
+
+        return redirect('/admin/login');
     }
 }

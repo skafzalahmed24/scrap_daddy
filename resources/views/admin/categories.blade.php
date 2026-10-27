@@ -149,8 +149,8 @@
                 
             const row = `
                 <tr>
-                    <td><img src="${imgUrl}" class="category-img border" alt="${cat.title}"></td>
-                    <td class="fw-semibold">${cat.title}</td>
+                    <td><img src="${imgUrl}" class="category-img border" alt="${escapeHtml(cat.title)}"></td>
+                    <td class="fw-semibold">${escapeHtml(cat.title)}</td>
                     <td>${statusBadge}</td>
                     <td class="text-end text-nowrap">
                         <button class="btn btn-sm btn-light text-brand me-1" onclick='openModal("edit", ${JSON.stringify(cat)})'>

@@ -136,8 +136,8 @@
             const row = `
                 <tr>
                     <td>${faq.id}</td>
-                    <td class="fw-semibold text-wrap" style="max-width: 250px;">${faq.question}</td>
-                    <td class="text-wrap" style="max-width: 350px;">${faq.answer.substring(0, 100)}${faq.answer.length > 100 ? '...' : ''}</td>
+                    <td class="fw-semibold text-wrap" style="max-width: 250px;">${escapeHtml(faq.question)}</td>
+                    <td class="text-wrap" style="max-width: 350px;">${escapeHtml(faq.answer.substring(0, 100))}${faq.answer.length > 100 ? '...' : ''}</td>
                     <td>${statusBadge}</td>
                     <td class="text-end text-nowrap">
                         <button class="btn btn-sm btn-light text-brand me-1" onclick='openModal("edit", ${JSON.stringify(faq).replace(/'/g, "&#39;")})'>

@@ -67,7 +67,7 @@ Route::prefix('customer')->group(function () {
 });
 
 // Admin APIs
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('admin')->group(function () {
     Route::post('/scrap-vehicles', [ScrapVehicleController::class, 'index']);
     Route::post('/scrap-vehicles/status', [ScrapVehicleController::class, 'updateStatus']);
 });

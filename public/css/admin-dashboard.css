@@ -99,6 +99,9 @@ body {
 }
 
 .logout-btn {
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
     display: flex;
     align-items: center;
     color: #ef4444;
@@ -348,5 +351,48 @@ body {
     .dashboard-inner {
         padding: 15px;
         overflow-x: hidden;
+    }
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.25rem;
+        margin-bottom: 16px;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+    }
+    .profile-info > div:first-child {
+        display: none; /* keep only the avatar in the topbar */
+    }
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+    .table th,
+    .table td {
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+    .table td.text-wrap {
+        white-space: normal;
+        min-width: 180px;
+    }
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-inner {
+        padding: 12px;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .sidebar {
+        width: 85vw;
+        max-width: 280px;
     }
 }

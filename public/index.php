@@ -5,6 +5,15 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Determine path to Laravel core (supports server folders scrap_daddy_core or scrap_daddy, and local)
+if (file_exists(__DIR__.'/../scrap_daddy_core/bootstrap/app.php')) {
+    $corePath = __DIR__.'/../scrap_daddy_core';
+} elseif (file_exists(__DIR__.'/../scrap_daddy/bootstrap/app.php')) {
+    $corePath = __DIR__.'/../scrap_daddy';
+} else {
+    $corePath = __DIR__.'/..';
+}
+
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
@@ -16,7 +25,7 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
-if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+if (file_exists($maintenance = $corePath.'/storage/framework/maintenance.php')) {
     require $maintenance;
 }
 
@@ -31,7 +40,7 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 |
 */
 
-require __DIR__.'/../vendor/autoload.php';
+require $corePath.'/vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +53,7 @@ require __DIR__.'/../vendor/autoload.php';
 |
 */
 
-$app = require_once __DIR__.'/../bootstrap/app.php';
+$app = require_once $corePath.'/bootstrap/app.php';
 
 $kernel = $app->make(Kernel::class);
 

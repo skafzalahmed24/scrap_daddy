@@ -26,7 +26,7 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy" class="sidebar-logo">
-            <button class="close-sidebar" id="closeSidebar"></button>
+            <button type="button" class="close-sidebar" id="closeSidebar" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
         </div>
         
         <nav class="sidebar-nav">
@@ -66,9 +66,12 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a href="{{ url('/') }}" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </a>
+            <form method="POST" action="{{ url('/admin/logout') }}">
+                @csrf
+                <button type="submit" class="logout-btn w-100 border-0 text-start">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -77,7 +80,7 @@
         <!-- Topbar -->
         <header class="topbar">
             <div style="display: flex; align-items: center;">
-                <button class="mobile-toggle" id="sidebarToggle">
+                <button type="button" class="mobile-toggle" id="sidebarToggle" aria-label="Open menu">
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
@@ -94,7 +97,7 @@
         </header>
 
         <!-- Dashboard Inner / Main Content Area -->
-        <div class="dashboard-inner p-4">
+        <div class="dashboard-inner">
             @yield('content')
         </div>
     </main>
@@ -104,19 +107,26 @@
     
     <!-- Sidebar Toggle Logic -->
     <script>
+        // Escape user-entered text before putting it into innerHTML templates
+        window.escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"}[c]));
+
         const sidebar = document.querySelector('.sidebar');
         const overlay = document.getElementById('sidebarOverlay');
         const toggleBtn = document.getElementById('sidebarToggle');
         const closeBtn = document.getElementById('closeSidebar');
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
+        function setSidebar(open) {
+            sidebar.classList.toggle('show', open);
+            overlay.classList.toggle('show', open);
+            document.body.style.overflow = open ? 'hidden' : '';
         }
 
-        toggleBtn.addEventListener('click', toggleSidebar);
-        closeBtn.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
+        toggleBtn.addEventListener('click', () => setSidebar(true));
+        closeBtn.addEventListener('click', () => setSidebar(false));
+        overlay.addEventListener('click', () => setSidebar(false));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setSidebar(false); });
+        sidebar.querySelectorAll('.nav-item').forEach((a) => a.addEventListener('click', () => setSidebar(false)));
+        window.addEventListener('resize', () => { if (window.innerWidth > 992) setSidebar(false); });
     </script>
 
     <!-- Custom JS per page -->

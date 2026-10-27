@@ -12,17 +12,25 @@ Route::get('/explore-categories', [HomeController::class, 'categories'])->name('
 Route::get('/category/{id}', [HomeController::class, 'category'])->name('category.show');
 
 Route::get('/admin/login', function () {
+    if (session('is_admin')) {
+        return redirect('/dashboard');
+    }
+
     return view('login');
 });
+
+Route::post('/admin/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('admin.logout');
 
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\AdminUserController;
 
+Route::middleware('admin')->group(function () {
 Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 Route::get('/admin/payments', [AdminPaymentController::class, 'index'])->name('admin.payments.index');
 Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
 Route::get('/admin/users/{uuid}', [AdminUserController::class, 'show'])->name('admin.users.show');
+});
 
 Route::get('/customer/login', function () {
     return view('customer-login');
@@ -101,6 +109,7 @@ Route::middleware(['auth'])->group(function () {
 // Static Pages
 Route::get('/page/{slug}', [PageController::class, 'show'])->name('page.show');
 
+Route::middleware('admin')->group(function () {
 // Categories Admin View
 Route::get('/admin/categories', function () {
     return view('admin.categories');
@@ -137,6 +146,7 @@ Route::post('/admin/pages/store', [PageController::class, 'store'])->name('admin
 Route::get('/admin/pages/{id}/edit', [PageController::class, 'edit'])->name('admin.pages.edit');
 Route::post('/admin/pages/{id}', [PageController::class, 'update'])->name('admin.pages.update');
 Route::delete('/admin/pages/{id}', [PageController::class, 'destroy'])->name('admin.pages.destroy');
+});
 
 // Categories AJAX API endpoints
 use App\Http\Controllers\CategoryController;
@@ -145,7 +155,7 @@ use App\Http\Controllers\BannerController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\RewardController;
 
-Route::prefix('api')->group(function () {
+Route::prefix('api')->middleware('admin')->group(function () {
     Route::post('categories/{id}', [CategoryController::class, 'update']);
     Route::apiResource('categories', CategoryController::class)->except(['update']);
 

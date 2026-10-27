@@ -159,7 +159,7 @@
                 if (isVideo) {
                     mediaHtml = `<video src="{{ asset('') }}${banner.uploads}" class="banner-media" muted controls style="background: #000;"></video>`;
                 } else {
-                    mediaHtml = `<img src="{{ asset('') }}${banner.uploads}" class="banner-media border" alt="${banner.title}">`;
+                    mediaHtml = `<img src="{{ asset('') }}${banner.uploads}" class="banner-media border" alt="${escapeHtml(banner.title)}">`;
                 }
             }
 
@@ -176,9 +176,9 @@
             const row = `
                 <tr>
                     <td>${mediaHtml}</td>
-                    <td class="fw-semibold">${banner.title}</td>
+                    <td class="fw-semibold">${escapeHtml(banner.title)}</td>
                     <td>${typeHtml}</td>
-                    <td class="text-truncate" style="max-width: 200px;">${banner.short_description || '-'}</td>
+                    <td class="text-truncate" style="max-width: 200px;">${escapeHtml(banner.short_description) || "-"}</td>
                     <td>${statusBadge}</td>
                     <td class="text-end text-nowrap">
                         <button class="btn btn-sm btn-light text-brand me-1" onclick='openModal("edit", ${JSON.stringify(banner).replace(/'/g, "&#39;")})'>
