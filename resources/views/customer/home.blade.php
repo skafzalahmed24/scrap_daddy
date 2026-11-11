@@ -227,6 +227,36 @@
 
 
 
+                <style>
+                    .sd-track { position: relative; padding: 16px 0 8px; }
+                    .sd-track-line { position: absolute; left: 12.5%; right: 12.5%; top: 36px; height: 3px; border-radius: 2px;
+                        background: repeating-linear-gradient(90deg, #d3d3d3 0 8px, transparent 8px 16px); }
+                    .sd-track-fill { position: absolute; left: 0; top: 0; height: 3px; width: 0; border-radius: 2px; background: #4CAF50;
+                        transition: width 2s cubic-bezier(.22, 1, .36, 1); }
+                    .sd-track-fill.is-cancelled { background: #dc3545; }
+                    .sd-track-steps { position: relative; z-index: 2; display: flex; }
+                    .sd-step { flex: 1; min-width: 0; text-align: center; padding: 0 2px; }
+                    .sd-ic { width: 42px; height: 42px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+                    .sd-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                        background: #f5f5f5; color: #9e9e9e; font-size: .85rem; }
+                    .sd-dot.is-check { background: #fff; border: 2px solid #4CAF50; color: #4CAF50; }
+                    .sd-dot.is-cancelled { background: #fff; border: 2px solid #dc3545; color: #dc3545; }
+                    .sd-truck { width: 40px; height: auto; background: #fff; border-radius: 8px; animation: sdTruckIn .6s ease-out both; }
+                    @keyframes sdTruckIn { from { transform: translateX(-14px); opacity: 0; } to { transform: none; opacity: 1; } }
+                    .sd-title { font-size: .75rem; font-weight: 700; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                    .sd-sub { font-size: .625rem; color: #8a8a8a; line-height: 1.25; margin-top: 4px; }
+                    .sd-info { background: #f3f9ff; border-radius: 16px; padding: 16px; }
+                    .sd-info h6 { font-size: 1rem; font-weight: 700; color: #222; margin: 0 0 10px; }
+                    .sd-info p { font-size: .75rem; color: #2f3943; margin: 0; line-height: 1.4; }
+                </style>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        document.querySelectorAll('.sd-track').forEach(function (t) {
+                            var fill = t.querySelector('.sd-track-fill');
+                            requestAnimationFrame(function () { fill.style.width = (t.dataset.fill || 0) + '%'; });
+                        });
+                    });
+                </script>
                 <!-- Dynamic Pickups Section (Horizontally Scrollable) -->
                 @php
                     $activeOrders = $recentOrders->whereIn('status', ['pending', 'accepted', 'assigned']);
@@ -253,70 +283,44 @@
                             <span class="badge {{ $order->status == 'pending' ? 'bg-warning' : ($order->status == 'completed' ? 'bg-success' : ($order->status == 'cancelled' ? 'bg-danger' : 'bg-primary')) }} rounded-pill" style="font-size: 0.7rem;">{{ ucfirst($order->status) }}</span>
                         </div>
 
-                        <!-- Stepper Section -->
-                        <div class="position-relative mb-4 px-1">
-                            @php
-                                $st = $order->status;
-                                $isCancelled = ($st === 'cancelled');
-                                $isAccepted = in_array($st, ['accepted', 'assigned', 'completed']);
-                                $isAssigned = in_array($st, ['assigned', 'completed']);
-                                $isCompleted = ($st === 'completed');
-                                $isPending = ($st === 'pending');
-
-                                $progress = 12;
-                                if ($isAccepted) $progress = 38;
-                                if ($isAssigned) $progress = 65;
-                                if ($isCompleted) $progress = 100;
-                            @endphp
-                            
-                            <!-- Connecting Line behind the icons -->
-                            <div class="position-absolute" style="top: 16px; left: 12%; right: 12%; height: 3px; background: #e9ecef; z-index: 1; transform: translateY(-50%); border-radius: 2px;">
-                                <div class="h-100 {{ $isCancelled ? 'bg-danger' : 'bg-success' }}" style="width: {{ $isCancelled ? '100%' : $progress.'%' }}; border-radius: 2px; transition: width 0.4s ease;"></div>
-                            </div>
-
-                            <div class="d-flex justify-content-between position-relative" style="z-index: 2;">
-                                <!-- Step 1: Submitted -->
-                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
-                                    <div class="rounded-circle bg-white border border-2 {{ $isCancelled ? 'border-danger text-danger' : 'border-success text-success' }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
-                                        <i class="fa-solid fa-check fs-6"></i>
+                        <!-- Stepper Section (mirrors the Android app tracker) -->
+                        @php
+                            $st = $order->status;
+                            $isCancelled = ($st === 'cancelled');
+                            $trackStep = $st === 'completed' ? 3 : ($st === 'assigned' ? 2 : ($st === 'accepted' ? 1 : 0));
+                            $trackFill = $isCancelled ? 100 : round($trackStep / 3 * 100);
+                            $trackSteps = [
+                                ['title' => 'Submitted', 'sub' => $order->created_at ? $order->created_at->format('d M, h:i A') : 'Waiting', 'icon' => 'fa-solid fa-check', 'color' => '#4CAF50'],
+                                ['title' => 'Confirmed', 'sub' => $trackStep >= 1 ? 'Confirmed' : 'Waiting confirmation', 'icon' => 'fa-regular fa-clock', 'color' => '#FFB300'],
+                                ['title' => 'Assigned', 'sub' => $trackStep >= 2 ? 'Driver Assigned' : 'Pending Driver assignment', 'icon' => 'fa-solid fa-user', 'color' => '#5A5A5A'],
+                                ['title' => 'Completed', 'sub' => $isCancelled ? 'Cancelled' : ($trackStep >= 3 ? 'Done' : 'Pending Delivery completion'), 'icon' => 'fa-solid fa-flag', 'color' => '#5A5A5A'],
+                            ];
+                        @endphp
+                        <div class="sd-track" data-fill="{{ $trackFill }}">
+                            <div class="sd-track-line"><div class="sd-track-fill {{ $isCancelled ? 'is-cancelled' : '' }}"></div></div>
+                            <div class="sd-track-steps">
+                                @foreach($trackSteps as $i => $s)
+                                    <div class="sd-step">
+                                        <div class="sd-ic">
+                                            @if(!$isCancelled && $i === $trackStep)
+                                                <img src="{{ asset('green_truck.png') }}" alt="Truck" class="sd-truck">
+                                            @elseif($isCancelled)
+                                                <span class="sd-dot is-cancelled"><i class="{{ $i === 3 ? 'fa-solid fa-xmark' : $s['icon'] }}"></i></span>
+                                            @else
+                                                <span class="sd-dot {{ $i === 0 ? 'is-check' : '' }}"><i class="{{ $s['icon'] }}"></i></span>
+                                            @endif
+                                        </div>
+                                        <div class="sd-title" style="color: {{ $isCancelled ? '#dc3545' : $s['color'] }};">{{ $s['title'] }}</div>
+                                        <div class="sd-sub">{{ $s['sub'] }}</div>
                                     </div>
-                                    <div class="{{ $isCancelled ? 'text-danger' : 'text-success' }} fw-bold text-truncate" style="font-size: 0.72rem;">Submitted</div>
-                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $order->created_at ? $order->created_at->format('d M, h:i A') : 'N/A' }}</div>
-                                </div>
-
-                                <!-- Step 2: Confirmed -->
-                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
-                                    <div class="rounded-circle bg-white {{ $isAccepted ? 'border border-2 border-success text-success' : ($isPending ? 'border border-2 border-warning text-warning' : ($isCancelled ? 'border border-2 border-danger text-danger' : 'border border-2 border-secondary text-muted')) }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
-                                        <i class="fa-solid fa-truck fs-6"></i>
-                                    </div>
-                                    <div class="{{ $isAccepted ? 'text-success' : ($isPending ? 'text-warning' : ($isCancelled ? 'text-danger' : 'text-secondary')) }} fw-bold text-truncate" style="font-size: 0.72rem;">Confirmed</div>
-                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $isPending ? 'Waiting confirm' : 'Confirmed' }}</div>
-                                </div>
-
-                                <!-- Step 3: Assigned -->
-                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
-                                    <div class="rounded-circle {{ $isAssigned ? 'bg-white border border-2 border-success text-success' : ($isCancelled ? 'bg-white border border-2 border-danger text-danger' : 'bg-light border border-2 border-light text-muted') }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
-                                        <i class="fa-solid fa-user fs-6"></i>
-                                    </div>
-                                    <div class="{{ $isAssigned ? 'text-success' : ($isCancelled ? 'text-danger' : 'text-secondary') }} fw-bold text-truncate" style="font-size: 0.72rem;">Assigned</div>
-                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $isAssigned ? 'Driver assigned' : 'Pending' }}</div>
-                                </div>
-
-                                <!-- Step 4: Completed -->
-                                <div class="text-center" style="flex: 1; min-width: 0; padding: 0 2px;">
-                                    <div class="rounded-circle {{ $isCompleted ? 'bg-white border border-2 border-success text-success' : ($isCancelled ? 'bg-white border border-2 border-danger text-danger' : 'bg-light border border-2 border-light text-muted') }} d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
-                                        <i class="fa-solid fa-flag fs-6"></i>
-                                    </div>
-                                    <div class="{{ $isCompleted ? 'text-success' : ($isCancelled ? 'text-danger' : 'text-secondary') }} fw-bold text-truncate" style="font-size: 0.72rem;">Completed</div>
-                                    <div class="text-muted" style="font-size: 0.62rem; line-height: 1.2;">{{ $isCompleted ? 'Delivered' : ($isCancelled ? 'Cancelled' : 'Pending') }}</div>
-                                </div>
+                                @endforeach
                             </div>
                         </div>
 
                         @if($order->status == 'pending')
-                        <div class="rounded-4 p-3" style="background-color: #f5f8ff;">
-                            <h6 class="fw-bold text-dark mb-2">Confirming your request...</h6>
-                            <p class="text-muted mb-0" style="font-size: 0.8rem; line-height: 1.4;">
+                        <div class="sd-info">
+                            <h6>Confirming your request...</h6>
+                            <p>
                                 Please wait while we confirm your pickup request. This usually takes 15-30 minutes.
                             </p>
                         </div>

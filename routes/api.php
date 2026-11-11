@@ -19,25 +19,25 @@ use App\Http\Controllers\ScrapVehicleController;
 */
 
 // Admin Login Route
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+Route::post('/login', [AuthController::class, 'login']);
 
 // Customer App APIs
 Route::prefix('customer')->group(function () {
     // Public Auth Routes
-    Route::post('/register', [CustomerAuthController::class, 'register'])->middleware('throttle:10,1');
-    Route::post('/login', [CustomerAuthController::class, 'login'])->middleware('throttle:10,1');
-    Route::post('/verify-otp', [CustomerAuthController::class, 'verifyOtp'])->middleware('throttle:6,1');
-    Route::post('/forgot-password', [CustomerAuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
-    Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword'])->middleware('throttle:6,1');
+    Route::post('/register', [CustomerAuthController::class, 'register']);
+    Route::post('/login', [CustomerAuthController::class, 'login']);
+    Route::post('/verify-otp', [CustomerAuthController::class, 'verifyOtp']);
+    Route::post('/forgot-password', [CustomerAuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword']);
     // Public Data Routes
     Route::post('/home', [CustomerAuthController::class, 'home']);
     Route::post('/banners', [CustomerAuthController::class, 'banners']);
     Route::post('/categories', [CustomerAuthController::class, 'categories']);
     Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
-    Route::post('/check-pincode', [CustomerAuthController::class, 'checkPincode'])->middleware('throttle:30,1');
+    Route::post('/check-pincode', [CustomerAuthController::class, 'checkPincode']);
     Route::post('/pages',[CustomerAuthController::class, 'page']);
     Route::post('/faqs', [CustomerAuthController::class, 'faqs']);
-    Route::post('/upload-images', [UploadController::class, 'uploadImages'])->middleware('throttle:20,1');
+    Route::post('/upload-images', [UploadController::class, 'uploadImages']);
 
     // Protected Routes (Require Authentication)
     Route::middleware('auth:sanctum')->group(function () {
