@@ -211,6 +211,14 @@
                         <i class="fa-solid fa-chevron-right profile-chevron"></i>
                     </a>
 
+                    <a href="{{ route('customer.scrap_vehicles') }}" class="profile-menu-item">
+                        <div class="profile-icon-box" style="background-color: rgba(121, 85, 72, 0.1); color: #795548;">
+                            <i class="fa-solid fa-car-side"></i>
+                        </div>
+                        <span class="profile-menu-label">Scrap Vehicle</span>
+                        <i class="fa-solid fa-chevron-right profile-chevron"></i>
+                    </a>
+
                     <a href="#" onclick="event.preventDefault(); confirmDeleteAccount();" class="profile-menu-item">
                         <div class="profile-icon-box" style="background-color: rgba(244, 67, 54, 0.1); color: #f44336;">
                             <i class="fa-regular fa-trash-can"></i>

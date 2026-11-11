@@ -403,14 +403,9 @@
 
                         <div id="rewardsContainer" style="display: none;">
                             <div class="rewards-card ms-md-5 mb-4 p-3 border rounded-3" style="background-color: #fcfcfc;">
-                                <div class="form-check form-switch d-flex align-items-center justify-content-between p-0" style="padding-left: 0;">
-                                    <div>
-                                        <h6 class="mb-1 fw-bold" style="color: #222;"><i class="fa-solid fa-gift text-success me-2"></i>Apply Rewards Bonus</h6>
-                                        <p class="text-muted small mb-0">You have <strong id="rewardCoinsDisplay">0</strong> coins. Apply them to get a bonus of <strong class="text-success" id="rewardBonusDisplay">₹0.00</strong>.</p>
-                                    </div>
-                                    <div>
-                                        <input class="form-check-input m-0 fs-4" type="checkbox" name="apply_rewards" id="apply_rewards" value="1" style="cursor: pointer; position: relative;">
-                                    </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold" style="color: #222;"><i class="fa-solid fa-gift text-success me-2"></i>Rewards Available</h6>
+                                    <p class="text-muted small mb-0">You have <strong id="rewardCoinsDisplay">0</strong> coins worth <strong class="text-success" id="rewardBonusDisplay">₹0.00</strong>. You can apply them at payment, once the final amount is set after pickup.</p>
                                 </div>
                             </div>
                         </div>
@@ -691,7 +686,8 @@
             for (const [uuid, item] of Object.entries(cart)) {
                 container.innerHTML += `<input type="hidden" name="items[${index}][subcategory_uuid]" value="${uuid}">`;
                 container.innerHTML += `<input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">`;
-                container.innerHTML += `<input type="hidden" name="items[${index}][name]" value="${item.name}">`;
+                const safeName = String(item.name).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                container.innerHTML += `<input type="hidden" name="items[${index}][name]" value="${safeName}">`;
                 index++;
             }
         }

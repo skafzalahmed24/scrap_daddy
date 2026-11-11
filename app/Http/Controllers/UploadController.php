@@ -11,7 +11,7 @@ class UploadController extends Controller
     public function uploadImages(Request $request)
     {
         $request->validate([
-            'images' => 'required|array',
+            'images' => 'required|array|max:10',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120', // max 5MB per image
         ]);
 
@@ -24,7 +24,8 @@ class UploadController extends Controller
             }
 
             foreach ($request->file('images') as $file) {
-                $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+                // Extension is derived from the real file content, never from the client's filename
+                $filename = time() . '_' . Str::random(10) . '.' . ($file->extension() ?: 'jpg');
                 $targetPath = $targetDir . '/' . $filename;
                 file_put_contents($targetPath, file_get_contents($file->getRealPath()));
                 @chmod($targetPath, 0644);

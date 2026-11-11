@@ -10,13 +10,12 @@ class FeedbackController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_uuid' => 'required|exists:users,uuid',
             'star_rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         Feedback::create([
-            'user_uuid' => $request->user_uuid,
+            'user_uuid' => auth()->user()->uuid,
             'star_rating' => $request->star_rating,
             'comment' => $request->comment,
             'is_approved' => false, // Requires admin approval

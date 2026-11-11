@@ -45,7 +45,7 @@ class CategoryController extends Controller
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $imageName = time() . '_' . Str::random(10) . '.' . ($image->extension() ?: 'jpg');
             $targetDir = public_path('categories');
             
             if (!File::exists($targetDir)) {
@@ -97,7 +97,7 @@ class CategoryController extends Controller
             }
 
             $image = $request->file('image');
-            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $imageName = time() . '_' . Str::random(10) . '.' . ($image->extension() ?: 'jpg');
             $targetDir = public_path('categories');
             
             if (!File::exists($targetDir)) {

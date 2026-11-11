@@ -39,7 +39,7 @@ class BannerController extends Controller
 
         if ($request->hasFile('uploads')) {
             $file = $request->file('uploads');
-            $extension = $file->getClientOriginalExtension();
+            $extension = ($file->extension() ?: 'jpg');
             $filename = time() . '_' . Str::random(10) . '.' . $extension;
             
             $targetDir = public_path('uploads/banners');
@@ -81,7 +81,7 @@ class BannerController extends Controller
 
         if ($request->hasFile('uploads')) {
             $file = $request->file('uploads');
-            $extension = $file->getClientOriginalExtension();
+            $extension = ($file->extension() ?: 'jpg');
             $filename = time() . '_' . Str::random(10) . '.' . $extension;
             
             $targetDir = public_path('uploads/banners');

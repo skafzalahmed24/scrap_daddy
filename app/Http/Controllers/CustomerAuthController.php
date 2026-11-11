@@ -15,20 +15,42 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Cache;
+use App\Services\OrderPaymentService;
 
 class CustomerAuthController extends Controller
 {
+    /**
+     * OTPs are random in production. Locally a fixed code is used so the app
+     * can be tested before an SMS provider is connected.
+     */
+    private function generateOtp(): string
+    {
+        if (app()->environment('production')) {
+            return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        }
+
+        return '123456';
+    }
+
+    private function logOtp(string $label, User $user, string $otp): void
+    {
+        if (!app()->environment('production')) {
+            Log::info("OTP for {$label} (User: {$user->phone_number}): {$otp}");
+        }
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
             'phone_number' => [
-                'required', 'string', 'max:20',
+                'required', 'string', 'regex:/^[0-9+\-\s]{7,15}$/',
                 Rule::unique('users')->where(function ($query) {
                     return $query->where('status', 1);
                 })
             ],
-            'password' => 'required|string|min:6',
+            'password' => ['required','string','min:8','max:100','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/'],
             'pin_code' => 'nullable|string|max:10',
             'location' => 'nullable|string|max:255',
             'device_id' => 'nullable|string|max:255',
@@ -47,7 +69,7 @@ class CustomerAuthController extends Controller
             ], 200);
         }
 
-        $otp = '123456';
+        $otp = $this->generateOtp();
 
         // Find existing deleted user to reuse the row (so DB unique constraints don't crash)
         $existingUser = User::where('status', 0)->where('phone_number', $request->phone_number)->first();
@@ -75,7 +97,7 @@ class CustomerAuthController extends Controller
             $user = User::create($userData);
         }
 
-        Log::info("OTP for Registration (User: {$user->phone_number}): {$otp}");
+        $this->logOtp('Registration', $user, $otp);
 
         return response()->json([
             'status' => 1,
@@ -118,7 +140,7 @@ class CustomerAuthController extends Controller
             ], 200);
         }
 
-        if ($user->otp !== $request->otp) {
+        if ($user->otp === null || !hash_equals((string) $user->otp, (string) $request->otp)) {
             return response()->json(['status' => 0, 'message' => 'Invalid OTP'], 400);
         }
 
@@ -131,6 +153,11 @@ class CustomerAuthController extends Controller
             'otp' => null,
             'otp_expires_at' => null,
         ]);
+
+        // If this OTP was requested through "forgot password", allow one password reset.
+        if (Cache::pull('pwreset_pending:' . $user->uuid)) {
+            Cache::put('pwreset_ok:' . $user->uuid, true, now()->addMinutes(15));
+        }
 
         // Enforce single active device session by deleting old tokens
         $user->tokens()->delete();
@@ -193,12 +220,12 @@ class CustomerAuthController extends Controller
         }
 
         if (!$user->is_verified) {
-            $otp = '123456';
+            $otp = $this->generateOtp();
             $user->update([
                 'otp' => $otp,
                 'otp_expires_at' => Carbon::now()->addMinutes(10),
             ]);
-            Log::info("OTP for Login Verification (User: {$user->phone_number}): {$otp}");
+            $this->logOtp('Login Verification', $user, $otp);
             
             return response()->json([
                 'status' => 0,
@@ -257,17 +284,18 @@ class CustomerAuthController extends Controller
 
         $user = User::where('phone_number', $request->phone_number)->first();
 
-        if (!$user) {
+        if (!$user || $user->status == 0) {
             return response()->json(['status' => 0, 'message' => 'User not found'], 404);
         }
 
-        $otp = '123456';
+        $otp = $this->generateOtp();
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(10),
         ]);
+        Cache::put('pwreset_pending:' . $user->uuid, true, now()->addMinutes(10));
 
-        Log::info("OTP for Forgot Password (User: {$user->phone_number}): {$otp}");
+        $this->logOtp('Forgot Password', $user, $otp);
 
         return response()->json([
             'status' => 1,
@@ -283,7 +311,8 @@ class CustomerAuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
+            'otp' => 'nullable|string|size:6',
+            'password' => ['required','string','min:8','max:100','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/','confirmed'],
         ]);
 
         if ($validator->fails()) {
@@ -298,11 +327,25 @@ class CustomerAuthController extends Controller
 
         $user = User::where('phone_number', $request->phone_number)->first();
 
-        if (!$user) {
+        if (!$user || $user->status == 0) {
             return response()->json(['status' => 0, 'message' => 'User not found'], 404);
         }
 
+        // Proof of phone ownership: either a valid OTP in this request (website)
+        // or an OTP already verified through /verify-otp (mobile app).
+        $otpOk = $request->filled('otp')
+            && $user->otp !== null
+            && hash_equals((string) $user->otp, (string) $request->otp)
+            && $user->otp_expires_at
+            && Carbon::now()->lessThanOrEqualTo($user->otp_expires_at);
 
+        $verifiedEarlier = Cache::pull('pwreset_ok:' . $user->uuid);
+
+        if (!$otpOk && !$verifiedEarlier) {
+            return response()->json(['status' => 0, 'message' => 'OTP verification is required to reset the password.'], 400);
+        }
+
+        Cache::forget('pwreset_pending:' . $user->uuid);
 
         $user->update([
             'password' => Hash::make($request->password),
@@ -321,7 +364,7 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
-            'new_password' => 'required|string|min:6|confirmed',
+            'new_password' => ['required','string','min:8','max:100','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/','confirmed','different:old_password'],
         ]);
 
         if ($validator->fails()) {
@@ -389,9 +432,13 @@ class CustomerAuthController extends Controller
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'full_name' => 'nullable|string|max:255',
-            'phone_number' => 'nullable|string|max:20|unique:users,phone_number,' . $request->user()->uuid . ',uuid',
-            'pin_code' => 'nullable|string|max:10',
+            'full_name' => 'nullable|string|min:2|max:255',
+            'phone_number' => [
+                'nullable', 'string', 'regex:/^[0-9+\-\s]{7,15}$/',
+                Rule::unique('users', 'phone_number')->ignore($request->user()->uuid, 'uuid')->where('status', 1),
+            ],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($request->user()->uuid, 'uuid')],
+            'pin_code' => ['nullable', 'string', 'regex:/^[0-9]{4,10}$/'],
             'location' => 'nullable|string|max:255',
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
@@ -407,11 +454,11 @@ class CustomerAuthController extends Controller
         }
 
         $user = $request->user();
-        $data = $request->only(['full_name', 'phone_number', 'pin_code', 'location']);
+        $data = $request->only(['full_name', 'phone_number', 'email', 'pin_code', 'location']);
         
         if ($request->hasFile('profile_image')) {
             $image = $request->file('profile_image');
-            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $imageName = time() . '_' . Str::random(10) . '.' . ($image->extension() ?: 'jpg');
             $targetDir = public_path('profiles');
             
             if (!File::exists($targetDir)) {
@@ -591,16 +638,16 @@ class CustomerAuthController extends Controller
     public function createOrder(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'items' => 'required|array',
+            'items' => 'required|array|min:1',
             'items.*.subcategory_uuid' => 'required|exists:subcategories,uuid',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.name' => 'required|string',
-            'pickup_location' => 'required|string',
-            'pickup_date' => 'required|date',
-            'pickup_time' => 'required|string',
-            'notes' => 'nullable|string',
-            'images' => 'nullable|array',
-            'images.*' => 'string',
+            'items.*.quantity' => 'required|integer|min:1|max:100000',
+            'items.*.name' => 'required|string|max:255',
+            'pickup_location' => 'required|string|max:500',
+            'pickup_date' => 'required|date|after_or_equal:today',
+            'pickup_time' => 'required|string|max:50',
+            'notes' => 'nullable|string|max:1000',
+            'images' => 'nullable|array|max:10',
+            'images.*' => 'string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -799,7 +846,7 @@ class CustomerAuthController extends Controller
     public function home(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|string',
+            'user_id' => 'nullable|string',
             'type' => 'nullable|string|in:web,mobile'
         ]);
 
@@ -825,13 +872,16 @@ class CustomerAuthController extends Controller
             $banners = \App\Models\Banner::where('status', 1)->orderBy('created_at', 'desc')->take(5)->get();
         }
 
-        // Fetch Live Pickups
-        $livePickups = Order::with(['category', 'subcategory'])
-            ->where('user_uuid', $request->user_id)
-            ->whereNotIn('status', ['completed', 'cancelled', 'rejected'])
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get()->toArray();
+        // Live pickups are private: only for the owner of the bearer token.
+        $authUser = $request->user('sanctum');
+        $livePickups = $authUser
+            ? Order::with(['category', 'subcategory'])
+                ->where('user_uuid', $authUser->uuid)
+                ->whereNotIn('status', ['completed', 'cancelled', 'rejected'])
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get()->toArray()
+            : [];
             
         foreach ($livePickups as &$order) {
             if (!empty($order['pickup_date'])) {
@@ -929,9 +979,9 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'order_id' => 'required|integer',
-            'razorpay_payment_id' => 'required|string',
-            'razorpay_order_id' => 'nullable|string',
-            'razorpay_signature' => 'nullable|string',
+            'razorpay_payment_id' => 'required|string|max:100',
+            'razorpay_order_id' => 'nullable|string|max:100',
+            'razorpay_signature' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -949,10 +999,27 @@ class CustomerAuthController extends Controller
         if (!$order) {
             return response()->json(['status' => 0, 'message' => 'Order not found'], 404);
         }
-        
-        $order->payment_status = 'completed';
-        $order->payment_id = $request->razorpay_payment_id;
-        $order->save();
+
+        if ($order->payment_status === 'completed') {
+            return response()->json(['status' => 1, 'message' => 'Payment already completed', 'data' => $order]);
+        }
+
+        if (OrderPaymentService::payableAmount($order) <= 0) {
+            return response()->json(['status' => 0, 'message' => 'Order amount is not set yet.'], 200);
+        }
+
+        $error = OrderPaymentService::verifyRazorpayPayment(
+            $order,
+            $request->razorpay_payment_id,
+            $request->razorpay_order_id,
+            $request->razorpay_signature
+        );
+
+        if ($error) {
+            return response()->json(['status' => 0, 'message' => $error], 200);
+        }
+
+        $order = OrderPaymentService::markPaid($order, $request->razorpay_payment_id);
 
         return response()->json([
             'status' => 1,
@@ -964,16 +1031,16 @@ class CustomerAuthController extends Controller
     public function getRewardSettings(Request $request)
     {
         $user = $request->user();
-        $settings = \Illuminate\Support\Facades\DB::table('reward_settings')->first();
-        $coinValue = $settings ? $settings->coin_value_in_rupees : 0;
+        $coinValue = OrderPaymentService::coinValue();
+        $coins = (int) ($user->reward_coins ?? 0);
 
         return response()->json([
             'status' => 1,
             'message' => 'Reward settings fetched successfully',
             'data' => [
-                'reward_coins' => $user->reward_coins ?? 0,
+                'reward_coins' => $coins,
                 'coin_value_in_rupees' => $coinValue,
-                'total_value_in_rupees' => ($user->reward_coins ?? 0) * $coinValue
+                'total_value_in_rupees' => $coins * $coinValue
             ]
         ]);
     }
@@ -994,14 +1061,6 @@ class CustomerAuthController extends Controller
         }
 
         $user = $request->user();
-        $coinsToRedeem = $request->coins;
-
-        if (($user->reward_coins ?? 0) < $coinsToRedeem) {
-            return response()->json([
-                'status' => 0,
-                'message' => 'Insufficient reward coins.'
-            ], 200);
-        }
 
         $order = Order::where('user_uuid', $user->uuid)
                       ->where('id', $request->order_id)
@@ -1011,25 +1070,34 @@ class CustomerAuthController extends Controller
             return response()->json(['status' => 0, 'message' => 'Order not found'], 404);
         }
 
-        $settings = \Illuminate\Support\Facades\DB::table('reward_settings')->first();
-        $coinValue = $settings ? $settings->coin_value_in_rupees : 0;
-        $discountAmount = $coinsToRedeem * $coinValue;
+        if ($order->payment_status === 'completed') {
+            return response()->json(['status' => 0, 'message' => 'Payment is already completed.'], 200);
+        }
 
-        // Deduct coins from user
-        $user->reward_coins -= $coinsToRedeem;
-        $user->save();
+        if (($user->reward_coins ?? 0) < $request->coins) {
+            return response()->json(['status' => 0, 'message' => 'Insufficient reward coins.'], 200);
+        }
 
-        // Apply discount to order
-        $order->coins_redeemed = ($order->coins_redeemed ?? 0) + $coinsToRedeem;
-        $order->discount_applied = ($order->discount_applied ?? 0) + $discountAmount;
-        $order->save();
+        if ((float) ($order->total_amount ?? 0) <= 0) {
+            return response()->json(['status' => 0, 'message' => 'Order amount is not set yet.'], 200);
+        }
+
+        [$used, $discount] = OrderPaymentService::redeemCoins($user, $order, (int) $request->coins);
+
+        if ($used <= 0) {
+            return response()->json(['status' => 0, 'message' => 'Rewards cannot be applied to this order.'], 200);
+        }
+
+        $order->refresh();
+        $user->refresh();
 
         return response()->json([
             'status' => 1,
             'message' => 'Coins redeemed successfully.',
             'data' => [
                 'order' => $order,
-                'remaining_coins' => $user->reward_coins
+                'payable_amount' => OrderPaymentService::payableAmount($order),
+                'remaining_coins' => (int) $user->reward_coins
             ]
         ]);
     }
@@ -1049,7 +1117,7 @@ class CustomerAuthController extends Controller
         }
 
         $user = $request->user();
-        
+
         $order = Order::where('user_uuid', $user->uuid)
                       ->where('id', $request->order_id)
                       ->first();
@@ -1057,37 +1125,24 @@ class CustomerAuthController extends Controller
         if (!$order) {
             return response()->json(['status' => 0, 'message' => 'Order not found'], 404);
         }
-        
-        if ($order->coins_earned > 0) {
+
+        // Coins are only credited once the payment is really completed
+        // (see OrderPaymentService::markPaid) - never twice.
+        if ($order->payment_status !== 'completed') {
             return response()->json([
                 'status' => 0,
-                'message' => 'Coins already collected for this order.'
+                'message' => 'Coins are credited after the payment is completed.'
             ], 200);
         }
-        
-        $orderAmount = $order->total_amount ?? 0;
-        $config = \Illuminate\Support\Facades\DB::table('reward_configurations')
-                    ->where('status', 1)
-                    ->where('min_amount', '<=', $orderAmount)
-                    ->where('max_amount', '>=', $orderAmount)
-                    ->first();
-                    
-        $coinsToEarn = $config ? $config->reward_coins : 5; // Default 5 coins if not matched
 
-        // Add coins to user
-        $user->reward_coins = ($user->reward_coins ?? 0) + $coinsToEarn;
-        $user->save();
-
-        // Mark on order
-        $order->coins_earned = $coinsToEarn;
-        $order->save();
+        $user->refresh();
 
         return response()->json([
             'status' => 1,
             'message' => 'Coins collected successfully.',
             'data' => [
-                'coins_earned' => $coinsToEarn,
-                'total_coins' => $user->reward_coins
+                'coins_earned' => (int) $order->coins_earned,
+                'total_coins' => (int) $user->reward_coins
             ]
         ]);
     }

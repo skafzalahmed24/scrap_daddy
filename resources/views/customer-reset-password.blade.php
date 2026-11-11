@@ -183,6 +183,12 @@
             formData.append('login', currentLogin);
         }
 
+        if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,100}$/.test(formData.get('password') || '')) {
+            alertElement.innerText = 'Password must be 8+ characters with a capital letter, a number and a special character.';
+            alertElement.classList.remove('d-none');
+            return;
+        }
+
         if (formData.get('password') !== formData.get('password_confirmation')) {
             alertElement.innerText = 'Passwords do not match.';
             alertElement.classList.remove('d-none');

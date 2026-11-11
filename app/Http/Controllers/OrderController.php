@@ -2,31 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Services\OrderPaymentService;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     // User Methods
     public function index()
     {
-        $user = auth()->user();
-        if ($user) {
-            $orders = Order::with(['user', 'subcategory', 'category'])
-                ->where('user_uuid', $user->uuid)
-                ->latest()
-                ->get();
-        } else {
-            $orders = Order::with(['user', 'subcategory', 'category'])
-                ->latest()
-                ->get();
-        }
+        $orders = Order::with(['user', 'subcategory', 'category'])
+            ->where('user_uuid', auth()->user()->uuid)
+            ->latest()
+            ->get();
+
         return view('customer.orders', compact('orders'));
     }
 
     public function show($id)
     {
-        $order = Order::with(['category', 'subcategory'])->findOrFail($id);
+        $order = Order::with(['category', 'subcategory'])
+            ->where('user_uuid', auth()->user()->uuid)
+            ->findOrFail($id);
+
         return view('customer.order-details', compact('order'));
     }
 
@@ -34,50 +32,35 @@ class OrderController extends Controller
     {
         $subcategories = \App\Models\Subcategory::where('status', true)->get();
         $user = auth()->user();
-        $rewardSetting = \App\Models\RewardSetting::first();
-        $coinValue = $rewardSetting ? $rewardSetting->coin_value_in_rupees : 0.10;
+        $coinValue = OrderPaymentService::coinValue();
+
         return view('customer.request-pickup', compact('subcategories', 'user', 'coinValue'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'user_uuid' => 'required|exists:users,uuid',
-            'items' => 'required|array',
+            'items' => 'required|array|min:1',
             'items.*.subcategory_uuid' => 'required|exists:subcategories,uuid',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.name' => 'required|string',
-            'pickup_location' => 'required|string',
-            'pickup_date' => 'required|date',
-            'pickup_time' => 'required|string',
-            'images' => 'nullable|array',
-            'notes' => 'nullable|string',
-            'apply_rewards' => 'nullable|boolean',
+            'items.*.quantity' => 'required|integer|min:1|max:100000',
+            'items.*.name' => 'required|string|max:255',
+            'pickup_location' => 'required|string|max:500',
+            'pickup_date' => 'required|date|after_or_equal:today',
+            'pickup_time' => 'required|string|max:50',
+            'images' => 'nullable|array|max:10',
+            'images.*' => 'string|max:255',
+            'notes' => 'nullable|string|max:1000',
         ]);
+
+        // The order always belongs to the logged-in customer
+        $user = auth()->user();
 
         $firstSubcategory = \App\Models\Subcategory::where('uuid', $request->items[0]['subcategory_uuid'])->first();
 
-        $coinsToRedeem = 0;
-        $discountApplied = 0;
-
-        if ($request->has('apply_rewards') && $request->apply_rewards) {
-            $user = \App\Models\User::where('uuid', $request->user_uuid)->first();
-            if ($user && $user->reward_coins > 0) {
-                $coinsToRedeem = $user->reward_coins;
-                
-                $setting = \App\Models\RewardSetting::first();
-                $coinValue = $setting ? $setting->coin_value_in_rupees : 0.10;
-                
-                $discountApplied = $coinsToRedeem * $coinValue;
-                
-                // Deduct coins
-                $user->reward_coins = 0;
-                $user->save();
-            }
-        }
-
+        // Reward coins are applied later, once the admin has set the final amount
+        // (same flow as the mobile app: Checkout -> redeem coins).
         Order::create([
-            'user_uuid' => $request->user_uuid,
+            'user_uuid' => $user->uuid,
             'category_uuid' => $firstSubcategory ? $firstSubcategory->category_id : null,
             'items' => $request->items,
             'pickup_location' => $request->pickup_location,
@@ -86,8 +69,6 @@ class OrderController extends Controller
             'images' => $request->images,
             'notes' => $request->notes,
             'status' => 'pending',
-            'coins_redeemed' => $coinsToRedeem,
-            'discount_applied' => $discountApplied,
         ]);
 
         return redirect('/customer/home')->with('success', 'Confirmed! Our admin team will connect with you shortly within 24 to 48 hours to finalize the pickup.');
@@ -95,12 +76,16 @@ class OrderController extends Controller
 
     public function cancel($id)
     {
-        $order = Order::findOrFail($id);
-        if ($order->status == 'pending' || $order->status == 'accepted') {
+        $order = Order::where('user_uuid', auth()->user()->uuid)->findOrFail($id);
+
+        if (in_array($order->status, ['pending', 'accepted'])) {
             $order->status = 'cancelled';
             $order->save();
+
+            return redirect()->back()->with('success', 'Pick-up request has been cancelled.');
         }
-        return redirect()->back()->with('success', 'Pick-up request has been cancelled.');
+
+        return redirect()->back()->with('error', 'This pick-up request can no longer be cancelled.');
     }
 
     // Admin Methods
@@ -108,16 +93,20 @@ class OrderController extends Controller
     {
         $query = Order::with('user')->latest();
 
-        if ($request->has('search') && $request->search != '') {
+        if ($request->filled('search')) {
             $search = $request->search;
-            $query->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q) use ($search) {
-                      $q->where('full_name', 'like', "%{$search}%")
-                        ->orWhere('phone_number', 'like', "%{$search}%");
-                  });
+            // Grouped so the search never bypasses other conditions
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('full_name', 'like', "%{$search}%")
+                            ->orWhere('phone_number', 'like', "%{$search}%");
+                    });
+            });
         }
 
-        $orders = $query->paginate(15);
+        $orders = $query->paginate(15)->withQueryString();
+
         return view('admin.orders.index', compact('orders'));
     }
 
@@ -130,27 +119,28 @@ class OrderController extends Controller
             'total_amount' => 'nullable|numeric|min:0|max:500000',
         ]);
 
+        if ($order->payment_status === 'completed' && $request->status !== 'completed') {
+            return redirect()->back()->with('error', 'A paid order cannot be moved back.');
+        }
+
+        if ($request->status === 'completed' && !$request->filled('total_amount') && !($order->total_amount > 0)) {
+            return redirect()->back()->with('error', 'Enter the final amount before completing the order.');
+        }
+
         $order->status = $request->status;
-        if ($request->has('estimated_pickup_date')) {
+        if ($request->filled('estimated_pickup_date')) {
             $order->estimated_pickup_date = $request->estimated_pickup_date;
         }
 
-        if ($request->status === 'completed' && $request->has('total_amount')) {
+        if ($request->status === 'completed' && $request->filled('total_amount') && $order->payment_status !== 'completed') {
             $order->total_amount = $request->total_amount;
-            if ($order->payment_status !== 'completed') {
-                $order->payment_status = 'pending';
-            }
+            $order->payment_status = 'pending';
 
-            // Calculate Rewards if completing for the first time
-            if ($order->isDirty('status') && $order->coins_earned == 0) {
-                $rewardConfig = \App\Models\RewardConfiguration::where('status', 1)
-                    ->where('min_amount', '<=', $order->total_amount)
-                    ->where('max_amount', '>=', $order->total_amount)
-                    ->first();
-                    
+            // Rewards are only credited after a successful payment (OrderPaymentService::markPaid)
+            if ((int) $order->coins_earned === 0) {
+                $rewardConfig = OrderPaymentService::rewardConfigFor($order);
                 if ($rewardConfig) {
                     $order->coins_earned = $rewardConfig->reward_coins;
-                    // Coins will be credited to the user's account only after successful payment
                 }
             }
         }

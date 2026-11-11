@@ -40,7 +40,7 @@ class SubcategoryController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '_' . Str::random(10) . '.' . ($file->extension() ?: 'jpg');
             $destinationPath = public_path('subcategories');
             
             if (!File::exists($destinationPath)) {
@@ -86,7 +86,7 @@ class SubcategoryController extends Controller
             }
 
             $file = $request->file('image');
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '_' . Str::random(10) . '.' . ($file->extension() ?: 'jpg');
             $destinationPath = public_path('subcategories');
             
             if (!File::exists($destinationPath)) {

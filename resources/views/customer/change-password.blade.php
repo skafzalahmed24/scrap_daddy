@@ -86,6 +86,25 @@
                 const formData = new FormData(passwordForm);
                 const data = Object.fromEntries(formData.entries());
 
+                if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,100}$/.test(data.new_password || '')) {
+                    alert('Password must be 8+ characters with a capital letter, a number and a special character.');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+                if (data.new_password !== data.new_password_confirmation) {
+                    alert('Passwords do not match.');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+                if (data.new_password === data.old_password) {
+                    alert('New password must be different from the current password.');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
                 fetch("{{ url('/api/customer/change-password') }}", {
                     method: 'POST',
                     headers: {

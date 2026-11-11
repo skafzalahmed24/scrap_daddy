@@ -23,6 +23,7 @@
             background-color: #e8f5e9;
             box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
         }
+        .vehicle-type-card i { display: block; color: #2e7d32; margin-bottom: 10px; }
         .vehicle-type-card img {
             width: 80px;
             height: auto;
@@ -133,25 +134,24 @@
                     <div class="mb-4">
                         <label class="form-label">Vehicle Type</label>
                         <div class="d-flex gap-3 flex-wrap">
-                            <div class="vehicle-type-card selected" onclick="selectVehicleType(this, 'Heavy Load')">
-                                <!-- Placeholder for heavy truck icon -->
-                                <img src="https://cdn-icons-png.flaticon.com/512/2830/2830312.png" alt="Heavy Load">
-                                <span>Heavy Load</span>
+                            <div class="vehicle-type-card selected" onclick="selectVehicleType(this, 'Bike')">
+                                <i class="fa-solid fa-motorcycle fa-2x mb-1"></i>
+                                <span>Bike</span>
                             </div>
-                            <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Light Commercial')">
-                                <img src="https://cdn-icons-png.flaticon.com/512/1008/1008064.png" alt="Light Commercial">
-                                <span>Light Commercial</span>
+                            <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Auto')">
+                                <i class="fa-solid fa-van-shuttle fa-2x mb-1"></i>
+                                <span>Auto</span>
                             </div>
                             <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Car')">
-                                <img src="https://cdn-icons-png.flaticon.com/512/3204/3204005.png" alt="Car">
+                                <i class="fa-solid fa-car-side fa-2x mb-1"></i>
                                 <span>Car</span>
                             </div>
-                            <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Two Wheeler')">
-                                <img src="https://cdn-icons-png.flaticon.com/512/1769/1769747.png" alt="Two Wheeler">
-                                <span>Two Wheeler</span>
+                            <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Heavy Load')">
+                                <i class="fa-solid fa-truck fa-2x mb-1"></i>
+                                <span>Heavy Load</span>
                             </div>
                         </div>
-                        <input type="hidden" name="vehicle_type" id="vehicle_type" value="Heavy Load">
+                        <input type="hidden" name="vehicle_type" id="vehicle_type" value="Bike">
                     </div>
 
                     <!-- Vehicle Number -->
@@ -237,8 +237,8 @@
         uploadBtnIcon.className = 'fa-solid fa-spinner fa-spin';
 
         for (const file of files) {
-            if (file.size > 15 * 1024 * 1024) {
-                Swal.fire('File too large', `File ${file.name} exceeds 15MB limit.`, 'error');
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire('File too large', `File ${file.name} exceeds the 5MB limit.`, 'error');
                 continue;
             }
 

@@ -92,15 +92,15 @@
             <i class="fa-solid fa-house"></i>
             <span>Home</span>
         </a>
-        <a href="{{ route('customer.orders') }}" class="nav-item {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
+        <a href="{{ route('customer.orders') }}" class="nav-item {{ request()->routeIs('customer.orders', 'customer.order.show', 'customer.orders.create') ? 'active' : '' }}">
             <i class="fa-solid fa-clipboard-list"></i>
             <span>My Orders</span>
         </a>
         <a href="{{ route('customer.rewards') }}" class="nav-item {{ request()->routeIs('customer.rewards') ? 'active' : '' }}">
-            <i class="fa-solid fa-trophy"></i>
+            <i class="fa-solid fa-gift"></i>
             <span>Rewards</span>
         </a>
-        <a href="{{ route('customer.profile') }}" class="nav-item {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
+        <a href="{{ route('customer.profile') }}" class="nav-item {{ request()->routeIs('customer.profile', 'customer.change-password', 'customer.payments', 'customer.faqs', 'customer.scrap_vehicles') || request()->is('page/*') ? 'active' : '' }}">
             <i class="fa-solid fa-user"></i>
             <span>Profile</span>
         </a>
