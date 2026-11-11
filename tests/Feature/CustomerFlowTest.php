@@ -152,4 +152,46 @@ class CustomerFlowTest extends TestCase
         $this->withToken($token)->postJson('/api/customer/scrap-vehicles', ['vehicle_type' => 'Car', 'vehicle_number' => '@@'])->assertJson(['status' => 0]);
         $this->withToken($token)->postJson('/api/customer/scrap-vehicles', ['vehicle_type' => 'Car', 'vehicle_number' => 'MP04 DK 9834'])->assertJson(['status' => 1]);
     }
+
+    private function orderPayload(string $subUuid, ?string $pin): array
+    {
+        return array_filter([
+            'items' => [['subcategory_uuid' => $subUuid, 'quantity' => 1, 'name' => 'Paper']],
+            'pickup_location' => 'Door 1, Main Street',
+            'pin_code' => $pin,
+            'pickup_date' => now()->addDay()->toDateString(),
+            'pickup_time' => '10:00 AM',
+        ], fn ($v) => $v !== null);
+    }
+
+    public function test_pincode_service_area_is_enforced_on_orders(): void
+    {
+        $cat = Category::create(['title' => 'C', 'status' => 1]);
+        $sub = Subcategory::create(['name' => 'S', 'category_id' => $cat->uuid, 'status' => 1]);
+        $user = $this->makeUser('9000000007');
+        $token = $user->createToken('t', ['access'])->plainTextToken;
+
+        // Nothing configured yet -> open everywhere
+        $this->postJson('/api/customer/check-pincode', ['pin_code' => '560001'])->assertJson(['data' => ['serviceable' => true]]);
+
+        \App\Models\ServicePincode::create(['pin_code' => '560001', 'status' => true]);
+        \App\Models\ServicePincode::create(['pin_code' => '560002', 'status' => false]);
+
+        $this->postJson('/api/customer/check-pincode', ['pin_code' => '560001'])->assertJson(['data' => ['serviceable' => true]]);
+        $this->postJson('/api/customer/check-pincode', ['pin_code' => '560002'])->assertJson(['data' => ['serviceable' => false]]);
+        $this->postJson('/api/customer/check-pincode', ['pin_code' => '999999'])->assertJson(['data' => ['serviceable' => false]]);
+        $this->postJson('/api/customer/check-pincode', ['pin_code' => '12'])->assertJson(['status' => 0]);
+
+        $this->withToken($token)->postJson('/api/customer/orders/create', $this->orderPayload($sub->uuid, '999999'))->assertJson(['status' => 0]);
+        $this->withToken($token)->postJson('/api/customer/orders/create', $this->orderPayload($sub->uuid, '560002'))->assertJson(['status' => 0]);
+        $this->withToken($token)->postJson('/api/customer/orders/create', $this->orderPayload($sub->uuid, null))->assertJson(['status' => 0]);
+        $this->assertEquals(0, Order::count());
+
+        $this->withToken($token)->postJson('/api/customer/orders/create', $this->orderPayload($sub->uuid, '560001'))->assertStatus(201);
+        $this->assertEquals('560001', Order::first()->pin_code);
+
+        // Home reports availability for the detected PIN
+        $this->postJson('/api/customer/home', ['pin_code' => '560001'])->assertJson(['data' => ['service_available' => true]]);
+        $this->postJson('/api/customer/home', ['pin_code' => '999999'])->assertJson(['data' => ['service_available' => false]]);
+    }
 }

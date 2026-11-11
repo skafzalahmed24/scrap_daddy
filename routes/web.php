@@ -135,7 +135,12 @@ Route::get('/admin/rewards', function () {
 Route::get('/admin/orders', [OrderController::class, 'adminIndex'])->name('admin.orders.index');
 Route::post('/admin/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.status');
 
-Route::get('/admin/scrap-vehicles', [App\Http\Controllers\ScrapVehicleController::class, 'adminIndex'])->name('admin.scrap-vehicles.index');
+Route::get('/admin/pincodes', [App\Http\Controllers\AdminPincodeController::class, 'index'])->name('admin.pincodes.index');
+Route::post('/admin/pincodes', [App\Http\Controllers\AdminPincodeController::class, 'store'])->name('admin.pincodes.store');
+Route::post('/admin/pincodes/{id}/toggle', [App\Http\Controllers\AdminPincodeController::class, 'toggle'])->name('admin.pincodes.toggle');
+Route::delete('/admin/pincodes/{id}', [App\Http\Controllers\AdminPincodeController::class, 'destroy'])->name('admin.pincodes.destroy');
+
+Route::get('/admin/scrap-vehicles',[App\Http\Controllers\ScrapVehicleController::class, 'adminIndex'])->name('admin.scrap-vehicles.index');
 
 Route::get('/admin/feedbacks', [FeedbackController::class, 'adminIndex'])->name('admin.feedbacks.index');
 Route::post('/admin/feedbacks/{id}/toggle', [FeedbackController::class, 'toggleApproval'])->name('admin.feedbacks.toggle');

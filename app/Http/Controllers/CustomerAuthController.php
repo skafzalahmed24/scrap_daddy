@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\Order;
 use App\Models\StaticPage;
+use App\Models\ServicePincode;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -51,7 +52,7 @@ class CustomerAuthController extends Controller
                 })
             ],
             'password' => ['required','string','min:8','max:100','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/'],
-            'pin_code' => 'nullable|string|max:10',
+            'pin_code' => ['nullable', 'string', 'regex:/^[1-9][0-9]{5}$/'],
             'location' => 'nullable|string|max:255',
             'device_id' => 'nullable|string|max:255',
             'device_unique_id' => 'nullable|string|max:255',
@@ -438,7 +439,7 @@ class CustomerAuthController extends Controller
                 Rule::unique('users', 'phone_number')->ignore($request->user()->uuid, 'uuid')->where('status', 1),
             ],
             'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($request->user()->uuid, 'uuid')],
-            'pin_code' => ['nullable', 'string', 'regex:/^[0-9]{4,10}$/'],
+            'pin_code' => ['nullable', 'string', 'regex:/^[1-9][0-9]{5}$/'],
             'location' => 'nullable|string|max:255',
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
@@ -643,6 +644,7 @@ class CustomerAuthController extends Controller
             'items.*.quantity' => 'required|integer|min:1|max:100000',
             'items.*.name' => 'required|string|max:255',
             'pickup_location' => 'required|string|max:500',
+            'pin_code' => 'required|string',
             'pickup_date' => 'required|date|after_or_equal:today',
             'pickup_time' => 'required|string|max:50',
             'notes' => 'nullable|string|max:1000',
@@ -660,6 +662,16 @@ class CustomerAuthController extends Controller
             ], 200);
         }
 
+        $pin = trim((string) $request->pin_code);
+        if (!preg_match(ServicePincode::FORMAT, $pin) || !ServicePincode::isServiceable($pin)) {
+            return response()->json([
+                'status' => 0,
+                'message' => preg_match(ServicePincode::FORMAT, $pin)
+                    ? ServicePincode::unavailableMessage($pin)
+                    : 'Please enter a valid 6-digit PIN code for the pickup address.',
+            ], 200);
+        }
+
         $firstSubcategory = Subcategory::find($request->items[0]['subcategory_uuid']);
 
         $order = new Order();
@@ -668,6 +680,7 @@ class CustomerAuthController extends Controller
         $order->items = $request->items;
         $order->status = 'pending';
         $order->pickup_location = $request->pickup_location;
+        $order->pin_code = $pin;
         $order->pickup_date = $request->pickup_date;
         $order->pickup_time = $request->pickup_time;
         $order->notes = $request->notes;
@@ -842,11 +855,45 @@ class CustomerAuthController extends Controller
         ]);
     }
 
+    // --- SERVICE AREA CHECK ---
+    public function checkPincode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pin_code' => ['required', 'string', 'regex:/^[1-9][0-9]{5}$/'],
+        ], [
+            'pin_code.regex' => 'Please enter a valid 6-digit PIN code.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => $validator->errors()->first(),
+                'data' => ['serviceable' => false],
+            ], 200);
+        }
+
+        $pin = $request->pin_code;
+        $ok = ServicePincode::isServiceable($pin);
+        $row = ServicePincode::where('pin_code', $pin)->first();
+
+        return response()->json([
+            'status' => 1,
+            'message' => $ok ? "Pickup service is available in {$pin}." : ServicePincode::unavailableMessage($pin),
+            'data' => [
+                'pin_code' => $pin,
+                'serviceable' => $ok,
+                'area' => $row->area ?? null,
+                'city' => $row->city ?? null,
+            ],
+        ]);
+    }
+
     // --- HOME METHOD ---
     public function home(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'nullable|string',
+            'pin_code' => 'nullable|string|max:10',
             'type' => 'nullable|string|in:web,mobile'
         ]);
 
@@ -899,13 +946,26 @@ class CustomerAuthController extends Controller
         // Fetch Categories
         $categories = \App\Models\Category::where('status', 1)->take(6)->get();
 
+        // Is pickup available at the PIN code detected by the app?
+        $serviceAvailable = null;
+        $serviceMessage = null;
+        if ($request->filled('pin_code')) {
+            $homePin = trim((string) $request->pin_code);
+            $serviceAvailable = preg_match(ServicePincode::FORMAT, $homePin) && ServicePincode::isServiceable($homePin);
+            $serviceMessage = $serviceAvailable
+                ? "Pickup service is available in {$homePin}."
+                : ServicePincode::unavailableMessage(preg_match(ServicePincode::FORMAT, $homePin) ? $homePin : null);
+        }
+
         return response()->json([
             'status' => 1,
             'message' => 'Home data fetched successfully',
             'data' => [
                 'banners' => $banners,
                 'live_pickups' => $livePickups,
-                'categories' => $categories
+                'categories' => $categories,
+                'service_available' => $serviceAvailable,
+                'service_message' => $serviceMessage,
             ]
         ]);
     }

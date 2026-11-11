@@ -22,6 +22,7 @@ class Order extends Model
         'coins_redeemed',
         'discount_applied',
         'pickup_location',
+        'pin_code',
         'pickup_date',
         'pickup_time',
         'images',

@@ -34,7 +34,8 @@ Route::prefix('customer')->group(function () {
     Route::post('/banners', [CustomerAuthController::class, 'banners']);
     Route::post('/categories', [CustomerAuthController::class, 'categories']);
     Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
-    Route::post('/pages', [CustomerAuthController::class, 'page']);
+    Route::post('/check-pincode', [CustomerAuthController::class, 'checkPincode'])->middleware('throttle:30,1');
+    Route::post('/pages',[CustomerAuthController::class, 'page']);
     Route::post('/faqs', [CustomerAuthController::class, 'faqs']);
     Route::post('/upload-images', [UploadController::class, 'uploadImages'])->middleware('throttle:20,1');
 

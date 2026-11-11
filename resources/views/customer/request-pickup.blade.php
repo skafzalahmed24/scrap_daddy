@@ -125,6 +125,10 @@
                     </div>
                 </div>
 
+                @if(session('error') || $errors->any())
+                    <div class="alert alert-danger mb-3" role="alert">{{ session('error') ?? $errors->first() }}</div>
+                @endif
+
                 <form id="pickupForm" action="{{ route('customer.orders.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="user_uuid" value="">
@@ -205,6 +209,11 @@
                                 <button type="button" class="btn py-2 px-3 fw-bold" id="btnDetectLocation" style="border-radius: 8px; white-space: nowrap; background: #e8f5e9; color: var(--primary-green, #1b5e20); border: 1px solid #c8e6c9;">
                                     <i class="fa-solid fa-crosshairs me-2"></i> Use my location
                                 </button>
+                            </div>
+                            <div class="ms-md-5 mt-3">
+                                <label for="pin_code" class="form-label fw-semibold small mb-1">PIN code <span class="text-danger">*</span></label>
+                                <input type="text" name="pin_code" id="pin_code" inputmode="numeric" maxlength="6" pattern="[1-9][0-9]{5}" class="form-control py-2" style="max-width: 220px; border-radius: 8px; border: 1px solid #ddd;" placeholder="6-digit PIN code" value="{{ preg_match('/^[1-9][0-9]{5}$/', (string) ($user->pin_code ?? '')) ? $user->pin_code : '' }}" required>
+                                <div id="pinStatus" class="small mt-2" aria-live="polite"></div>
                             </div>
                         </div>
 
@@ -792,6 +801,12 @@
                     if(!document.getElementById('pickup_location').value) {
                         alert("Please enter a pickup address."); return;
                     }
+                    if(!/^[1-9][0-9]{5}$/.test(pinInput.value)) {
+                        alert("Please enter a valid 6-digit PIN code."); pinInput.focus(); return;
+                    }
+                    if(pinServiceable !== true) {
+                        alert(pinServiceable === false ? "Sorry, we do not provide service in this PIN code yet." : "Please wait while we check service availability for your PIN code."); return;
+                    }
                 }
                 showStep(target);
             });
@@ -977,6 +992,50 @@
             }
         });
 
+        // --- Service area (PIN code) check ---
+        let pinServiceable = null; // null = unknown, true/false = checked
+        const pinInput = document.getElementById('pin_code');
+        const pinStatus = document.getElementById('pinStatus');
+        let pinCheckSeq = 0;
+
+        function renderPinStatus(ok, msg) {
+            pinServiceable = ok;
+            if (ok === null) { pinStatus.innerHTML = msg ? '<span class="text-muted">' + msg + '</span>' : ''; return; }
+            pinStatus.innerHTML = ok
+                ? '<span class="text-success fw-semibold"><i class="fa-solid fa-circle-check me-1"></i>' + msg + '</span>'
+                : '<span class="text-danger fw-semibold"><i class="fa-solid fa-circle-xmark me-1"></i>' + msg + '</span>';
+        }
+
+        async function checkPin(pin) {
+            if (!/^[1-9][0-9]{5}$/.test(pin)) {
+                renderPinStatus(pin.length ? false : null, pin.length ? 'Enter a valid 6-digit PIN code.' : '');
+                return pinServiceable;
+            }
+            const seq = ++pinCheckSeq;
+            renderPinStatus(null, 'Checking service availability...');
+            try {
+                const res = await fetch("{{ url('/api/customer/check-pincode') }}", {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin_code: pin })
+                });
+                const data = await res.json();
+                if (seq !== pinCheckSeq) return pinServiceable; // a newer check is running
+                const ok = !!(data && data.status === 1 && data.data && data.data.serviceable);
+                renderPinStatus(ok, (data && data.message) || (ok ? 'Service available.' : 'Service not available.'));
+            } catch (e) {
+                if (seq === pinCheckSeq) renderPinStatus(null, 'Could not check availability. Please try again.');
+            }
+            return pinServiceable;
+        }
+
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            if (this.value.length === 6) checkPin(this.value);
+            else renderPinStatus(this.value.length ? false : null, this.value.length ? 'Enter a valid 6-digit PIN code.' : '');
+        });
+        if (pinInput.value) checkPin(pinInput.value);
+
         // Location Detection
         document.getElementById('btnDetectLocation').addEventListener('click', function() {
             const btn = this; const originalText = btn.innerHTML;
@@ -988,6 +1047,9 @@
                     })
                         .then(r => r.json()).then(data => {
                             if(data && data.display_name) document.getElementById('pickup_location').value = data.display_name;
+                            const detectedPin = data && data.address && data.address.postcode ? String(data.address.postcode).replace(/\D/g, '').slice(0, 6) : '';
+                            if (detectedPin.length === 6) { pinInput.value = detectedPin; checkPin(detectedPin); }
+                            else { renderPinStatus(false, 'We could not detect your PIN code. Please enter it manually.'); pinInput.focus(); }
                             btn.innerHTML = originalText;
                         }).catch(() => { btn.innerHTML = originalText; showLocationError('Failed to get address from coordinates.'); });
                 }, (error) => { 
@@ -1076,7 +1138,7 @@
                 `;
             }
             document.getElementById('prev-total-items').innerText = `${totalItems} Items`;
-            document.getElementById('prev-address').innerText = document.getElementById('pickup_location').value;
+            document.getElementById('prev-address').innerText = document.getElementById('pickup_location').value + ' - ' + pinInput.value;
             
             // Format Date & Time
             const dateStr = document.getElementById('input_pickup_date').value;

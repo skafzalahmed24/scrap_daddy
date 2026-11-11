@@ -1,0 +1,205 @@
+/*
+ * ScrapDaddy - modern UI layer (customer side).
+ * Loaded LAST on every customer/auth page so it refines the older styles without rewriting them.
+ * Design tokens first, then components. Safe to delete this file to go back to the old look.
+ */
+:root {
+    --sd-green-600: #2e7d32;
+    --sd-green-700: #1b5e20;
+    --sd-green-500: #43a047;
+    --sd-green-50: #ecf7ee;
+    --sd-orange: #ff8f00;
+    --sd-ink: #14201a;
+    --sd-muted: #667085;
+    --sd-bg: #f4f7f5;
+    --sd-card: #ffffff;
+    --sd-line: rgba(16, 24, 40, 0.07);
+    --sd-radius: 20px;
+    --sd-radius-sm: 12px;
+    --sd-shadow: 0 8px 28px rgba(16, 24, 40, 0.06);
+    --sd-shadow-lg: 0 16px 40px rgba(27, 94, 32, 0.16);
+    --sd-grad: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
+    --primary-green: #2e7d32;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--sd-bg);
+    color: var(--sd-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 { letter-spacing: -0.01em; }
+
+:focus-visible {
+    outline: 3px solid rgba(46, 125, 50, 0.35);
+    outline-offset: 2px;
+}
+
+/* ---------- Header / navigation ---------- */
+body .top-header,
+body .secondary-nav {
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid var(--sd-line);
+    box-shadow: none;
+}
+
+body .nav-links a { border-radius: 999px; transition: background .2s, color .2s; }
+body .nav-links a:hover { background: var(--sd-green-50); color: var(--sd-green-700); }
+
+/* ---------- Buttons ---------- */
+body .btn { border-radius: var(--sd-radius-sm); font-weight: 600; transition: transform .15s ease, box-shadow .2s ease, background .2s; }
+body .btn:active { transform: scale(0.98); }
+
+body .btn-primary,
+body .btn-success,
+body .btn-create-account,
+body .btn-next-step,
+body .btn-auth-submit.active-btn,
+body .btn-new-pickup-huge,
+body .hero-buttons .btn-primary {
+    background: var(--sd-grad);
+    border: 0;
+    color: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(46, 125, 50, 0.28);
+}
+body .btn-primary:hover,
+body .btn-success:hover,
+body .btn-create-account:hover,
+body .btn-next-step:hover,
+body .btn-new-pickup-huge:hover {
+    background: var(--sd-grad);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: var(--sd-shadow-lg);
+}
+body .btn-create-account.bg-danger { background: #e5484d; box-shadow: 0 8px 20px rgba(229, 72, 77, .25); }
+
+body .btn-header-outline,
+body .btn-outline-primary,
+body .btn-outline-success,
+body .btn-view-details {
+    border-radius: 14px;
+    border: 1.5px solid rgba(46, 125, 50, 0.35);
+    color: var(--sd-green-700);
+    background: #fff;
+}
+body .btn-header-outline:hover,
+body .btn-view-details:hover { background: var(--sd-green-50); border-color: var(--sd-green-600); color: var(--sd-green-700); }
+
+body .btn-auth-submit { border-radius: 14px; font-weight: 700; padding-block: 14px; }
+
+/* ---------- Cards & surfaces ---------- */
+body .right-card,
+body .middle-card,
+body .pickup-card,
+body .stat-card,
+body .quick-action-card,
+body .order-item,
+body .payment-item,
+body .sidebar-wrapper,
+body .payment-card-centered,
+body .card,
+body .profile-card,
+body .reward-card {
+    background: var(--sd-card);
+    border: 1px solid var(--sd-line);
+    border-radius: var(--sd-radius);
+    box-shadow: var(--sd-shadow);
+}
+body .pickup-card,
+body .quick-action-card,
+body .order-item,
+body .payment-item { transition: transform .2s ease, box-shadow .2s ease; }
+body .pickup-card:hover,
+body .quick-action-card:hover,
+body .order-item:hover,
+body .payment-item:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(16, 24, 40, 0.10); }
+
+body .hero-banner-dash { border-radius: 24px; overflow: hidden; box-shadow: var(--sd-shadow); }
+body .sidebar-profile { background: var(--sd-grad); }
+body .sidebar-nav-list a { border-radius: 12px; margin-inline: 12px; border-left: 0; }
+body .sidebar-nav-list a:hover,
+body .sidebar-nav-list a.active { background: var(--sd-green-50); color: var(--sd-green-700); }
+
+body .quick-action-icon, body .stat-icon, body .section-icon, body .profile-icon-box { border-radius: 14px; }
+
+body .badge { border-radius: 999px; font-weight: 600; padding: .45em .8em; }
+
+body .filter-btn { border-radius: 999px; border: 1px solid var(--sd-line); background: #fff; transition: all .2s; }
+body .filter-btn.active { background: var(--sd-grad); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(46,125,50,.25); }
+
+body .section-header h5, body .section-heading, body .right-card-title { font-weight: 800; }
+
+/* ---------- Forms ---------- */
+body .form-control,
+body .form-select,
+body .form-control-custom {
+    border-radius: var(--sd-radius-sm);
+    border: 1.5px solid #e4e7ec;
+    background-color: #fff;
+    transition: border-color .2s, box-shadow .2s;
+}
+body .form-control:focus,
+body .form-select:focus,
+body .form-control-custom:focus {
+    border-color: var(--sd-green-600);
+    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.14);
+    outline: none;
+}
+body .custom-auth-input-group { border-radius: 14px; border: 1.5px solid #e4e7ec; background: #fff; }
+body .custom-auth-input-group:focus-within { border-color: var(--sd-green-600); box-shadow: 0 0 0 4px rgba(46, 125, 50, .14); }
+
+body .modal-content { border: 0; border-radius: 22px; box-shadow: 0 24px 60px rgba(16, 24, 40, 0.2); }
+body .alert { border-radius: var(--sd-radius-sm); border: 0; }
+
+/* ---------- Auth screens ---------- */
+body .auth-card-sheet { border-radius: 28px 28px 0 0; box-shadow: 0 -10px 40px rgba(16, 24, 40, 0.08); }
+body .auth-title { font-weight: 800; letter-spacing: -0.02em; }
+body .auth-back-btn { border-radius: 14px; backdrop-filter: blur(8px); }
+
+/* ---------- Mobile bottom navigation: floating pill ---------- */
+@media (max-width: 991px) {
+    body .bottom-nav {
+        left: 12px;
+        right: 12px;
+        width: auto;
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        height: 66px;
+        padding: 0 6px;
+        border: 1px solid var(--sd-line);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 12px 34px rgba(16, 24, 40, 0.16);
+    }
+    body .bottom-nav .nav-item {
+        height: 52px;
+        justify-content: center;
+        border-radius: 16px;
+        color: #7a8780;
+        transition: background .2s, color .2s, transform .15s;
+    }
+    body .bottom-nav .nav-item.active {
+        background: var(--sd-green-50);
+        color: var(--sd-green-700);
+    }
+    body .bottom-nav .nav-item.active::after { display: none; }
+    body .bottom-nav .nav-item.active i { transform: translateY(-1px) scale(1.08); }
+    body { padding-bottom: 92px; }
+}
+
+/* ---------- Skeleton-friendly image polish ---------- */
+body img { image-rendering: auto; }
+body .pickup-card img, body .item-row img { border-radius: 12px; object-fit: cover; }
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

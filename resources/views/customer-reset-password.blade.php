@@ -255,5 +255,6 @@
         });
     }
 </script>
+<link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=1">
 </body>
 </html>

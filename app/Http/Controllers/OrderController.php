@@ -45,6 +45,7 @@ class OrderController extends Controller
             'items.*.quantity' => 'required|integer|min:1|max:100000',
             'items.*.name' => 'required|string|max:255',
             'pickup_location' => 'required|string|max:500',
+            'pin_code' => ['required', 'string', 'regex:/^[1-9][0-9]{5}$/'],
             'pickup_date' => 'required|date|after_or_equal:today',
             'pickup_time' => 'required|string|max:50',
             'images' => 'nullable|array|max:10',
@@ -55,6 +56,10 @@ class OrderController extends Controller
         // The order always belongs to the logged-in customer
         $user = auth()->user();
 
+        if (!\App\Models\ServicePincode::isServiceable($request->pin_code)) {
+            return back()->withInput()->with('error', \App\Models\ServicePincode::unavailableMessage($request->pin_code));
+        }
+
         $firstSubcategory = \App\Models\Subcategory::where('uuid', $request->items[0]['subcategory_uuid'])->first();
 
         // Reward coins are applied later, once the admin has set the final amount
@@ -64,6 +69,7 @@ class OrderController extends Controller
             'category_uuid' => $firstSubcategory ? $firstSubcategory->category_id : null,
             'items' => $request->items,
             'pickup_location' => $request->pickup_location,
+            'pin_code' => $request->pin_code,
             'pickup_date' => $request->pickup_date,
             'pickup_time' => $request->pickup_time,
             'images' => $request->images,

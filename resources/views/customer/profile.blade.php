@@ -274,7 +274,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold text-muted small text-uppercase">Pin Code</label>
-                    <input type="text" name="pin_code" class="form-control rounded-3 py-2" value="{{ $user->pin_code }}">
+                    <input type="text" name="pin_code" class="form-control rounded-3 py-2" value="{{ $user->pin_code }}" inputmode="numeric" maxlength="6" pattern="[1-9][0-9]{5}" placeholder="6-digit PIN code" title="6-digit PIN code">
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold text-muted small text-uppercase">Location / Address</label>
