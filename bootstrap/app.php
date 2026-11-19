@@ -26,10 +26,14 @@ $app = new Illuminate\Foundation\Application(
 |
 */
 $baseDir = dirname(__DIR__);
-if (basename($baseDir) === 'public_html' || (isset($_SERVER['DOCUMENT_ROOT']) && realpath($_SERVER['DOCUMENT_ROOT']) === realpath($baseDir))) {
+if (basename($baseDir) === 'public_html' || (!empty($_SERVER['DOCUMENT_ROOT']) && realpath($_SERVER['DOCUMENT_ROOT']) === realpath($baseDir))) {
     $app->usePublicPath($baseDir);
 } elseif (is_dir($baseDir . '/public_html')) {
     $app->usePublicPath($baseDir . '/public_html');
+} elseif (is_dir(dirname($baseDir) . '/public_html') && basename($baseDir) !== 'scrap_daddy_web') {
+    // Production layout: ~/scrap_daddy_core (app) next to ~/public_html (web root).
+    // Also covers CLI (artisan migrate / storage:link) where DOCUMENT_ROOT is empty.
+    $app->usePublicPath(dirname($baseDir) . '/public_html');
 }
 
 /*
