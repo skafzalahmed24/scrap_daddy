@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Services\OrderPaymentService;
 use Illuminate\Http\Request;
 
+/** Website payment pages. The money logic lives in OrderPaymentService (shared with the mobile API). */
 class PaymentController extends Controller
 {
     private function ownedOrder($orderId): Order
@@ -20,85 +21,61 @@ class PaymentController extends Controller
         $order = $this->ownedOrder($orderId);
 
         if ($order->payment_status === 'completed') {
-            return redirect()->route('customer.orders')->with('success', 'This order is already paid.');
+            return redirect()->route('customer.payment.status', $order->id);
         }
 
         if ((float) ($order->total_amount ?? 0) <= 0) {
-            return redirect()->route('customer.orders')->with('error', 'Payment is not available for this order yet.');
+            return redirect()->route('customer.orders')->with('error', 'Payment is not available for this order yet. We will tell you when the amount is ready.');
         }
 
-        $amount = OrderPaymentService::payableAmount($order);
-
-        // Fully covered by reward coins - no gateway needed
-        if ($amount <= 0 && $order->discount_applied > 0) {
+        // Fully covered by reward coins - no payment needed
+        if (OrderPaymentService::payableAmount($order) <= 0 && $order->discount_applied > 0) {
             OrderPaymentService::markPaid($order);
 
-            return redirect()->route('customer.orders')->with('success', 'Payment covered by rewards successfully!');
+            return redirect()->route('customer.payment.status', $order->id);
         }
-
-        if ($amount <= 0) {
-            return redirect()->back()->with('error', 'Payment amount is not set or invalid.');
-        }
-
-        $amountInPaise = (int) round($amount * 100);
-        $user = \App\Models\User::where('uuid', $order->user_uuid)->first();
-
-        try {
-            $razorpayOrder = OrderPaymentService::razorpay()->order->create([
-                'receipt' => 'order_rcptid_' . $order->id,
-                'amount' => $amountInPaise,
-                'currency' => 'INR',
-                'payment_capture' => 1,
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-
-            return redirect()->route('customer.orders')->with('error', 'Unable to start the payment. Please try again later.');
-        }
-
-        // Remember the gateway order id so the callback can be matched to this order
-        $order->payment_id = $razorpayOrder['id'];
-        $order->save();
 
         return view('customer.payment', [
             'order' => $order,
-            'razorpayOrder' => $razorpayOrder,
-            'amount' => $amountInPaise,
-            'user' => $user,
+            'pay' => OrderPaymentService::summary($order),
+            'user' => auth()->user(),
             'coinValue' => OrderPaymentService::coinValue(),
+            'razorpayKey' => config('services.razorpay.key'),
         ]);
     }
 
+    /** Razorpay checkout finished in the browser: verify with the gateway, record, show the receipt. */
     public function paymentCallback(Request $request)
     {
         $request->validate([
+            'order_id' => 'required|integer',
             'razorpay_order_id' => 'required|string',
             'razorpay_payment_id' => 'required|string',
             'razorpay_signature' => 'required|string',
         ]);
 
-        $order = Order::where('payment_id', $request->razorpay_order_id)
-            ->where('user_uuid', auth()->user()->uuid)
-            ->first();
+        $order = $this->ownedOrder($request->order_id);
 
-        if (!$order) {
-            return redirect()->route('customer.orders')->with('error', 'Payment failed! Order not found.');
-        }
-
-        $error = OrderPaymentService::verifyRazorpayPayment(
-            $order,
-            $request->razorpay_payment_id,
-            $request->razorpay_order_id,
-            $request->razorpay_signature
+        $error = OrderPaymentService::verifyAndRecordRazorpay(
+            $order, $request->razorpay_payment_id, $request->razorpay_order_id, $request->razorpay_signature
         );
 
         if ($error) {
-            return redirect()->route('customer.orders')->with('error', 'Payment failed! ' . $error);
+            return redirect()->route('customer.payment.initiate', $order->id)->with('error', 'Payment failed! ' . $error);
         }
 
-        OrderPaymentService::markPaid($order, $request->razorpay_payment_id);
+        return redirect()->route('customer.payment.status', $order->id);
+    }
 
-        return redirect()->route('customer.orders')->with('success', 'Payment successful!');
+    /** Receipt / progress page: paid, advance received, or "request raised - verifying". */
+    public function status($orderId)
+    {
+        $order = $this->ownedOrder($orderId);
+
+        return view('customer.payment-status', [
+            'order' => $order,
+            'pay' => OrderPaymentService::summary($order),
+        ]);
     }
 
     public function applyRewards(Request $request, $orderId)
@@ -116,6 +93,10 @@ class PaymentController extends Controller
 
         if ($order->discount_applied > 0) {
             return redirect()->back()->with('error', 'Rewards already applied to this order.');
+        }
+
+        if ((float) $order->paid_amount > 0) {
+            return redirect()->back()->with('error', 'Rewards must be applied before the first payment.');
         }
 
         if (($user->reward_coins ?? 0) <= 0 && $user->getAvailableRewardCoins() <= 0) {

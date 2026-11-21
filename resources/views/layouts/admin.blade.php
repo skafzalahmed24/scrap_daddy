@@ -15,19 +15,22 @@
     <!-- Admin Dashboard CSS -->
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin-polish.css') }}?v=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/admin-premium.css') }}?v=4">
     <!-- Custom CSS per page -->
     @stack('styles')
 </head>
 <body>
 @php
     try {
-        $badgeOrders = \App\Models\Order::where('status', 'pending')->count();
-        $badgeRequests = \App\Models\ServiceRequest::where('status', 'new')->whereNull('read_at')->count();
+        $ac = \App\Http\Controllers\ServiceRequestController::actionCounts();
     } catch (\Throwable $e) {
-        $badgeOrders = 0;
-        $badgeRequests = 0;
+        $ac = ['orders' => 0, 'vehicles' => 0, 'payments' => 0, 'requests' => 0, 'tickets' => 0, 'total' => 0];
     }
-    $badgeTotal = $badgeOrders + $badgeRequests;
+    $badgeOrders = $ac['orders'];
+    $badgeRequests = $ac['requests'];
+    $badgeTotal = $ac['total'];
 @endphp
 
     <!-- Mobile Overlay -->
@@ -42,8 +45,35 @@
         
         <nav class="sidebar-nav">
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
-                <i class="fa-solid fa-chart-pie"></i> DASHBOARD
+                <i class="fa-solid fa-chart-pie"></i> Dashboard
             </a>
+
+            <div class="nav-section">Operations</div>
+            <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->is('admin/orders*') ? 'active' : '' }}">
+                <i class="fa-solid fa-cart-shopping"></i> Orders
+                <span class="nav-badge" data-badge="orders" {!! $badgeOrders ? '' : 'hidden' !!}>{{ $badgeOrders }}</span>
+            </a>
+            <a href="{{ route('admin.scrap-vehicles.index') }}" class="nav-item {{ request()->is('admin/scrap-vehicles*') ? 'active' : '' }}">
+                <i class="fa-solid fa-truck-monster"></i> Scrap Vehicles
+                <span class="nav-badge" data-badge="vehicles" {!! $ac['vehicles'] ? '' : 'hidden' !!}>{{ $ac['vehicles'] }}</span>
+            </a>
+            <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->is('admin/payments*') ? 'active' : '' }}">
+                <i class="fa-solid fa-credit-card"></i> Payments
+                <span class="nav-badge" data-badge="payments" {!! $ac['payments'] ? '' : 'hidden' !!}>{{ $ac['payments'] }}</span>
+            </a>
+            <a href="{{ route('admin.tickets.index') }}" class="nav-item {{ request()->is('admin/tickets*') ? 'active' : '' }}">
+                <i class="fa-solid fa-headset"></i> Support Tickets
+                <span class="nav-badge" data-badge="tickets" {!! $ac['tickets'] ? '' : 'hidden' !!}>{{ $ac['tickets'] }}</span>
+            </a>
+            <a href="{{ route('admin.service-requests.index') }}" class="nav-item {{ request()->is('admin/service-requests*') ? 'active' : '' }}">
+                <i class="fa-solid fa-envelope-open-text"></i> Service Requests
+                <span class="nav-badge" data-badge="requests" {!! $badgeRequests ? '' : 'hidden' !!}>{{ $badgeRequests }}</span>
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->is('admin/users*') ? 'active' : '' }}">
+                <i class="fa-solid fa-users"></i> Customers
+            </a>
+
+            <div class="nav-section">Catalogue</div>
             <a href="{{ url('/admin/categories') }}" class="nav-item {{ request()->is('admin/categories') ? 'active' : '' }}">
                 <i class="fa-solid fa-list"></i> Categories
             </a>
@@ -53,6 +83,8 @@
             <a href="{{ url('/admin/banners') }}" class="nav-item {{ request()->is('admin/banners') ? 'active' : '' }}">
                 <i class="fa-solid fa-images"></i> Banners
             </a>
+
+            <div class="nav-section">Content &amp; Settings</div>
             <a href="{{ route('admin.pages.index') }}" class="nav-item {{ request()->is('admin/pages*') ? 'active' : '' }}">
                 <i class="fa-regular fa-file-lines"></i> Pages
             </a>
@@ -60,30 +92,13 @@
                 <i class="fa-regular fa-circle-question"></i> FAQs
             </a>
             <a href="{{ url('/admin/rewards') }}" class="nav-item {{ request()->is('admin/rewards') ? 'active' : '' }}">
-                <i class="fa-solid fa-gift"></i> Rewards Config
+                <i class="fa-solid fa-gift"></i> Rewards
             </a>
-            <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->is('admin/orders') ? 'active' : '' }}">
-                <i class="fa-solid fa-cart-shopping"></i> ORDERS
-                <span class="nav-badge" data-badge="orders" {!! $badgeOrders ? '' : 'hidden' !!}>{{ $badgeOrders }}</span>
+            <a href="{{ route('admin.payment-settings.index') }}" class="nav-item {{ request()->is('admin/payment-settings*') ? 'active' : '' }}">
+                <i class="fa-solid fa-wallet"></i> Payment Settings
             </a>
             <a href="{{ route('admin.pincodes.index') }}" class="nav-item {{ request()->is('admin/pincodes*') ? 'active' : '' }}">
-                <i class="fa-solid fa-location-dot"></i> Service PIN Codes
-            </a>
-            <a href="{{ route('admin.tickets.index') }}" class="nav-item {{ request()->is('admin/tickets*') ? 'active' : '' }}">
-                <i class="fa-solid fa-headset"></i> Support Tickets
-            </a>
-            <a href="{{ route('admin.service-requests.index') }}" class="nav-item {{ request()->is('admin/service-requests*') ? 'active' : '' }}">
-                <i class="fa-solid fa-envelope-open-text"></i> Service Requests
-                <span class="nav-badge" data-badge="requests" {!! $badgeRequests ? '' : 'hidden' !!}>{{ $badgeRequests }}</span>
-            </a>
-            <a href="{{ route('admin.scrap-vehicles.index') }}" class="nav-item {{ request()->is('admin/scrap-vehicles') ? 'active' : '' }}">
-                <i class="fa-solid fa-truck-monster"></i> Scrap Vehicles
-            </a>
-            <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->is('admin/payments') ? 'active' : '' }}">
-                <i class="fa-solid fa-credit-card"></i> PAYMENTS
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->is('admin/users*') ? 'active' : '' }}">
-                <i class="fa-solid fa-users"></i> USERS
+                <i class="fa-solid fa-location-dot"></i> Service Areas
             </a>
             <a href="{{ route('admin.settings.index') }}" class="nav-item {{ request()->is('admin/settings*') ? 'active' : '' }}">
                 <i class="fa-solid fa-gear"></i> Site Settings
@@ -121,17 +136,15 @@
                     <div class="dropdown-menu dropdown-menu-end notif-menu" aria-labelledby="notifBtn">
                         <div class="notif-head">
                             <strong>Notifications</strong>
-                            <span id="notifSummary" class="notif-summary">{{ $badgeOrders }} pending orders · {{ $badgeRequests }} new requests</span>
+                            <span id="notifSummary" class="notif-summary">{{ $badgeTotal }} item(s) need your action</span>
                         </div>
                         <div class="notif-list" id="notifList">
                             <div class="notif-empty">Loading…</div>
                         </div>
                         <div class="notif-foot">
                             <a href="{{ route('admin.orders.index') }}">Orders</a>
-                            <a href="{{ route('admin.tickets.index') }}" class="nav-item {{ request()->is('admin/tickets*') ? 'active' : '' }}">
-                <i class="fa-solid fa-headset"></i> Support Tickets
-            </a>
-            <a href="{{ route('admin.service-requests.index') }}">Service requests</a>
+                            <a href="{{ route('admin.tickets.index') }}">Tickets</a>
+                            <a href="{{ route('admin.service-requests.index') }}">Service requests</a>
                         </div>
                     </div>
                 </div>
@@ -199,6 +212,14 @@
             }
         });
 
+        // Mobile card view: copy each column heading onto its cells (used by the stacked-table CSS)
+        document.querySelectorAll('.pr-card table').forEach(function (t) {
+            var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (h) { return h.textContent.trim(); });
+            t.querySelectorAll('tbody tr').forEach(function (tr) {
+                Array.prototype.forEach.call(tr.children, function (td, i) { if (heads[i] && !td.hasAttribute('data-label')) td.setAttribute('data-label', heads[i]); });
+            });
+        });
+
         // Notification badges: refresh every 30s without reloading the page
         (function () {
             const notifCount = document.getElementById('notifCount');
@@ -220,11 +241,13 @@
                     setBadge(notifCount, d.total);
                     document.querySelectorAll('[data-badge="orders"]').forEach(e => setBadge(e, d.orders));
                     document.querySelectorAll('[data-badge="requests"]').forEach(e => setBadge(e, d.requests));
-                    if (notifSummary) notifSummary.textContent = d.orders + ' pending orders · ' + d.requests + ' new requests';
+                    ['vehicles', 'payments', 'tickets'].forEach(k => document.querySelectorAll('[data-badge="' + k + '"]').forEach(e => setBadge(e, d[k])));
+                    document.querySelectorAll('[data-kpi-badge]').forEach(e => setBadge(e, d[e.dataset.kpiBadge]));
+                    if (notifSummary) notifSummary.textContent = d.total + ' item(s) need your action';
                     if (notifList) {
                         notifList.innerHTML = d.items.length ? d.items.map(i =>
                             '<a class="notif-item" href="' + escapeHtml(i.url) + '">' +
-                            '<span class="notif-ic ' + i.type + '"><i class="fa-solid ' + (i.type === 'order' ? 'fa-cart-shopping' : 'fa-envelope-open-text') + '"></i></span>' +
+                            '<span class="notif-ic ' + i.type + '"><i class="fa-solid ' + ({order: 'fa-cart-shopping', vehicle: 'fa-truck-monster', payment: 'fa-credit-card', ticket: 'fa-headset'}[i.type] || 'fa-envelope-open-text') + '"></i></span>' +
                             '<span class="notif-body"><b>' + escapeHtml(i.title) + '</b><small>' + escapeHtml(i.text) + '</small><em>' + escapeHtml(i.time) + '</em></span></a>'
                         ).join('') : '<div class="notif-empty">You are all caught up 🎉</div>';
                     }

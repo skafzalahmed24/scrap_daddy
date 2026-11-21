@@ -65,6 +65,7 @@ class User extends Authenticatable
         'remember_token',
         'otp',
         'otp_expires_at',
+        'login_marker',
     ];
 
     /**

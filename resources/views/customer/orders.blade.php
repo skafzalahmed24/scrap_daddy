@@ -315,8 +315,11 @@
                 $scheduleClass = 'schedule-orange';
             }
 
-            // Payment required check
-            $needsPayment = ($order->payment_status === 'pending' && ($order->total_amount > 0 || $order->status === 'completed'));
+            // Payment: advance / balance / verification state (same data as the app)
+            $pinfo = $order->payment_info;
+            $needsPayment = $pinfo['can_pay'];
+            $payLabel = $pinfo['due_kind'] === 'advance' ? 'Pay advance ₹' . number_format($pinfo['due_now'], 0) : ($pinfo['due_kind'] === 'balance' ? 'Pay balance ₹' . number_format($pinfo['due_now'], 0) : 'Pay now ₹' . number_format($pinfo['due_now'], 0));
+            $chipStyle = ['paid' => 'background:#E4F4E8;color:#2B7A3D', 'partial' => 'background:#E8F1FE;color:#2F6FE4', 'verifying' => 'background:#EFE9FE;color:#7A4CE0', 'due' => 'background:#FEF3DC;color:#B7770A', 'cancelled' => 'background:#FDE8EC;color:#C42B45'][$pinfo['status']] ?? '';
         @endphp
 
         <div class="order-clean-card">
@@ -332,6 +335,7 @@
                 <div class="order-title-block">
                     <h2 class="order-title-name">{{ $catName }}</h2>
                     <p class="order-schedule-badge {{ $scheduleClass }}">{{ $scheduleText }}</p>
+                    @if($chipStyle)<span style="{{ $chipStyle }};display:inline-block;padding:3px 10px;border-radius:999px;font-size:.74rem;font-weight:700;">{{ $pinfo['label'] }}@if($pinfo['paid'] > 0 && $pinfo['status'] !== 'paid') · ₹{{ number_format($pinfo['paid'], 0) }} paid @endif</span>@endif
                 </div>
             </div>
 
@@ -349,7 +353,11 @@
             <!-- Pay Now Button (if pending payment) -->
             @if($needsPayment)
                 <a href="{{ route('customer.payment.initiate', $order->id) }}" class="btn-pay-now-blue">
-                    Pay Now
+                    {{ $payLabel }}
+                </a>
+            @elseif($pinfo['status'] === 'verifying' || $pinfo['status'] === 'paid')
+                <a href="{{ route('customer.payment.status', $order->id) }}" class="btn-view-order">
+                    {{ $pinfo['status'] === 'paid' ? 'View receipt' : 'Payment status' }}
                 </a>
             @else
                 <a href="{{ route('customer.order.show', $order->id) }}" class="btn-view-order">

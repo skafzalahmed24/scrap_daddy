@@ -21,6 +21,10 @@ class Order extends Model
         'coins_earned',
         'coins_redeemed',
         'discount_applied',
+        'paid_amount',
+        'advance_amount',
+        'advance_percent',
+        'payment_method',
         'pickup_location',
         'pin_code',
         'pickup_date',
@@ -37,7 +41,25 @@ class Order extends Model
     ];
 
     /** Same title / picture on the website and in the mobile app (API sends these too). */
-    protected $appends = ['display_title', 'display_image', 'items_with_images'];
+    protected $appends = ['display_title', 'display_image', 'items_with_images', 'payment_info'];
+
+    /** Small payment summary for cards in the app and website (status chip + what is due). */
+    public function getPaymentInfoAttribute(): array
+    {
+        $verifying = $this->exists && $this->payments()->where('status', 'pending')->where('method', '!=', 'razorpay')->exists();
+        $key = \App\Services\OrderPaymentService::statusKey($this, $verifying);
+        $due = \App\Services\OrderPaymentService::dueNow($this);
+
+        return [
+            'status' => $key,
+            'label' => \App\Services\OrderPaymentService::statusLabel($key),
+            'paid' => (float) $this->paid_amount,
+            'remaining' => $due['remaining'],
+            'due_now' => $due['amount'],
+            'due_kind' => $due['kind'],
+            'can_pay' => $due['amount'] > 0 && !$verifying,
+        ];
+    }
 
     public function getDisplayTitleAttribute(): string
     {
@@ -77,6 +99,11 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_uuid', 'uuid');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(OrderPayment::class)->latest();
     }
 
     public function category()

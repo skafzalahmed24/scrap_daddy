@@ -85,6 +85,43 @@
         });
     </script>
 
+    @auth
+    <script>
+        // Logged in somewhere else? Tell the user on the spot and sign this browser out.
+        (function () {
+            var url = "{{ route('customer.session.check') }}";
+            var shown = false;
+            function leave() {
+                try { localStorage.removeItem('auth_token'); localStorage.removeItem('user_data'); } catch (e) {}
+                window.location.href = "{{ url('/customer/login') }}?replaced=1";
+            }
+            function popup(msg) {
+                if (shown) return; shown = true;
+                var box = document.createElement('div');
+                box.className = 'sd-session-backdrop';
+                box.innerHTML = '<div class="sd-session-card" role="alertdialog" aria-modal="true">' +
+                    '<div class="sd-session-ic"><i class="fa-solid fa-user-lock"></i></div>' +
+                    '<h5>Signed out</h5><p></p><button type="button" class="btn btn-primary w-100">OK</button></div>';
+                box.querySelector('p').textContent = msg;
+                box.querySelector('button').addEventListener('click', leave);
+                document.body.appendChild(box);
+                setTimeout(leave, 20000);
+            }
+            async function check() {
+                if (shown || document.hidden) return;
+                try {
+                    var r = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+                    if (r.status === 401 || r.status === 409) {
+                        var d = {}; try { d = await r.json(); } catch (e) {}
+                        if (d.code === 'session_replaced') popup(d.message || 'You have logged in from another device. You have been logged out of this session.');
+                    }
+                } catch (e) { /* offline: try again next time */ }
+            }
+            setInterval(check, 15000);
+            document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+        })();
+    </script>
+    @endauth
     @stack('scripts')
     <script>
         (function () {
@@ -186,7 +223,7 @@
         }
     </style>
     @endif
-    <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=4">
+    <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=5">
 </body>
 
 </html>

@@ -119,34 +119,46 @@ class ServiceRequestController extends Controller
     /** JSON used by the admin header bell + sidebar badges (polled every 30s). */
     public function adminNotifications()
     {
-        $newRequests = ServiceRequest::where('status', 'new')->whereNull('read_at')->count();
-        $pendingOrders = Order::where('status', 'pending')->count();
+        $counts = self::actionCounts();
 
         $items = [];
-        foreach (ServiceRequest::where('status', 'new')->latest()->take(5)->get() as $r) {
-            $items[] = [
-                'type' => 'request',
-                'title' => 'Service request · ' . $r->pin_code,
-                'text' => $r->name . ' (' . $r->phone . ')',
-                'time' => $r->created_at->diffForHumans(),
-                'url' => route('admin.service-requests.index'),
-            ];
+        foreach (\App\Models\Order::where('status', 'pending')->latest()->take(4)->get() as $o) {
+            $items[] = ['type' => 'order', 'title' => 'New order #' . str_pad($o->id, 4, '0', STR_PAD_LEFT) . ' needs acceptance',
+                'text' => \Illuminate\Support\Str::limit($o->pickup_location ?? '', 50), 'time' => $o->created_at->diffForHumans(), 'url' => route('admin.orders.show', $o->id)];
         }
-        foreach (Order::where('status', 'pending')->latest()->take(5)->get() as $o) {
-            $items[] = [
-                'type' => 'order',
-                'title' => 'New order #ORD-' . str_pad($o->id, 4, '0', STR_PAD_LEFT),
-                'text' => \Illuminate\Support\Str::limit($o->pickup_location ?? '', 50),
-                'time' => $o->created_at->diffForHumans(),
-                'url' => route('admin.orders.index'),
-            ];
+        foreach (\App\Models\ScrapVehicle::where('status', 'pending')->latest()->take(3)->get() as $v) {
+            $items[] = ['type' => 'vehicle', 'title' => 'Scrap vehicle ' . $v->vehicle_number, 'text' => $v->vehicle_type . ' request waiting',
+                'time' => $v->created_at->diffForHumans(), 'url' => route('admin.scrap-vehicles.index', ['status' => 'pending'])];
+        }
+        foreach (\App\Models\Order::with('user')->where('status', 'completed')->where('payment_status', '!=', 'completed')->latest('updated_at')->take(3)->get() as $o) {
+            $items[] = ['type' => 'payment', 'title' => 'Payment awaited #' . str_pad($o->id, 4, '0', STR_PAD_LEFT), 'text' => ($o->user->full_name ?? 'Customer') . ' · ₹' . number_format($o->total_amount, 0),
+                'time' => $o->updated_at->diffForHumans(), 'url' => route('admin.payments.index', ['status' => 'pending'])];
+        }
+        foreach (ServiceRequest::where('status', 'new')->latest()->take(3)->get() as $r) {
+            $items[] = ['type' => 'request', 'title' => 'Service request · ' . $r->pin_code, 'text' => $r->name . ' (' . $r->phone . ')',
+                'time' => $r->created_at->diffForHumans(), 'url' => route('admin.service-requests.index')];
+        }
+        foreach (\App\Models\SupportTicket::where('status', '!=', 'closed')->latest()->take(3)->get() as $t) {
+            $items[] = ['type' => 'ticket', 'title' => 'Ticket: ' . \Illuminate\Support\Str::limit($t->subject, 30), 'text' => 'Waiting for a reply',
+                'time' => $t->created_at->diffForHumans(), 'url' => route('admin.tickets.index')];
         }
 
-        return response()->json([
-            'orders' => $pendingOrders,
-            'requests' => $newRequests,
-            'total' => $pendingOrders + $newRequests,
-            'items' => array_slice($items, 0, 8),
-        ]);
+        return response()->json($counts + ['items' => array_slice($items, 0, 10)]);
+    }
+
+    /** Everything that is waiting for an admin action. Used by the sidebar badges, bell and dashboard. */
+    public static function actionCounts(): array
+    {
+        $orders = \App\Models\Order::where('status', 'pending')->count();
+        $vehicles = \App\Models\ScrapVehicle::where('status', 'pending')->count();
+        $payments = \App\Models\Order::where('status', 'completed')->where('payment_status', '!=', 'completed')->count()
+            + \App\Models\OrderPayment::where('status', 'pending')->where('method', '!=', 'razorpay')->count();
+        $requests = ServiceRequest::where('status', 'new')->whereNull('read_at')->count();
+        $tickets = \App\Models\SupportTicket::where('status', '!=', 'closed')->count();
+
+        return [
+            'orders' => $orders, 'vehicles' => $vehicles, 'payments' => $payments, 'requests' => $requests, 'tickets' => $tickets,
+            'total' => $orders + $vehicles + $payments + $requests + $tickets,
+        ];
     }
 }

@@ -215,7 +215,15 @@
             handleLogin(this, document.getElementById('desktopLoginBtn'), document.getElementById('desktopErrorAlert'));
         });
     }
+
+    // sent here because this account was logged in somewhere else
+    if (new URLSearchParams(location.search).get('replaced') === '1') {
+        ['errorAlert', 'desktopErrorAlert'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) { el.innerText = 'You were logged out because your account was logged in from another device. Please log in again.'; el.classList.remove('d-none'); }
+        });
+    }
 </script>
-<link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=4">
+<link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=5">
 </body>
 </html>

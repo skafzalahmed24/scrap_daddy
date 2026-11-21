@@ -240,6 +240,6 @@
         });
     }
 </script>
-<link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=4">
+<link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=5">
 </body>
 </html>

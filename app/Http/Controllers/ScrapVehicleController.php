@@ -184,14 +184,23 @@ class ScrapVehicleController extends Controller
             });
         }
 
-        $vehicles = $query->paginate(15);
-        
-        return view('admin.scrap_vehicles', compact('vehicles'));
+        $vehicles = $query->paginate(15)->withQueryString();
+        $counts = ScrapVehicle::selectRaw('status, COUNT(*) as c')->groupBy('status')->pluck('c', 'status');
+        $typeCounts = ScrapVehicle::selectRaw('vehicle_type, COUNT(*) as c')->groupBy('vehicle_type')->pluck('c', 'vehicle_type');
+
+        return view('admin.scrap_vehicles', compact('vehicles', 'counts', 'typeCounts'));
     }
 
     /**
      * Admin API to update scrap vehicle status
      */
+    public function adminShow($id)
+    {
+        $vehicle = ScrapVehicle::with('user')->findOrFail($id);
+
+        return view('admin.scrap_vehicle_show', compact('vehicle'));
+    }
+
     public function updateStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [

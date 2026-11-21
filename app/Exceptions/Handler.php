@@ -31,6 +31,15 @@ class Handler extends ExceptionHandler
             //
         });
 
+        // Logged in somewhere else: tell the old device exactly that (HTTP 409 = "logged out" for the app)
+        $this->renderable(function (AuthenticationException $e, $request) {
+            if (($request->expectsJson() || $request->is('api/*')) && \App\Services\SessionService::wasReplaced($request->bearerToken())) {
+                return response()->json(['status' => 0, 'code' => 'session_replaced', 'message' => \App\Services\SessionService::MESSAGE], 409);
+            }
+
+            return null;
+        });
+
         // Rate limit hit: short, friendly message instead of an exception dump.
         $this->renderable(function (ThrottleRequestsException $e, $request) {
             $message = 'Too many attempts. Please wait a minute and try again.';

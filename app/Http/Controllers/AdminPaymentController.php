@@ -3,92 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
+/** Payments ledger: what has been received, what is still awaited, and which payments are new. */
 class AdminPaymentController extends Controller
 {
     public function index(Request $request)
     {
-        $customerSearch = $request->input('search_customer');
+        $status = $request->input('status'); // '', paid, pending
 
-        // 1. Fetch Paginated Customers who have completed payments or pending orders
-        $customersQuery = User::whereHas('orders')
-            ->withCount(['orders as pending_orders_count' => function ($q) {
-                $q->where('payment_status', '!=', 'completed')->where('status', '!=', 'cancelled');
-            }])
-            ->withSum(['orders as total_net_paid' => function ($q) {
-                $q->where('payment_status', 'completed');
-            }], 'total_amount')
-            ->withSum(['orders as total_rewards_applied' => function ($q) {
-                $q->where('payment_status', 'completed');
-            }], 'discount_applied')
-            ->orderByDesc('total_net_paid');
+        // Only orders that reached the payment stage (completed pickup with an amount, or already paid)
+        $base = Order::with(['user', 'category', 'subcategory'])
+            ->where(function ($q) {
+                $q->where('payment_status', 'completed')
+                    ->orWhere('paid_amount', '>', 0)
+                    ->orWhereHas('payments', fn ($p) => $p->where('status', 'pending'))
+                    ->orWhere(function ($w) {
+                        $w->where('status', 'completed')->where('total_amount', '>', 0);
+                    });
+            });
 
-        if ($customerSearch) {
-            $customersQuery->where(function($q) use ($customerSearch) {
-                $q->where('full_name', 'like', "%{$customerSearch}%")
-                  ->orWhere('phone_number', 'like', "%{$customerSearch}%");
+        $paidQ = (clone $base)->where('payment_status', 'completed');
+        $pendingQ = (clone $base)->where('payment_status', '!=', 'completed');
+        $verifyScope = fn ($q) => $q->whereHas('payments', fn ($p) => $p->where('status', 'pending')->where('method', '!=', 'razorpay'));
+
+        $net = 'SUM(total_amount - COALESCE(discount_applied, 0))';
+        $stats = [
+            'received' => (float) ((clone $paidQ)->selectRaw("$net as t")->value('t') ?? 0),
+            'received_today' => (float) ((clone $paidQ)->where('updated_at', '>=', Carbon::today())->selectRaw("$net as t")->value('t') ?? 0),
+            'paid_count' => (clone $paidQ)->count(),
+            'pending_amount' => (float) (clone $pendingQ)->sum('total_amount'),
+            'pending_count' => (clone $pendingQ)->count(),
+            'rewards_used' => (float) (clone $paidQ)->sum('discount_applied'),
+            'new_count' => (clone $paidQ)->where('updated_at', '>=', Carbon::now()->subDay())->count(),
+            'verify_count' => \App\Models\OrderPayment::where('status', 'pending')->where('method', '!=', 'razorpay')->count(),
+            'advance_count' => (clone $base)->where('payment_status', 'partial')->count(),
+        ];
+
+        $query = clone $base;
+        if ($status === 'paid') {
+            $query->where('payment_status', 'completed');
+        } elseif ($status === 'pending') {
+            $query->where('payment_status', '!=', 'completed');
+        } elseif ($status === 'verify') {
+            $verifyScope($query);
+        } elseif ($status === 'partial') {
+            $query->where('payment_status', 'partial');
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('id', 'like', "%{$s}%")
+                    ->orWhere('payment_id', 'like', "%{$s}%")
+                    ->orWhereHas('user', fn ($u) => $u->where('full_name', 'like', "%{$s}%")->orWhere('phone_number', 'like', "%{$s}%"));
             });
         }
 
-        $customers = $customersQuery->paginate(10);
+        $payments = $query->latest('updated_at')->paginate(15)->withQueryString();
 
-        // Adjust total_net_paid in memory since DB sum doesn't allow dynamic calculation of (total_amount - discount_applied) directly without selectRaw easily in withSum
-        foreach ($customers as $customer) {
-            $customer->total_net_paid = $customer->total_net_paid - $customer->total_rewards_applied;
-        }
-
-        $selectedUserId = $request->input('user_uuid');
-        
-        $selectedUser = null;
-        $pendingPayments = collect();
-        $completedPayments = collect();
-
-        if ($selectedUserId) {
-            $selectedUser = User::find($selectedUserId);
-            
-            if ($selectedUser) {
-                // Pending Payments for Selected Customer
-                $pendingPayments = Order::with('category')
-                    ->where('user_uuid', $selectedUserId)
-                    ->where('payment_status', '!=', 'completed')
-                    ->where('status', '!=', 'cancelled')
-                    ->latest()
-                    ->get();
-
-                // Completed Payments for Selected Customer
-                $completedPayments = Order::with('category')
-                    ->where('user_uuid', $selectedUserId)
-                    ->where('payment_status', 'completed')
-                    ->latest('updated_at')
-                    ->get();
-            }
-        }
-
-        // Global Revenue and Stats for initial state
-        $totalRevenue = Order::where('payment_status', 'completed')
-            ->selectRaw('SUM(total_amount - discount_applied) as net_revenue')
-            ->value('net_revenue') ?? 0;
-            
-        $globalPendingOrdersCount = Order::where('payment_status', '!=', 'completed')
-            ->where('status', '!=', 'cancelled')
-            ->count();
-            
-        $globalPendingAmount = Order::where('payment_status', '!=', 'completed')
-            ->where('status', '!=', 'cancelled')
-            ->sum('total_amount');
-
-        return view('admin.payments', compact(
-            'customers',
-            'selectedUserId',
-            'selectedUser',
-            'totalRevenue',
-            'globalPendingOrdersCount',
-            'globalPendingAmount',
-            'pendingPayments',
-            'completedPayments',
-            'customerSearch'
-        ));
+        return view('admin.payments', compact('payments', 'stats', 'status'));
     }
 }

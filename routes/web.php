@@ -60,7 +60,10 @@ Route::get('/customer/logout-web', function () {
     return redirect('/customer/login');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'single.session'])->group(function () {
+    // polled by every page: answers 401 + code=session_replaced when this login was replaced elsewhere
+    Route::get('/customer/session-check', fn () => response()->json(['active' => true]))->name('customer.session.check');
+
     Route::get('/customer/home', function () {
         return view('customer.home');
     })->name('customer.home');
@@ -109,6 +112,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/payment/{orderId}', [PaymentController::class, 'initiatePayment'])->name('customer.payment.initiate');
     Route::post('/customer/payment/{orderId}/apply-rewards', [PaymentController::class, 'applyRewards'])->name('customer.payment.apply-rewards');
     Route::post('/customer/payment/callback', [PaymentController::class, 'paymentCallback'])->name('customer.payment.callback');
+    Route::get('/customer/payment/{orderId}/status', [PaymentController::class, 'status'])->whereNumber('orderId')->name('customer.payment.status');
+    // JSON endpoints used by the payment page (same logic as the mobile API)
+    Route::post('/customer/payment/gateway-order', [\App\Http\Controllers\PaymentApiController::class, 'gatewayOrder'])->name('customer.payment.gateway-order');
+    Route::post('/customer/payment/direct', [\App\Http\Controllers\PaymentApiController::class, 'payDirect'])->name('customer.payment.direct');
 });
 
 // Static Pages
@@ -149,6 +156,16 @@ Route::get('/admin/rewards', function () {
 // Admin Orders, Feedback & Pages
 Route::get('/admin/orders', [OrderController::class, 'adminIndex'])->name('admin.orders.index');
 Route::post('/admin/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.status');
+
+// Order detail page + payment actions
+Route::get('/admin/orders/{id}', [App\Http\Controllers\AdminOrderController::class, 'show'])->whereNumber('id')->name('admin.orders.show');
+Route::post('/admin/orders/{id}/record-payment', [App\Http\Controllers\AdminOrderController::class, 'recordPayment'])->whereNumber('id')->name('admin.orders.record-payment');
+Route::post('/admin/order-payments/{id}/review', [App\Http\Controllers\AdminOrderController::class, 'reviewPayment'])->whereNumber('id')->name('admin.order-payments.review');
+Route::get('/admin/scrap-vehicles/{id}', [App\Http\Controllers\ScrapVehicleController::class, 'adminShow'])->whereNumber('id')->name('admin.scrap-vehicles.show');
+
+// Payment settings (advance %, UPI / bank / cash / online)
+Route::get('/admin/payment-settings', [App\Http\Controllers\AdminPaymentSettingsController::class, 'index'])->name('admin.payment-settings.index');
+Route::post('/admin/payment-settings', [App\Http\Controllers\AdminPaymentSettingsController::class, 'update'])->name('admin.payment-settings.update');
 
 Route::get('/admin/tickets', [App\Http\Controllers\AdminTicketController::class, 'index'])->name('admin.tickets.index');
 Route::post('/admin/tickets/{id}', [App\Http\Controllers\AdminTicketController::class, 'update'])->name('admin.tickets.update');

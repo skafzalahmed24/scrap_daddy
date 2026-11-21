@@ -45,7 +45,7 @@ class AdminSettingsController extends Controller
             'linkedin.url' => 'LinkedIn link must be a full URL, e.g. https://linkedin.com/company/yourpage',
         ]);
 
-        foreach (array_keys(SiteSetting::defaults()) as $key) {
+        foreach (array_keys($data) as $key) { // only what this form submitted (payment settings live on their own page)
             SiteSetting::updateOrCreate(['key' => $key], ['value' => trim((string) ($data[$key] ?? ''))]);
         }
 

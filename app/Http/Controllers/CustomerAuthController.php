@@ -176,14 +176,15 @@ class CustomerAuthController extends Controller
             Cache::put('pwreset_ok:' . $user->uuid, true, now()->addMinutes(15));
         }
 
-        // Enforce single active device session by deleting old tokens
-        $user->tokens()->delete();
+        // Enforce a single active login: old devices are told they were replaced
+        $loginMarker = \App\Services\SessionService::startNewSession($user);
 
         $accessToken = $user->createToken('auth_token', ['access'])->plainTextToken;
         $refreshToken = $user->createToken('refresh_token', ['refresh'])->plainTextToken;
 
         // Also log them into the web session without remember_token
         auth()->guard('web')->login($user);
+        session()->put('login_marker', $loginMarker);
 
         return response()->json([
             'status' => 1,
@@ -258,14 +259,15 @@ class CustomerAuthController extends Controller
             ]);
         }
 
-        // Enforce single active device session by deleting old tokens
-        $user->tokens()->delete();
+        // Enforce a single active login: old devices are told they were replaced
+        $loginMarker = \App\Services\SessionService::startNewSession($user);
 
         $accessToken = $user->createToken('auth_token', ['access'])->plainTextToken;
         $refreshToken = $user->createToken('refresh_token', ['refresh'])->plainTextToken;
 
         // Also log them into the web session
         auth()->guard('web')->login($user);
+        session()->put('login_marker', $loginMarker);
 
         return response()->json([
             'status' => 1,
@@ -813,7 +815,8 @@ class CustomerAuthController extends Controller
         $query = Order::where('user_uuid', $request->user()->uuid)
                        ->where(function ($q) {
                            $q->whereNotNull('payment_id')
-                             ->orWhere('payment_status', '!=', 'pending');
+                             ->orWhere('payment_status', '!=', 'pending')
+                             ->orWhere('paid_amount', '>', 0);
                        })
                        ->orderBy('created_at', 'desc');
 
@@ -826,7 +829,7 @@ class CustomerAuthController extends Controller
             $query->limit((int)$request->max);
         }
 
-        $orders = $query->get(['id', 'total_amount', 'payment_status', 'payment_id', 'created_at']);
+        $orders = $query->get(['id', 'total_amount', 'paid_amount', 'payment_method', 'payment_status', 'payment_id', 'created_at']);
 
         return response()->json([
             'status' => 1,
@@ -1084,7 +1087,7 @@ class CustomerAuthController extends Controller
             return response()->json(['status' => 0, 'message' => 'Order amount is not set yet.'], 200);
         }
 
-        $error = OrderPaymentService::verifyRazorpayPayment(
+        $error = OrderPaymentService::verifyAndRecordRazorpay(
             $order,
             $request->razorpay_payment_id,
             $request->razorpay_order_id,
@@ -1095,12 +1098,12 @@ class CustomerAuthController extends Controller
             return response()->json(['status' => 0, 'message' => $error], 200);
         }
 
-        $order = OrderPaymentService::markPaid($order, $request->razorpay_payment_id);
+        $order = $order->fresh();
 
         return response()->json([
             'status' => 1,
-            'message' => 'Payment status updated successfully',
-            'data' => $order
+            'message' => $order->payment_status === 'completed' ? 'Payment successful' : 'Advance received. Balance is due after pickup.',
+            'data' => $order,
         ]);
     }
 

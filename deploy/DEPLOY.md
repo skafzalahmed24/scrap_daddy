@@ -22,7 +22,9 @@ Build the package with `php deploy/build-production.php` (creates `../scrap_dadd
 5. PHP 8.2 with: pdo_mysql, mbstring, openssl, fileinfo, gd, curl, zip.
 6. Optional (SSH): `php artisan config:cache && php artisan route:cache && php artisan view:cache`
    (re-run after every .env change).
-7. Admin > PIN Codes: add the PIN codes you serve.
+7. Admin > Service Areas: add the PIN codes you serve.
+8. Admin > Payment Settings: set advance payment (on/off + %), and enable Razorpay / UPI / bank / cash.
+   Razorpay needs `RAZORPAY_KEY` and `RAZORPAY_SECRET` in `.env` (the app and website now take the key from the server).
 
 ## Checks
 - `https://your-domain/.env` must show 403/404.

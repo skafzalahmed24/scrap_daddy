@@ -103,13 +103,19 @@ class OrderController extends Controller
     // Admin Methods
     public function adminIndex(Request $request)
     {
-        $query = Order::with('user')->latest();
+        $query = Order::with(['user', 'category', 'subcategory'])->latest();
+
+        $status = $request->input('status');
+        if (in_array($status, ['pending', 'accepted', 'completed', 'cancelled'], true)) {
+            $query->where('status', $status);
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
             // Grouped so the search never bypasses other conditions
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
+                    ->orWhere('pin_code', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($uq) use ($search) {
                         $uq->where('full_name', 'like', "%{$search}%")
                             ->orWhere('phone_number', 'like', "%{$search}%");
@@ -118,10 +124,10 @@ class OrderController extends Controller
         }
 
         $orders = $query->paginate(15)->withQueryString();
+        $counts = Order::selectRaw('status, COUNT(*) as c')->groupBy('status')->pluck('c', 'status');
 
-        return view('admin.orders.index', compact('orders'));
+        return view('admin.orders.index', compact('orders', 'counts'));
     }
-
     public function updateStatus(Request $request, $id)
     {
         $order = Order::findOrFail($id);
@@ -144,9 +150,10 @@ class OrderController extends Controller
             $order->estimated_pickup_date = $request->estimated_pickup_date;
         }
 
-        if ($request->status === 'completed' && $request->filled('total_amount') && $order->payment_status !== 'completed') {
+        // The amount can be set before completion too (needed for the advance payment); a partially paid order stays 'partial'
+        if ($request->filled('total_amount') && $order->payment_status !== 'completed' && $request->status !== 'cancelled') {
             $order->total_amount = $request->total_amount;
-            $order->payment_status = 'pending';
+            $order->payment_status = (float) $order->paid_amount > 0 ? 'partial' : 'pending';
 
             // Rewards are only credited after a successful payment (OrderPaymentService::markPaid)
             if ((int) $order->coins_earned === 0) {
@@ -158,7 +165,8 @@ class OrderController extends Controller
         }
 
         $order->save();
+        OrderPaymentService::settleIfCovered($order);
 
-        return redirect()->back()->with('success', 'Order status updated.');
+        return redirect()->back()->with('success', 'Order updated.');
     }
 }

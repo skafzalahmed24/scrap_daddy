@@ -103,4 +103,35 @@ class SupportReferralTest extends TestCase
             ->assertJson(["status" => 1, "data" => ["display_title" => "Paper", "display_image" => "subcategories/news.png"]])
             ->assertJsonPath("data.items_with_images.0.image", "subcategories/news.png");
     }
+
+    public function test_new_login_replaces_old_one_and_old_device_is_told_why(): void
+    {
+        $user = $this->makeUser("9000000021", ["password" => "Secret#123"]);
+
+        $login = fn () => $this->postJson("/api/customer/login", ["phone_number" => "9000000021", "password" => "Secret#123", "platform_type" => 1]);
+        $first = $login()->assertJson(["status" => 1])->json("data.access_token");
+        $this->withToken($first)->postJson("/api/customer/session-check")->assertJson(["status" => 1]);
+
+        $second = $login()->assertJson(["status" => 1])->json("data.access_token");
+        $this->app["auth"]->forgetGuards();
+        $this->flushSession(); // the mobile app has no cookies; drop the web session the login also created
+
+        $this->withToken($first)->postJson("/api/customer/session-check")
+            ->assertStatus(409)->assertJson(["code" => "session_replaced"]);
+        $this->app["auth"]->forgetGuards();
+        $this->flushSession();
+        $this->withToken($second)->postJson("/api/customer/session-check")->assertOk();
+    }
+
+    public function test_website_session_is_ended_when_logged_in_elsewhere(): void
+    {
+        $user = $this->makeUser("9000000022");
+        $user->forceFill(["login_marker" => "newer"])->save();
+
+        $this->actingAs($user)->withSession(["login_marker" => "older"])
+            ->getJson("/customer/session-check")->assertStatus(401)->assertJson(["code" => "session_replaced"]);
+
+        $this->actingAs($user)->withSession(["login_marker" => "newer"])
+            ->getJson("/customer/session-check")->assertOk()->assertJson(["active" => true]);
+    }
 }

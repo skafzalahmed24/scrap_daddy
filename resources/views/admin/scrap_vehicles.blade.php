@@ -1,223 +1,73 @@
 @extends('layouts.admin')
 
-@section('title', 'Scrap Vehicles - Scrap Daddy')
+@section('title', 'Scrap Vehicles')
 
-@push('styles')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css">
-    <style>
-        .vehicle-img {
-            width: 80px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-    </style>
-@endpush
+@php
+    $img = fn ($t) => asset('img/vehicles/'.(['Bike' => 'bike', 'Auto' => 'auto', 'Car' => 'car', 'Heavy Load' => 'heavy'][$t] ?? 'car').'.png');
+    $pill = fn ($s) => '<span class="pr-pill pill-'.e($s).'">'.e(ucfirst($s)).'</span>';
+    $tabs = ['' => 'All', 'pending' => 'Pending', 'completed' => 'Completed'];
+    $active = request('status', '');
+@endphp
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="page-title mb-0">Scrap Vehicles</h1>
+<div class="mb-3">
+    <h1 class="page-title mb-1">Scrap Vehicles</h1>
+    <div class="pr-sub">Vehicle scrap requests from the app and website</div>
 </div>
 
-<div class="card shadow-sm border-0 rounded-3 mb-4">
-    <div class="card-body">
-        <form action="{{ route('admin.scrap-vehicles.index') }}" method="GET" class="d-flex gap-2">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                <input type="text" name="search" class="form-control border-start-0" placeholder="Search by Vehicle Number, Brand, Type or Customer..." value="{{ request('search') }}">
-            </div>
-            <select name="status" class="form-select w-auto">
-                <option value="">All Statuses</option>
-                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-            </select>
-            <button type="submit" class="btn btn-primary px-4">Search</button>
-            @if(request('search') || request('status'))
-                <a href="{{ route('admin.scrap-vehicles.index') }}" class="btn btn-light px-3">Clear</a>
-            @endif
-        </form>
+{{-- counts --}}
+<div class="pr-kpis" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));">
+    <div class="pr-kpi"><div class="ic ic-slate"><i class="fa-solid fa-truck-monster"></i></div><div class="lbl">All requests</div><div class="val">{{ $counts->sum() }}</div></div>
+    <div class="pr-kpi"><div class="ic ic-amber"><i class="fa-solid fa-clock"></i></div><div class="lbl">Pending</div><div class="val">{{ $counts['pending'] ?? 0 }}</div></div>
+    <div class="pr-kpi"><div class="ic ic-green"><i class="fa-solid fa-check"></i></div><div class="lbl">Completed</div><div class="val">{{ $counts['completed'] ?? 0 }}</div></div>
+    @foreach(['Bike', 'Auto', 'Car', 'Heavy Load'] as $t)
+        <div class="pr-kpi"><img src="{{ $img($t) }}" alt="" style="height:42px;width:auto;margin-bottom:8px;display:block;"><div class="lbl">{{ $t }}</div><div class="val">{{ $typeCounts[$t] ?? 0 }}</div></div>
+    @endforeach
+</div>
+
+<div class="pr-tabs">
+    @foreach($tabs as $key => $label)
+        <a class="pr-tab {{ $active === $key ? 'active' : '' }}" href="{{ route('admin.scrap-vehicles.index', array_filter(['status' => $key, 'search' => request('search')])) }}">
+            {{ $label }} <b>{{ $key === '' ? $counts->sum() : ($counts[$key] ?? 0) }}</b>
+        </a>
+    @endforeach
+</div>
+
+<div class="pr-card mb-3" style="padding:14px 16px;">
+    <form action="{{ route('admin.scrap-vehicles.index') }}" method="GET" class="d-flex gap-2">
+        @if($active)<input type="hidden" name="status" value="{{ $active }}">@endif
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+            <input type="text" name="search" class="form-control border-start-0" placeholder="Search by vehicle number, brand, model, customer or phone" value="{{ request('search') }}">
+        </div>
+        <button type="submit" class="btn btn-primary px-4">Search</button>
+        @if(request('search'))<a href="{{ route('admin.scrap-vehicles.index', array_filter(['status' => $active])) }}" class="btn btn-light">Clear</a>@endif
+    </form>
+</div>
+
+<div class="pr-card" style="padding:0;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th class="ps-4">Vehicle</th><th>Customer</th><th>Requested</th><th>Status</th><th class="pe-4 text-end">Action</th></tr></thead>
+            <tbody>
+            @forelse($vehicles as $v)
+                <tr>
+                    <td class="ps-4"><div class="pr-person"><img class="pr-thumb" src="{{ $img($v->vehicle_type) }}" alt=""><div><b>{{ $v->vehicle_number }}</b><small>{{ $v->vehicle_type }} &middot; {{ $v->vehicle_model ?: '-' }}</small></div></div></td>
+                    <td><div class="pr-person"><div class="pr-avatar">{{ strtoupper(mb_substr($v->user->full_name ?? 'C', 0, 1)) }}</div><div><b>{{ $v->user->full_name ?? 'Customer' }}</b><small>{{ $v->user->phone_number ?? '' }}</small></div></div></td>
+                    <td>{{ $v->created_at->format('d M Y') }}<div class="pr-sub">{{ $v->created_at->diffForHumans() }}</div></td>
+                    <td>{!! $pill($v->status) !!}</td>
+                    <td class="pe-4 text-end"><a class="btn-view text-decoration-none" href="{{ route('admin.scrap-vehicles.show', $v->id) }}">View</a></td>
+                </tr>
+            @empty
+                <tr><td colspan="5"><div class="pr-empty"><i class="fa-solid fa-truck-monster fs-3 d-block mb-2"></i>No vehicle requests found.</div></td></tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 p-3 border-top" style="border-color:var(--pr-line)!important;">
+        <div class="pr-sub">Showing {{ $vehicles->firstItem() ?? 0 }} to {{ $vehicles->lastItem() ?? 0 }} of {{ $vehicles->total() }}</div>
+        {{ $vehicles->links('pagination::bootstrap-5') }}
     </div>
 </div>
 
-<div class="card shadow-sm border-0 rounded-3">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 text-nowrap">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">ID</th>
-                        <th>Customer</th>
-                        <th>Vehicle Details</th>
-                        <th>Remark</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th class="pe-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($vehicles as $vehicle)
-                    <tr>
-                        <td class="ps-4 fw-semibold text-muted">#{{ $vehicle->id }}</td>
-                        <td>
-                            @if($vehicle->user)
-                                <div class="fw-bold text-dark">{{ $vehicle->user->full_name }}</div>
-                                <div class="text-muted small">{{ $vehicle->user->phone_number }}</div>
-                            @else
-                                <span class="text-muted">Unknown</span>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="d-flex flex-column">
-                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle align-self-start mb-1">
-                                    {{ $vehicle->vehicle_type }}
-                                </span>
-                                <span class="fw-bold">{{ $vehicle->vehicle_number }}</span>
-                                @if($vehicle->vehicle_brand || $vehicle->vehicle_model)
-                                    <small class="text-muted">{{ $vehicle->vehicle_brand }} {{ $vehicle->vehicle_model }}</small>
-                                @endif
-                            </div>
-                        </td>
-                        <td>
-                            <span class="text-wrap d-inline-block" style="max-width: 200px;">
-                                {{ $vehicle->remark ?: '-' }}
-                            </span>
-                        </td>
-                        <td>
-                            @if($vehicle->status == 'completed')
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">Completed</span>
-                            @else
-                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">Pending</span>
-                            @endif
-                        </td>
-                        <td>
-                            <div>{{ $vehicle->created_at->format('d M, Y') }}</div>
-                            <small class="text-muted">{{ $vehicle->created_at->format('h:i A') }}</small>
-                        </td>
-                        <td class="pe-4">
-                            <div class="d-flex gap-2">
-                                @if($vehicle->photos && is_array($vehicle->photos) && count($vehicle->photos) > 0)
-                                    <button class="btn btn-sm btn-outline-secondary view-photos-btn" data-photos="{{ json_encode($vehicle->photos) }}">
-                                        <i class="fa-solid fa-image"></i> Photos
-                                    </button>
-                                @endif
-                                
-                                @if($vehicle->status != 'completed')
-                                    <button class="btn btn-sm btn-success mark-completed-btn" data-id="{{ $vehicle->id }}">
-                                        <i class="fa-solid fa-check"></i> Complete
-                                    </button>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            No scrap vehicles found.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="card-footer bg-white border-top py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-            <div class="text-muted small fw-medium">
-                Showing {{ $vehicles->firstItem() ?? 0 }} to {{ $vehicles->lastItem() ?? 0 }} of {{ $vehicles->total() }} entries
-            </div>
-            <div class="m-0">
-                {{ $vehicles->appends(request()->query())->links('pagination::bootstrap-5') }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Details Modal -->
-<div class="modal fade" id="vehicleModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Vehicle Photos</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="photosContainer" class="d-flex flex-wrap gap-2 justify-content-center">
-            <!-- photos injected here -->
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 @endsection
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = new bootstrap.Modal(document.getElementById('vehicleModal'));
-        const photosContainer = document.getElementById('photosContainer');
-
-        // View Photos
-        document.querySelectorAll('.view-photos-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const photos = JSON.parse(this.dataset.photos);
-                photosContainer.innerHTML = '';
-                
-                if (photos.length > 0) {
-                    photos.forEach(photo => {
-                        const img = document.createElement('img');
-                        img.src = "{{ asset('') }}" + photo;
-                        img.className = 'img-fluid border rounded m-1';
-                        img.style.maxHeight = '300px';
-                        photosContainer.appendChild(img);
-                    });
-                } else {
-                    photosContainer.innerHTML = '<p class="text-muted">No photos available.</p>';
-                }
-                
-                modal.show();
-            });
-        });
-
-        // Mark Completed
-        document.querySelectorAll('.mark-completed-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.dataset.id;
-                
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Mark this vehicle as completed?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, complete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch("{{ url('/api/admin/scrap-vehicles/status') }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ id: id, status: 'completed' })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === 1) {
-                                Swal.fire('Completed!', 'Vehicle marked as completed.', 'success')
-                                .then(() => window.location.reload());
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            Swal.fire('Error', 'Failed to update status', 'error');
-                        });
-                    }
-                });
-            });
-        });
-    });
-</script>
-@endpush
