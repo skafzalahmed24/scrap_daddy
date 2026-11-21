@@ -101,6 +101,18 @@
     <div class="kv total"><span>Balance due</span><b class="{{ $pay['remaining'] > 0 ? 'amber' : '' }}">{{ $inr($pay['remaining']) }}</b></div>
     @if(!empty($pay['advance']['enabled']))<div class="kv"><span>Advance policy</span><b>{{ rtrim(rtrim(number_format($pay['advance']['percent'], 2), '0'), '.') }}% advance, balance after pickup</b></div>@endif
 
+    @if(($pay['coins_redeemed'] ?? 0) > 0 || ($pay['coins_earned'] ?? 0) > 0)
+        <h3>Rewards</h3>
+        @if($pay['coins_redeemed'] > 0)
+            <div class="kv"><span>Coins used on this order</span><b>{{ number_format($pay['coins_redeemed']) }} coins</b></div>
+            <div class="kv"><span>Coin value</span><b>1 coin = {{ $inr($pay['coin_value']) }}</b></div>
+            <div class="kv"><span>Discount from coins</span><b class="green">- {{ $inr($pay['discount']) }}</b></div>
+        @endif
+        @if($pay['coins_earned'] > 0)
+            <div class="kv"><span>{{ $pay['coins_credited'] ? 'Coins earned (added to wallet)' : 'Coins to be earned after full payment' }}</span><b class="green">{{ number_format($pay['coins_earned']) }} coins</b></div>
+        @endif
+    @endif
+
     <h3>Payment transactions</h3>
     @forelse($payments as $n => $p)
         <div class="pay">

@@ -120,6 +120,8 @@
             <dl class="pr-kv">
                 <dt>Order amount</dt><dd>₹{{ number_format($pay['order_amount'], 2) }}</dd>
                 <dt>Reward discount</dt><dd>{{ $pay['discount'] > 0 ? '-₹'.number_format($pay['discount'], 2) : '-' }}</dd>
+                <dt>Coins used</dt><dd>{{ $pay['coins_redeemed'] > 0 ? number_format($pay['coins_redeemed']).' coins (1 coin = ₹'.rtrim(rtrim(number_format($pay['coin_value'], 2), '0'), '.').')' : '-' }}</dd>
+                <dt>Coins earned</dt><dd>@if($pay['coins_credited'])<span style="color:#2B7A3D;">{{ number_format($pay['coins_earned']) }} coins · credited to customer</span>@elseif($pay['coins_earned'] > 0)<span class="pr-sub">{{ number_format($pay['coins_earned']) }} coins · on full payment</span>@else - @endif</dd>
                 <dt>Payable total</dt><dd>₹{{ number_format($pay['total'], 2) }}</dd>
                 <dt>Received so far</dt><dd style="color:#2B7A3D;">₹{{ number_format($pay['paid'], 2) }}</dd>
                 <dt>Balance due</dt><dd>₹{{ number_format($pay['remaining'], 2) }}</dd>

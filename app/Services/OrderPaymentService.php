@@ -300,6 +300,11 @@ class OrderPaymentService
             'order_id' => $order->id,
             'order_amount' => (float) $order->total_amount,
             'discount' => (float) ($order->discount_applied ?? 0),
+            // rewards on this order: coins spent as discount, and coins earned (credited automatically once fully paid)
+            'coins_redeemed' => (int) ($order->coins_redeemed ?? 0),
+            'coin_value' => self::coinValue(),
+            'coins_earned' => (int) ($order->coins_earned ?? 0),
+            'coins_credited' => $order->payment_status === 'completed' && (int) ($order->coins_earned ?? 0) > 0,
             'total' => $due['total'],
             'paid' => $due['paid'],
             'remaining' => $due['remaining'],

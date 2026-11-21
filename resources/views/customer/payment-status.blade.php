@@ -56,6 +56,9 @@
         <div class="st-row"><span>Paid so far</span><b style="color:#2B7A3D;">₹{{ number_format($pay['paid'], 2) }}</b></div>
         @if($pay['remaining'] > 0)<div class="st-row"><span>Balance</span><b>₹{{ number_format($pay['remaining'], 2) }}</b></div>@endif
         <div class="st-row"><span>Status</span><b>{{ $pay['status_label'] }}</b></div>
+        @if($pay['coins_redeemed'] > 0)<div class="st-row"><span>Coins used</span><b>{{ number_format($pay['coins_redeemed']) }} coins (−₹{{ number_format($pay['discount'], 2) }})</b></div>@endif
+        @if($pay['coins_credited'])<div class="st-row"><span>Coins earned</span><b style="color:#B7770A;">{{ number_format($pay['coins_earned']) }} coins · added to your rewards</b></div>
+        @elseif($pay['coins_earned'] > 0)<div class="st-row"><span>Coins to earn</span><b>{{ number_format($pay['coins_earned']) }} coins after full payment</b></div>@endif
     </div>
 
     @if($status === 'verifying')
