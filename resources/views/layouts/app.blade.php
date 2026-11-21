@@ -25,6 +25,8 @@
 </head>
 
 <body>
+    <!-- Page loader (same idea as the app's loader): shows until the page is ready and while moving between pages -->
+    <div id="sdPageLoader" class="sd-loader" aria-hidden="true"><div class="sd-loader-box"><img src="{{ asset('green_truck.png') }}" alt="" class="sd-loader-truck"><div class="sd-loader-bar"><span></span></div></div></div>
 
     @include('layouts.header')
 
@@ -84,6 +86,27 @@
     </script>
 
     @stack('scripts')
+    <script>
+        (function () {
+            var l = document.getElementById('sdPageLoader');
+            if (!l) return;
+            var timer = null;
+            var hide = function () { clearTimeout(timer); l.classList.add('is-hidden'); };
+            // hide as soon as the HTML is ready (not after every image) and never longer than 1.2 s
+            if (document.readyState !== 'loading') hide(); else document.addEventListener('DOMContentLoaded', hide);
+            setTimeout(hide, 1200);
+            window.addEventListener('pageshow', hide);
+            document.addEventListener('click', function (e) {
+                var a = e.target.closest && e.target.closest('a[href]');
+                if (!a || a.target === '_blank' || e.ctrlKey || e.metaKey || e.shiftKey) return;
+                var h = a.getAttribute('href') || '';
+                if (!h || h.charAt(0) === '#' || /^(mailto:|tel:|javascript:)/i.test(h)) return;
+                if (a.origin && a.origin !== location.origin) return;
+                // only show for slow navigations (fast ones feel instant without a flash)
+                timer = setTimeout(function () { l.classList.remove('is-hidden'); }, 350);
+            });
+        })();
+    </script>
 
     <!-- Mobile Bottom Navigation Bar (Only visible on small screens, hidden on payment/checkout) -->
     @if((request()->is('customer*') || request()->is('/')) && !request()->is('customer/payment*'))
@@ -141,7 +164,7 @@
         }
 
         .bottom-nav .nav-item.active {
-            color: #2e7d32;
+            color: #4A9A58;
             font-weight: 700;
         }
 
@@ -150,7 +173,7 @@
             display: block;
             width: 5px;
             height: 5px;
-            background-color: #2e7d32;
+            background-color: #4A9A58;
             border-radius: 50%;
             margin: 3px auto 0 auto;
         }
@@ -163,7 +186,7 @@
         }
     </style>
     @endif
-    <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=4">
 </body>
 
 </html>

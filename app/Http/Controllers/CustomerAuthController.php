@@ -27,11 +27,11 @@ class CustomerAuthController extends Controller
      */
     private function generateOtp(): string
     {
-        if (app()->environment('production')) {
-            return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        if (config('app.static_otp')) {
+            return '123456';
         }
 
-        return '123456';
+        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 
     private function logOtp(string $label, User $user, string $otp): void
@@ -58,6 +58,7 @@ class CustomerAuthController extends Controller
             'device_unique_id' => 'nullable|string|max:255',
             'device_details' => 'nullable|string',
             'platform_type' => 'required|integer|in:1,2,3',
+            'referral_code' => 'nullable|string|max:12',
         ]);
 
         if ($validator->fails()) {
@@ -68,6 +69,18 @@ class CustomerAuthController extends Controller
                     'errors' => $validator->errors()
                 ]
             ], 200);
+        }
+
+        $referrer = null;
+        if ($request->filled('referral_code')) {
+            $referrer = \App\Services\ReferralService::findReferrer($request->referral_code);
+            if (!$referrer) {
+                return response()->json([
+                    'status' => 0,
+                    'message' => 'This referral code is not valid.',
+                    'data' => ['errors' => ['referral_code' => ['This referral code is not valid.']]],
+                ], 200);
+            }
         }
 
         $otp = $this->generateOtp();
@@ -90,6 +103,9 @@ class CustomerAuthController extends Controller
             'is_verified' => false,
             'otp_expires_at' => Carbon::now()->addMinutes(10),
         ];
+        if ($referrer) {
+            $userData['referred_by'] = $referrer->uuid;
+        }
 
         if ($existingUser) {
             $existingUser->update($userData);

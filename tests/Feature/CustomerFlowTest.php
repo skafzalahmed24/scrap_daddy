@@ -150,7 +150,8 @@ class CustomerFlowTest extends TestCase
 
         $this->withToken($token)->postJson('/api/customer/scrap-vehicles', ['vehicle_type' => 'Spaceship', 'vehicle_number' => 'MP04 DK 9834'])->assertJson(['status' => 0]);
         $this->withToken($token)->postJson('/api/customer/scrap-vehicles', ['vehicle_type' => 'Car', 'vehicle_number' => '@@'])->assertJson(['status' => 0]);
-        $this->withToken($token)->postJson('/api/customer/scrap-vehicles', ['vehicle_type' => 'Car', 'vehicle_number' => 'MP04 DK 9834'])->assertJson(['status' => 1]);
+        $this->withToken($token)->postJson('/api/customer/scrap-vehicles', ['vehicle_type' => 'Car', 'vehicle_number' => 'MP04 DK 9834'])->assertJson(['status' => 0]);
+        $this->withToken($token)->postJson('/api/customer/scrap-vehicles', ['vehicle_type' => 'Car', 'vehicle_number' => 'MP04 DK 9834', 'vehicle_model' => 'Civic 2019'])->assertJson(['status' => 1]);
     }
 
     private function orderPayload(string $subUuid, ?string $pin): array

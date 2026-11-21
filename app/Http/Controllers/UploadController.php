@@ -12,7 +12,14 @@ class UploadController extends Controller
     {
         $request->validate([
             'images' => 'required|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120', // max 5MB per image
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048', // max 2MB per image
+        ], [
+            'images.required' => 'Please choose at least one image.',
+            'images.max' => 'You can upload a maximum of 10 images.',
+            'images.*.image' => 'Only image files are allowed (JPG, PNG, GIF or WEBP).',
+            'images.*.mimes' => 'Only JPG, PNG, GIF or WEBP images are allowed.',
+            'images.*.max' => 'Each image must be 2 MB or smaller.',
+            'images.*.uploaded' => 'The image could not be uploaded. It may be larger than 2 MB.',
         ]);
 
         $uploadedPaths = [];

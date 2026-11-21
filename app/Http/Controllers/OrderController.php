@@ -25,12 +25,18 @@ class OrderController extends Controller
             ->where('user_uuid', auth()->user()->uuid)
             ->findOrFail($id);
 
-        return view('customer.order-details', compact('order'));
+        // Category images for each ordered item (items only store uuid + name)
+        $uuids = collect($order->items ?? [])->pluck('subcategory_uuid')->filter()->unique()->values();
+        $itemImages = $uuids->isEmpty()
+            ? collect()
+            : \App\Models\Subcategory::whereIn('uuid', $uuids)->pluck('image', 'uuid');
+
+        return view('customer.order-details', compact('order', 'itemImages'));
     }
 
     public function create()
     {
-        $subcategories = \App\Models\Subcategory::where('status', true)->get();
+        $subcategories = \App\Models\Subcategory::with('category')->where('status', true)->get();
         $user = auth()->user();
         $coinValue = OrderPaymentService::coinValue();
 

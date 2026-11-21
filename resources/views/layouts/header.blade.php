@@ -86,8 +86,12 @@
             <!-- Right: Contact Info -->
             <div
                 class="nav-contact-info d-flex flex-column flex-custom-row gap-3 gap-custom-4 text-nowrap mt-4 mt-custom-0">
-                <span><i class="fa-solid fa-phone-volume"></i> 1800-SCRAP-NOW</span>
-                <span><i class="fa-regular fa-envelope"></i> support@scrapdaddy.com</span>
+                @if($site['toll_free'] ?: $site['phone'])
+                <span><i class="fa-solid fa-phone-volume"></i> {{ $site['toll_free'] ?: $site['phone'] }}</span>
+                @endif
+                @if($site['email'])
+                <span><i class="fa-regular fa-envelope"></i> {{ $site['email'] }}</span>
+                @endif
             </div>
 
             <!-- Mobile Auth Buttons -->
@@ -141,7 +145,11 @@
         }
     });
 
-    async function logoutCustomer() {
+    function logoutCustomer() {
+        confirmLogout(doLogoutCustomer);
+    }
+
+    async function doLogoutCustomer() {
         const token = localStorage.getItem('auth_token');
         if (token) {
             try {
@@ -161,3 +169,4 @@
         window.location.href = "{{ url('/customer/logout-web') }}";
     }
 </script>
+@include('partials.logout-confirm')

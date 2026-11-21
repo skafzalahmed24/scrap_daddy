@@ -8,8 +8,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 
 Route::get('/', [HomeController::class, 'index']);
-Route::get('/explore-categories', [HomeController::class, 'categories'])->name('categories.explore');
-Route::get('/category/{id}', [HomeController::class, 'category'])->name('category.show');
+// The old "Category Explorer" page is gone: categories open the pickup page directly (category chips + items).
+Route::get('/explore-categories', fn () => redirect()->route('customer.orders.create'))->name('categories.explore');
+Route::get('/category/{id}', fn ($id) => redirect()->route('customer.orders.create', ['category' => $id]))->name('category.show');
 
 Route::get('/admin/login', function () {
     if (session('is_admin')) {
@@ -66,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/customer/categories', [\App\Http\Controllers\HomeController::class, 'categories'])->name('customer.categories');
 
+    Route::get('/customer/support', [\App\Http\Controllers\SupportController::class, 'supportPage'])->name('customer.support');
+    Route::post('/customer/support/ticket', [\App\Http\Controllers\SupportController::class, 'webCreateTicket'])->name('customer.support.ticket');
+    Route::get('/customer/refer', [\App\Http\Controllers\SupportController::class, 'referPage'])->name('customer.refer');
+
     Route::get('/customer/rewards', function () {
         return view('customer.rewards');
     })->name('customer.rewards');
@@ -110,6 +115,16 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/page/{slug}', [PageController::class, 'show'])->name('page.show');
 
 Route::middleware('admin')->group(function () {
+// "Service not available in my area" requests + admin notification feed
+Route::get('/admin/service-requests', [\App\Http\Controllers\ServiceRequestController::class, 'adminIndex'])->name('admin.service-requests.index');
+Route::post('/admin/service-requests/{id}/status', [\App\Http\Controllers\ServiceRequestController::class, 'adminUpdateStatus'])->name('admin.service-requests.status');
+Route::delete('/admin/service-requests/{id}', [\App\Http\Controllers\ServiceRequestController::class, 'adminDestroy'])->name('admin.service-requests.destroy');
+Route::get('/admin/notifications', [\App\Http\Controllers\ServiceRequestController::class, 'adminNotifications'])->name('admin.notifications');
+
+// Site settings (address, contact, social links)
+Route::get('/admin/settings', [\App\Http\Controllers\AdminSettingsController::class, 'index'])->name('admin.settings.index');
+Route::post('/admin/settings', [\App\Http\Controllers\AdminSettingsController::class, 'update'])->name('admin.settings.update');
+
 // Categories Admin View
 Route::get('/admin/categories', function () {
     return view('admin.categories');
@@ -134,6 +149,9 @@ Route::get('/admin/rewards', function () {
 // Admin Orders, Feedback & Pages
 Route::get('/admin/orders', [OrderController::class, 'adminIndex'])->name('admin.orders.index');
 Route::post('/admin/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.status');
+
+Route::get('/admin/tickets', [App\Http\Controllers\AdminTicketController::class, 'index'])->name('admin.tickets.index');
+Route::post('/admin/tickets/{id}', [App\Http\Controllers\AdminTicketController::class, 'update'])->name('admin.tickets.update');
 
 Route::get('/admin/pincodes', [App\Http\Controllers\AdminPincodeController::class, 'index'])->name('admin.pincodes.index');
 Route::post('/admin/pincodes', [App\Http\Controllers\AdminPincodeController::class, 'store'])->name('admin.pincodes.store');

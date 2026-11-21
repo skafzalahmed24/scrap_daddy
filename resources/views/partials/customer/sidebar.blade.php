@@ -23,7 +23,7 @@
                 <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
                 <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>
                 <li><a href="{{ route('customer.faqs') }}" class="{{ request()->is('customer/faqs') ? 'active' : '' }}"><i class="fa-regular fa-circle-question"></i> FAQs</a></li>
-                <li><a href="{{ route('page.show', 'help-and-support') }}" class="{{ request()->is('page/help-and-support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
+                <li><a href="{{ route('customer.support') }}" class="{{ request()->is('customer/support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
                 <li><a href="{{ route('page.show', 'privacy-policy') }}" class="{{ request()->is('page/privacy-policy') ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a></li>
                 <li><a href="{{ route('page.show', 'terms-and-conditions') }}" class="{{ request()->is('page/terms-and-conditions') ? 'active' : '' }}"><i class="fa-regular fa-file-lines"></i> Terms & Conditions</a></li>
                 <li><a href="#" onclick="event.preventDefault(); logoutCustomer();" class="text-danger mt-4"><i class="fa-solid fa-arrow-right-from-bracket text-danger"></i> Logout</a></li>
@@ -34,7 +34,7 @@
 
 <!-- Mobile Sidebar Toggle (Hidden because bottom nav is used) -->
 <div class="col-12 d-none mb-2">
-    <button class="btn w-100 fw-bold shadow-sm py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" style="border: 1px solid var(--primary-green, #1b5e20); color: var(--primary-green, #1b5e20); background: #fff;">
+    <button class="btn w-100 fw-bold shadow-sm py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" style="border: 1px solid var(--primary-green, #3D8B4D); color: var(--primary-green, #3D8B4D); background: #fff;">
         <i class="fa-solid fa-bars me-2"></i> Menu
     </button>
 </div>
@@ -56,7 +56,7 @@
             <li><a href="{{ route('customer.scrap_vehicles') }}" class="{{ request()->is('customer/scrap-vehicles') ? 'active' : '' }}"><i class="fa-solid fa-car-side"></i> Scrap Vehicles</a></li>
             <li><a href="{{ route('customer.payments') }}" class="{{ request()->is('customer/payments') ? 'active' : '' }}"><i class="fa-regular fa-credit-card"></i> Payments</a></li>
             <li><a href="{{ route('customer.faqs') }}" class="{{ request()->is('customer/faqs') ? 'active' : '' }}"><i class="fa-regular fa-circle-question"></i> FAQs</a></li>
-            <li><a href="{{ route('page.show', 'help-and-support') }}" class="{{ request()->is('page/help-and-support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
+            <li><a href="{{ route('customer.support') }}" class="{{ request()->is('customer/support') ? 'active' : '' }}"><i class="fa-solid fa-headset"></i> Help & Support</a></li>
             <li><a href="{{ route('page.show', 'privacy-policy') }}" class="{{ request()->is('page/privacy-policy') ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a></li>
             <li><a href="{{ route('page.show', 'terms-and-conditions') }}" class="{{ request()->is('page/terms-and-conditions') ? 'active' : '' }}"><i class="fa-regular fa-file-lines"></i> Terms & Conditions</a></li>
             <li><a href="#" onclick="event.preventDefault(); logoutCustomer();" class="text-danger mt-4"><i class="fa-solid fa-arrow-right-from-bracket text-danger"></i> Logout</a></li>

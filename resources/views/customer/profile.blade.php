@@ -42,7 +42,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold mb-0" style="color: var(--primary-blue, #0d2b4d);"></h4>
-                    <button class="btn text-white fw-bold shadow-sm px-4" style="background-color: var(--primary-green, #1b5e20); border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                    <button class="btn text-white fw-bold shadow-sm px-4" style="background-color: var(--primary-green, #3D8B4D); border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                         <i class="fa-solid fa-pen me-2"></i> Edit
                     </button>
                 </div>
@@ -63,7 +63,7 @@
                 <div class="text-center mb-5 mt-4">
                     <div class="position-relative d-inline-block">
                         <img src="{{ $user->profile_image ? asset($user->profile_image) : 'https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?w=250' }}" alt="Profile" class="rounded-circle shadow" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #fff;">
-                        <button class="btn btn-sm text-white position-absolute bottom-0 end-0 rounded-circle shadow" style="background-color: var(--primary-green, #1b5e20); width: 36px; height: 36px;" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <button class="btn btn-sm text-white position-absolute bottom-0 end-0 rounded-circle shadow" style="background-color: var(--primary-green, #3D8B4D); width: 36px; height: 36px;" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                             <i class="fa-solid fa-camera"></i>
                         </button>
                     </div>
@@ -104,7 +104,7 @@
                 <div class="text-center mb-4 mt-4">
                     <div class="position-relative d-inline-block">
                         <img src="{{ $user->profile_image ? asset($user->profile_image) : 'https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?w=250' }}" alt="Profile" class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #fff;">
-                        <button class="btn btn-sm text-white position-absolute bottom-0 end-0 rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="background-color: var(--primary-green, #1b5e20); width: 30px; height: 30px; border: 2px solid #fff;" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <button class="btn btn-sm text-white position-absolute bottom-0 end-0 rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="background-color: var(--primary-green, #3D8B4D); width: 30px; height: 30px; border: 2px solid #fff;" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                             <i class="fa-solid fa-camera" style="font-size: 0.75rem;"></i>
                         </button>
                     </div>
@@ -164,7 +164,7 @@
                     </a>
 
                     <a href="{{ route('customer.payments') }}" class="profile-menu-item">
-                        <div class="profile-icon-box" style="background-color: rgba(46, 125, 50, 0.1); color: #2e7d32;">
+                        <div class="profile-icon-box" style="background-color: rgba(74,154,88, 0.1); color: #4A9A58;">
                             <i class="fa-regular fa-credit-card"></i>
                         </div>
                         <span class="profile-menu-label">Payments</span>
@@ -179,7 +179,7 @@
                         <i class="fa-solid fa-chevron-right profile-chevron"></i>
                     </a>
 
-                    <a href="{{ route('page.show', 'help-and-support') }}" class="profile-menu-item">
+                    <a href="{{ route('customer.support') }}" class="profile-menu-item">
                         <div class="profile-icon-box" style="background-color: rgba(251, 188, 4, 0.1); color: #fbbc04;">
                             <i class="fa-solid fa-headset"></i>
                         </div>
@@ -283,7 +283,7 @@
             </div>
             <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
                 <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn text-white rounded-pill px-4 fw-bold shadow-sm" style="background-color: var(--primary-green, #1b5e20);">Save Changes</button>
+                <button type="submit" class="btn text-white rounded-pill px-4 fw-bold shadow-sm" style="background-color: var(--primary-green, #3D8B4D);">Save Changes</button>
             </div>
         </form>
     </div>

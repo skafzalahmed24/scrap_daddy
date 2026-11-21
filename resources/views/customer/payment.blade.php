@@ -158,7 +158,7 @@
     /* Rewards box */
     .rewards-apply-box {
         background: #ffffff;
-        border: 1.5px dashed #2e7d32;
+        border: 1.5px dashed #4A9A58;
         border-radius: 16px;
         padding: 16px 18px;
         margin-top: 18px;
@@ -226,12 +226,12 @@
     <div class="rewards-apply-box">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="fw-bold mb-1 fs-6" style="color: #2e7d32;"><i class="bi bi-stars me-1"></i> Available Rewards</h3>
+                <h3 class="fw-bold mb-1 fs-6" style="color: #4A9A58;"><i class="bi bi-stars me-1"></i> Available Rewards</h3>
                 <p class="text-muted small mb-0">Use <strong>{{ $user->reward_coins }}</strong> coins for ₹{{ number_format($user->reward_coins * $coinValue, 1) }} off</p>
             </div>
             <form action="{{ route('customer.payment.apply-rewards', $order->id) }}" method="POST" class="m-0">
                 @csrf
-                <button type="submit" class="btn btn-sm text-white fw-bold px-3 py-1 rounded-pill" style="background-color: #2e7d32;">Apply</button>
+                <button type="submit" class="btn btn-sm text-white fw-bold px-3 py-1 rounded-pill" style="background-color: #4A9A58;">Apply</button>
             </form>
         </div>
     </div>

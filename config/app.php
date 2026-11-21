@@ -45,6 +45,13 @@ return [
     'debug' => (bool) env('APP_DEBUG', false),
 
     /*
+    | Static OTP (123456) for testing before an SMS provider is connected.
+    | On by default everywhere except production; set STATIC_OTP=true to force it on in production
+    | (anyone can then log in to any account with 123456), or false to force it off.
+    */
+    'static_otp' => filter_var(env('STATIC_OTP', env('APP_ENV', 'production') !== 'production'), FILTER_VALIDATE_BOOLEAN),
+
+    /*
     |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------

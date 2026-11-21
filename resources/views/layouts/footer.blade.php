@@ -11,13 +11,26 @@
                         <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 60px;">
                     </a>
                     <p class="text-muted mb-4" style="font-size: 0.95rem;">
-                        We deliver trusted wholesale sourcing & global shipping solutions for businesses worldwide.
+                        {{ $site['footer_about'] }}
                     </p>
+                    @php
+                        $waDigits = preg_replace('/\D+/', '', $site['whatsapp'] ?? '');
+                        $socials = array_filter([
+                            ['url' => $site['instagram'], 'icon' => 'fa-instagram', 'label' => 'Instagram'],
+                            ['url' => $site['facebook'], 'icon' => 'fa-facebook-f', 'label' => 'Facebook'],
+                            ['url' => $site['youtube'], 'icon' => 'fa-youtube', 'label' => 'YouTube'],
+                            ['url' => $site['twitter'], 'icon' => 'fa-x-twitter', 'label' => 'X (Twitter)'],
+                            ['url' => $site['linkedin'], 'icon' => 'fa-linkedin-in', 'label' => 'LinkedIn'],
+                            ['url' => $waDigits ? 'https://wa.me/' . $waDigits : '', 'icon' => 'fa-whatsapp', 'label' => 'WhatsApp'],
+                        ], fn ($s) => !empty($s['url']));
+                    @endphp
+                    @if(count($socials))
                     <div class="d-flex gap-3">
-                        <a href="#" style="color: var(--primary-blue); font-size: 1.2rem;"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" style="color: var(--primary-blue); font-size: 1.2rem;"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" style="color: var(--primary-blue); font-size: 1.2rem;"><i class="fa-brands fa-youtube"></i></a>
+                        @foreach($socials as $s)
+                            <a href="{{ $s['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $s['label'] }}" title="{{ $s['label'] }}" style="color: var(--primary-blue); font-size: 1.2rem;"><i class="fa-brands {{ $s['icon'] }}"></i></a>
+                        @endforeach
                     </div>
+                    @endif
                 </div>
 
                 <!-- Column 2: My Account / Links -->
@@ -37,17 +50,21 @@
                     <h5 class="fw-bold mb-4" style="color: #000;">Contact Us</h5>
                     <div class="mb-3">
                         <small class="text-muted d-block">Our Address</small>
-                        <strong class="d-block" style="color: #000;">Scrap Daddy Trading Co. Ltd.</strong>
-                        <span class="text-muted" style="font-size: 0.9rem;">No 42, 1st Main Road, Tech Park Layout,<br>Koramangala, Bengaluru, Karnataka.<br>India - 560034</span>
+                        <strong class="d-block" style="color: #000;">{{ $site['company_name'] }}</strong>
+                        <span class="text-muted" style="font-size: 0.9rem;">{{ $site['address_line1'] }},@if($site['address_line2'])<br>{{ $site['address_line2'] }},@endif<br>{{ $site['city'] }}, {{ $site['state'] }}.<br>{{ $site['country'] }} - {{ $site['pincode'] }}</span>
                     </div>
+                    @if($site['email'])
                     <div class="mb-3">
                         <small class="text-muted d-block">Send Mail</small>
-                        <strong style="color: #000;">support@scrapdaddy.com</strong>
+                        <a href="mailto:{{ $site['email'] }}" class="text-decoration-none"><strong style="color: #000;">{{ $site['email'] }}</strong></a>
                     </div>
+                    @endif
+                    @if($site['phone'])
                     <div>
                         <small class="text-muted d-block">Call</small>
-                        <strong style="color: #000;">+91 80 4123 5678</strong>
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $site['phone']) }}" class="text-decoration-none"><strong style="color: #000;">{{ $site['phone'] }}</strong></a>
                     </div>
+                    @endif
                 </div>
 
             </div>
@@ -58,7 +75,7 @@
             <div class="container py-3">
                 <div class="row align-items-center">
                     <div class="col-md-6 text-center text-md-start">
-                        <span class="text-muted" style="font-size: 0.85rem;">Copyright &copy; {{ date('Y') }}. All right reserved @ scrapdaddy | v1.0.0</span>
+                        <span class="text-muted" style="font-size: 0.85rem;">Copyright &copy; {{ date('Y') }}. All rights reserved @ {{ $site['company_name'] }}</span>
                     </div>
                     <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
                         <a href="{{ route('page.show', 'terms-and-conditions') }}" class="text-muted text-decoration-none me-4" style="font-size: 0.85rem;">Terms & Conditions</a>

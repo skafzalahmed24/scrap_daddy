@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +29,10 @@ class AppServiceProvider extends ServiceProvider
         if (str_starts_with(config('app.url') ?? '', 'https://')) {
             URL::forceScheme('https');
         }
+
+        // $site = address / contact / social settings managed from Admin > Site Settings
+        View::composer('*', function ($view) {
+            $view->with('site', \App\Models\SiteSetting::values());
+        });
     }
 }

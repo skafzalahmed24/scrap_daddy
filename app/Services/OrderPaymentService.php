@@ -116,6 +116,12 @@ class OrderPaymentService
                 }
             }
 
+            // refer-a-friend bonus on the friend's first paid pickup
+            $payer = User::where('uuid', $order->user_uuid)->lockForUpdate()->first();
+            if ($payer) {
+                ReferralService::rewardOnFirstPaidOrder($payer);
+            }
+
             $order->save();
 
             return $order;

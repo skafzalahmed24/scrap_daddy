@@ -52,7 +52,7 @@
                             <i class="fa-solid fa-eye position-absolute top-50 end-0 translate-middle-y me-3 mt-3 text-muted" style="cursor: pointer;" onclick="togglePassword('new_password_confirmation', this)"></i>
                         </div>
                         
-                        <button type="submit" class="btn text-white rounded-pill px-4 py-2 fw-bold w-100 shadow-sm" style="background-color: var(--primary-green, #1b5e20);">Update Password</button>
+                        <button type="submit" class="btn text-white rounded-pill px-4 py-2 fw-bold w-100 shadow-sm" style="background-color: var(--primary-green, #3D8B4D);">Update Password</button>
                     </form>
                 </div>
             </div>

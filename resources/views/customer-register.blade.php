@@ -170,6 +170,21 @@
     setupPasswordToggle('desktopTogglePassword', 'desktopPassword');
     setupPasswordToggle('desktopToggleConfirmPassword', 'desktopPasswordConfirmation');
 
+    // Optional referral code field (prefilled from ?ref=CODE)
+    (function () {
+        const ref = (new URLSearchParams(location.search).get('ref') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+        ['registerForm', 'desktopRegisterForm'].forEach(id => {
+            const form = document.getElementById(id);
+            const btn = form && form.querySelector('button[type=submit]');
+            if (!btn) return;
+            const wrap = document.createElement('div');
+            wrap.className = 'custom-auth-input-group';
+            wrap.innerHTML = '<span class="input-icon"><i class="bi bi-gift"></i></span><input type="text" class="form-control-custom" name="referral_code" maxlength="12" placeholder="Referral code (optional)" autocomplete="off" style="text-transform:uppercase">';
+            wrap.querySelector('input').value = ref;
+            btn.parentNode.insertBefore(wrap, btn);
+        });
+    })();
+
     // Register Handler
     async function handleRegister(formElement, btnElement, alertElement) {
         const formData = new FormData(formElement);
@@ -244,6 +259,6 @@
         });
     }
 </script>
-<link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=1">
+<link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=4">
 </body>
 </html>

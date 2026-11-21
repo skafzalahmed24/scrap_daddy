@@ -35,7 +35,9 @@ Route::prefix('customer')->group(function () {
     Route::post('/categories', [CustomerAuthController::class, 'categories']);
     Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
     Route::post('/check-pincode', [CustomerAuthController::class, 'checkPincode']);
+    Route::post('/service-request', [\App\Http\Controllers\ServiceRequestController::class, 'store']);
     Route::post('/pages',[CustomerAuthController::class, 'page']);
+    Route::post('/support-info', [\App\Http\Controllers\SupportController::class, 'info']);
     Route::post('/faqs', [CustomerAuthController::class, 'faqs']);
     Route::post('/upload-images', [UploadController::class, 'uploadImages']);
 
@@ -60,6 +62,11 @@ Route::prefix('customer')->group(function () {
         
         // Rewards
         Route::post('/rewards/info', [CustomerAuthController::class, 'getRewardSettings']);
+
+        // Refer a friend + help & support tickets
+        Route::post('/referral', [\App\Http\Controllers\SupportController::class, 'referral']);
+        Route::post('/tickets/create', [\App\Http\Controllers\SupportController::class, 'createTicket']);
+        Route::post('/tickets', [\App\Http\Controllers\SupportController::class, 'myTickets']);
 
         // Scrap Vehicles
         Route::post('/scrap-vehicles', [ScrapVehicleController::class, 'store']);

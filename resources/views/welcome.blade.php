@@ -231,113 +231,13 @@
     <section class="container mt-5 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold m-0" style="color: #0d2b4d;">My Active Pickups</h4>
-            <a href="{{ route('customer.orders') }}" class="text-decoration-none fw-bold" style="color: #1b5e20;">View All <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            <a href="{{ route('customer.orders') }}" class="text-decoration-none fw-bold" style="color: #3D8B4D;">View All <i class="fa-solid fa-arrow-right ms-1"></i></a>
         </div>
         
         <div class="d-flex gap-3 overflow-auto pb-3" style="scrollbar-width: none;">
             @foreach($recentOrders as $order)
                 @if(in_array($order->status, ['pending', 'accepted']))
-                @php 
-                    $isAccepted = $order->status == 'accepted';
-                    $themeColor = $isAccepted ? '#4285f4' : '#2e7d32'; 
-                    $themeBg = $isAccepted ? 'rgba(66, 133, 244, 0.1)' : 'rgba(46, 125, 50, 0.1)';
-                @endphp
-                <!-- Active Tracker Card (Light Theme) -->
-                <div class="card border-0 bg-white flex-shrink-0 mb-2 rounded-4" style="box-shadow: 0 4px 20px rgba(0,0,0,0.05); min-width: 380px; max-width: 600px; width: 100%; border-left: 6px solid {{ $themeColor }} !important;">
-                    <div class="card-body p-4">
-                        <!-- Header -->
-                        <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
-                            <div class="d-flex gap-3 align-items-center">
-                                <div style="width: 50px; height: 50px; border-radius: 50%; background: {{ $themeBg }}; color: {{ $themeColor }}; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fa-solid fa-paper-plane fs-4"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-1 fw-bold" style="color: #0d2b4d;">Request Submitted</h5>
-                                    <p class="mb-0 text-muted" style="font-size: 0.9rem;">Pickup: <span class="fw-bold" style="color: {{ $themeColor }};">{{ $order->pickup_date == date('Y-m-d') ? 'Today' : \Carbon\Carbon::parse($order->pickup_date)->format('D, d M') }}</span></p>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('customer.orders') }}" class="btn btn-sm bg-white fw-bold d-flex align-items-center gap-2 px-3 py-2 shadow-sm text-decoration-none" style="color: #2e7d32; border: 1px solid rgba(46, 125, 50, 0.3); border-radius: 8px;">
-                                    <i class="fa-regular fa-eye"></i> View
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Stepper -->
-                        <div class="overflow-auto pb-3 mb-5 mt-4" style="scrollbar-width: none;">
-                            <div class="d-flex justify-content-between position-relative text-center" style="min-width: 450px;">
-                                <!-- connecting lines -->
-                                <div class="position-absolute" style="top: 15px; left: 10%; right: 10%; height: 2px; z-index: 1;">
-                                    <div class="d-flex w-100 h-100">
-                                        <div style="flex: 1; border-top: 2px solid #2e7d32;"></div>
-                                        <div style="flex: 1; border-top: 2px dashed {{ $isAccepted ? '#2e7d32' : '#e0e0e0' }};"></div>
-                                        <div style="flex: 1; border-top: 2px dashed #e0e0e0;"></div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Step 1: Submitted -->
-                                <div class="position-relative" style="z-index: 2; width: 25%;">
-                                    <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2e7d32; color: #2e7d32; background: #e8f5e9 !important;">
-                                        <i class="fa-solid fa-check fs-6"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #2e7d32;">Submitted</h6>
-                                </div>
-
-                                <!-- Step 2: Confirmed -->
-                                <div class="position-relative" style="z-index: 2; width: 25%;">
-                                    <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid {{ $isAccepted ? '#2e7d32' : '#fbbc04' }}; color: {{ $isAccepted ? '#2e7d32' : '#fbbc04' }}; background: {{ $isAccepted ? '#e8f5e9' : '#fff8e1' }} !important;">
-                                        <i class="fa-{{ $isAccepted ? 'solid fa-check' : 'regular fa-clock' }} fs-6"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: {{ $isAccepted ? '#2e7d32' : '#fbbc04' }};">Confirmed</h6>
-                                </div>
-
-                                <!-- Step 3: Assigned -->
-                                <div class="position-relative" style="z-index: 2; width: 25%;">
-                                    <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e0e0e0; color: #9e9e9e; background: #f5f5f5 !important;">
-                                        <i class="fa-solid fa-user fs-6"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #6c757d;">Assigned</h6>
-                                </div>
-
-                                <!-- Step 4: Completed -->
-                                <div class="position-relative" style="z-index: 2; width: 25%;">
-                                    <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-white" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e0e0e0; color: #9e9e9e; background: #f5f5f5 !important;">
-                                        <i class="fa-solid fa-flag fs-6"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.85rem; color: #6c757d;">Completed</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Box -->
-                        @php $progressWidth = $isAccepted ? 75 : 50; @endphp
-                        <div class="p-4 rounded-4 mb-3" style="background: rgba(46, 125, 50, 0.05); border: 1px solid rgba(46, 125, 50, 0.1);">
-                            <h6 class="fw-bold mb-4 text-dark text-center">
-                                {{ $isAccepted ? 'Team is on the way...' : 'Confirming your request...' }}
-                            </h6>
-                            
-                            <div class="position-relative w-100" style="margin-bottom: 25px;">
-                                <!-- Moving Truck on Progress Bar -->
-                                <div class="position-absolute" style="top: -28px; left: {{ $progressWidth }}%; transform: translateX(-50%); z-index: 2; transition: left 1s ease-in-out;">
-                                    <img src="{{ asset('icons8-truck.gif') }}" alt="truck" style="width: 48px; height: 48px; object-fit: contain;">
-                                </div>
-                                <!-- Progress Bar -->
-                                <div class="progress" style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: visible;">
-                                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ $progressWidth }}%; border-radius: 4px;" aria-valuenow="{{ $progressWidth }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-
-                            <p class="mb-0 text-muted text-center" style="font-size: 0.85rem;">{{ $isAccepted ? 'Your pickup request has been accepted. Our executive will reach you soon.' : 'Please wait for a while we are confirming your request. This may take 30 mins or more...' }}</p>
-                        </div>
-
-                        <!-- Footer Support -->
-                        <div class="text-center mt-3 pt-3">
-                            <a href="{{ route('page.show', 'help-and-support') }}" class="text-muted text-decoration-none fw-medium" style="font-size: 0.95rem;">
-                                <i class="fa-solid fa-headset me-2 text-success"></i>Need Support? We are happy to help
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                @include('partials.customer.pickup-tracker-card', ['order' => $order])
                 @endif
             @endforeach
         </div>
@@ -413,14 +313,14 @@
                     @forelse($subcategories->take(12) as $index => $sub)
                     <div class="col {{ $index >= 6 ? 'd-none d-md-flex' : 'd-flex' }} flex-column align-items-center mb-3">
                         <a href="{{ route('customer.orders.create') }}?subcategory={{ $sub->uuid }}" class="text-decoration-none text-center group"
-                           onmouseover="this.querySelector('.subcategory-circle').style.transform='translateY(-8px)'; this.querySelector('.subcategory-circle').style.boxShadow='0 15px 30px rgba(46,125,50,0.15)'; this.querySelector('.ring-overlay').style.borderColor='var(--primary-green)'; this.querySelector('h6').style.color='var(--primary-green)';"
+                           onmouseover="this.querySelector('.subcategory-circle').style.transform='translateY(-8px)'; this.querySelector('.subcategory-circle').style.boxShadow='0 15px 30px rgba(74,154,88,0.15)'; this.querySelector('.ring-overlay').style.borderColor='var(--primary-green)'; this.querySelector('h6').style.color='var(--primary-green)';"
                            onmouseout="this.querySelector('.subcategory-circle').style.transform='translateY(0)'; this.querySelector('.subcategory-circle').style.boxShadow='0 4px 15px rgba(0,0,0,0.05)'; this.querySelector('.ring-overlay').style.borderColor='rgba(0,0,0,0.05)'; this.querySelector('h6').style.color='#212529';">
                             
                             <div class="subcategory-circle position-relative mb-3 mx-auto" style="width: 120px; height: 120px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                                 <!-- Soft border overlay -->
                                 <div class="ring-overlay" style="position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s;"></div>
                                 <!-- Subtle gradient background -->
-                                <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(46,125,50,0.02) 0%, transparent 100%); border-radius: 50%;"></div>
+                                <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(74,154,88,0.02) 0%, transparent 100%); border-radius: 50%;"></div>
                                 
                                 @if($sub->image)
                                     <img src="{{ asset($sub->image) }}" alt="{{ $sub->name }}" style="width: 65px; height: 65px; object-fit: contain; z-index: 1; transition: transform 0.3s;">
@@ -441,171 +341,113 @@
         </div>
     </section>
 
-    <!-- What We Do Section -->
-    <section id="services" class="services-section py-5" style="background: linear-gradient(180deg, #ffffff 0%, #f1f8f1 100%); position: relative; overflow: hidden;">
-        <!-- Aesthetic background circle -->
-        <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: rgba(46,125,50,0.04); border-radius: 50%; z-index: 0;"></div>
-        
-        <div class="container py-5" style="position: relative; z-index: 1;">
-            <div class="row align-items-center g-5">
-                
-                <!-- Left Side: Heading & Intro -->
-                <div class="col-lg-5">
-                    <span class="badge mb-3 px-3 py-2 rounded-pill fw-semibold" style="background: rgba(46,125,50,0.1); color: var(--primary-green); font-size: 0.9rem;">Our Process</span>
-                    <h3 class="section-heading mb-4" style="font-size: 3rem; line-height: 1.2;">How It Works</h3>
-                    <p class="text-muted fs-5 mb-4">Selling your scrap has never been easier. We've streamlined our entire process to make sure you get paid instantly without any of the traditional hassle.</p>
-                    <a href="{{ url('/#categories') }}" class="btn btn-success px-4 py-3 rounded-pill fw-bold" style="background: var(--primary-green); border: none; box-shadow: 0 8px 20px rgba(46,125,50,0.3);">Start Selling Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                </div>
+    <!-- How It Works -->
+    <section id="services" class="sdw-section sdw-how">
+        <div class="container">
+            <div class="sdw-head">
+                <span class="sdw-eyebrow">Our Process</span>
+                <h2 class="sdw-title">How It Works</h2>
+                <p class="sdw-sub">Selling your scrap is simple. Book a pickup, we weigh it in front of you and pay you instantly.</p>
+            </div>
 
-                <!-- Right Side: Vertical Steps -->
-                <div class="col-lg-7">
-                    <div class="process-steps">
-                        
-                        <!-- Step 1 -->
-                        <div class="d-flex p-4 bg-white rounded-4 shadow-sm mb-4 service-card" style="border: 1px solid rgba(46,125,50,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden;">
-                            <!-- Large faint number -->
-                            <div style="position: absolute; right: -10px; top: -20px; font-size: 8rem; font-weight: 900; color: rgba(46,125,50,0.03); line-height: 1; z-index: 0;">01</div>
-                            
-                            <div class="me-4 flex-shrink-0" style="position: relative; z-index: 1;">
-                                <div style="width: 70px; height: 70px; background: var(--primary-green); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 15px rgba(46,125,50,0.3); transform: rotate(-5deg);">
-                                    <i class="fa-solid fa-truck-fast fa-2x" style="transform: rotate(5deg);"></i>
-                                </div>
-                            </div>
-                            <div style="position: relative; z-index: 1;">
-                                <h4 class="fw-bold mb-2" style="color: #000000;">Doorstep Pickup</h4>
-                                <p class="text-muted mb-0">Schedule a pickup at your convenience. Our team will arrive at your location, weigh the scrap, and transport it safely without any hassle.</p>
-                            </div>
-                        </div>
-
-                        <!-- Step 2 -->
-                        <div class="d-flex p-4 bg-white rounded-4 shadow-sm mb-4 service-card" style="border: 1px solid rgba(46,125,50,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden;">
-                            <div style="position: absolute; right: -10px; top: -20px; font-size: 8rem; font-weight: 900; color: rgba(46,125,50,0.03); line-height: 1; z-index: 0;">02</div>
-                            
-                            <div class="me-4 flex-shrink-0" style="position: relative; z-index: 1;">
-                                <div style="width: 70px; height: 70px; background: var(--primary-blue); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 15px rgba(13,43,77,0.2); transform: rotate(5deg);">
-                                    <i class="fa-solid fa-scale-balanced fa-2x" style="transform: rotate(-5deg);"></i>
-                                </div>
-                            </div>
-                            <div style="position: relative; z-index: 1;">
-                                <h4 class="fw-bold mb-2" style="color: #000000;">Accurate Weighing</h4>
-                                <p class="text-muted mb-0">We use certified digital scales to weigh your scrap materials accurately right in front of you, ensuring you get exactly the right value.</p>
-                            </div>
-                        </div>
-
-                        <!-- Step 3 -->
-                        <div class="d-flex p-4 bg-white rounded-4 shadow-sm service-card" style="border: 1px solid rgba(46,125,50,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden;">
-                            <div style="position: absolute; right: -10px; top: -20px; font-size: 8rem; font-weight: 900; color: rgba(46,125,50,0.03); line-height: 1; z-index: 0;">03</div>
-                            
-                            <div class="me-4 flex-shrink-0" style="position: relative; z-index: 1;">
-                                <div style="width: 70px; height: 70px; background: #ff9800; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 15px rgba(255,152,0,0.3); transform: rotate(-5deg);">
-                                    <i class="fa-solid fa-money-bill-transfer fa-2x" style="transform: rotate(5deg);"></i>
-                                </div>
-                            </div>
-                            <div style="position: relative; z-index: 1;">
-                                <h4 class="fw-bold mb-2" style="color: #000000;">Instant Payment</h4>
-                                <p class="text-muted mb-0">Get paid immediately! We offer instant digital transfers or cash right when we collect your scrap items. No waiting, no delays.</p>
-                            </div>
-                        </div>
-
+            <div class="row g-4">
+                @foreach([
+                    ['n' => '01', 'icon' => 'fa-truck-fast', 'color' => '#4A9A58', 'title' => 'Doorstep Pickup', 'text' => 'Schedule a pickup at a time that suits you. Our team arrives at your location and takes care of the rest.'],
+                    ['n' => '02', 'icon' => 'fa-scale-balanced', 'color' => '#0d2b4d', 'title' => 'Accurate Weighing', 'text' => 'Certified digital scales weigh your scrap right in front of you, so you always get the right value.'],
+                    ['n' => '03', 'icon' => 'fa-money-bill-transfer', 'color' => '#f57c00', 'title' => 'Instant Payment', 'text' => 'Get paid on the spot through UPI, bank transfer or cash. No waiting and no delays.'],
+                ] as $step)
+                <div class="col-12 col-md-4">
+                    <div class="sdw-step">
+                        <span class="sdw-step-n">{{ $step['n'] }}</span>
+                        <div class="sdw-step-ic" style="background: {{ $step['color'] }};"><i class="fa-solid {{ $step['icon'] }}"></i></div>
+                        <h4>{{ $step['title'] }}</h4>
+                        <p>{{ $step['text'] }}</p>
                     </div>
                 </div>
+                @endforeach
+            </div>
 
+            <div class="text-center mt-5">
+                <a href="{{ url('/#categories') }}" class="sdw-cta">Start Selling Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
             </div>
         </div>
-        
     </section>
 
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials-section py-1" style="background-color: #eef2f6;">
-        <div class="container py-5">
-            <div class="row g-5 align-items-center">
-                <!-- Mobile/Tablet Heading (Shows before image on smaller screens) -->
-                <div class="col-12 d-lg-none mb-0 pb-0">
-                    <h2 class="fw-bold mb-2" style="color: var(--primary-blue); font-size: 2.5rem;">Trusted by Our Customers</h2>
-                    <p class="text-muted fs-5 mb-0">Empowering businesses and individuals with a smarter way to sell scrap.</p>
-                </div>
+    <!-- Testimonials -->
+    @php
+        $testimonials = [
+            ['name' => 'Ravi Teja', 'role' => 'Kirana Store Owner, Jayanagar', 'color' => '#0d2b4d', 'text' => 'Scrap Daddy has made clearing the cardboard and paper waste from my shop so easy. They come on time, weigh it properly and pay me on the spot.'],
+            ['name' => 'Lakshmi Prasanna', 'role' => 'Homemaker, Indiranagar', 'color' => '#4A9A58', 'text' => 'We had years of old newspapers and metal items at home. One booking and the team collected everything. Very polite staff and a fair price.'],
+            ['name' => 'Mohammed Imran', 'role' => 'Wholesale Trader, Yeshwanthpur', 'color' => '#f57c00', 'text' => 'I sell scrap in bulk, and the weighing is accurate and the payment is instant. It saved me a lot of running around. Highly reliable.'],
+            ['name' => 'Suresh Reddy', 'role' => 'Office Manager, Whitefield', 'color' => '#6a1b9a', 'text' => 'We use it to dispose of our old office paper and e-waste every month. Booking is simple and the support team always responds quickly.'],
+            ['name' => 'Anitha Kumari', 'role' => 'Teacher, HSR Layout', 'color' => '#c62828', 'text' => 'I booked a pickup from the app in two minutes. The executive came the next morning, and the payment reached my UPI immediately.'],
+            ['name' => 'Venkata Rao', 'role' => 'Workshop Owner, Peenya', 'color' => '#00695c', 'text' => 'Heavy iron and battery scrap used to be a headache. Now they pick it up from my workshop and the rates are clear and honest.'],
+        ];
+    @endphp
+    <section id="testimonials" class="sdw-section sdw-testi">
+        <div class="container">
+            <div class="sdw-head">
+                <span class="sdw-eyebrow">Testimonials</span>
+                <h2 class="sdw-title">Trusted by Our Customers</h2>
+                <p class="sdw-sub">Households, shops and businesses across {{ $site['city'] }} sell their scrap with us.</p>
+            </div>
 
-                <!-- Left Image Area -->
-                <div class="col-lg-4">
-                    <div class="rounded-4 overflow-hidden shadow w-100" style="height: 100%; min-height: 400px;">
-                        <img src="{{ asset('testimonaial.png') }}" alt="Real Success Stories" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-                    </div>
-                </div>
-
-                <!-- Right Content Area -->
-                <div class="col-lg-8">
-                    <div class="mb-5 d-none d-lg-block">
-                        <h2 class="fw-bold mb-2" style="color: var(--primary-blue); font-size: 2.5rem;">Trusted by Our Customers</h2>
-                        <p class="text-muted fs-5">Empowering businesses and individuals with a smarter way to sell scrap.</p>
-                    </div>
-
-                    <div class="row g-4">
-                        <!-- Testimonial 1 -->
-                        <div class="col-12 col-lg-4">
-                            <div class="card h-100 border-0 rounded-4 shadow-sm p-4" style="transition: transform 0.3s ease; position: relative; overflow: hidden; background-color: #ffffff;">
-                                <!-- Watermark -->
-                                <i class="fa-solid fa-quote-right" style="position: absolute; right: 10px; bottom: -10px; font-size: 8rem; color: rgba(46,125,50,0.06); z-index: 0; pointer-events: none;"></i>
-                                <div style="position: relative; z-index: 1;">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="rounded-circle d-flex justify-content-center align-items-center text-white fw-bold me-3" style="width: 50px; height: 50px; flex-shrink: 0; background: var(--primary-blue);">JD</div>
-                                        <div>
-                                            <h6 class="fw-bold mb-0 text-dark">John Doe</h6>
-                                            <small class="text-muted">Retail Business Owner</small>
-                                        </div>
-                                    </div>
-                                    <p class="card-text text-muted" style="font-size: 0.9rem;">"Scrap Daddy has completely changed the way we manage waste in our store. The pickup process is incredibly smooth, and the pricing is always transparent."</p>
-                                    <div class="mt-auto pt-3 text-warning">
-                                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="row g-4">
+                @foreach($testimonials as $t)
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="sdw-quote">
+                        <div class="sdw-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                         </div>
-
-                        <!-- Testimonial 2 -->
-                        <div class="col-12 col-lg-4">
-                            <div class="card h-100 border-0 rounded-4 shadow-sm p-4" style="transition: transform 0.3s ease; position: relative; overflow: hidden; background-color: #ffffff;">
-                                <!-- Watermark -->
-                                <i class="fa-solid fa-quote-right" style="position: absolute; right: 10px; bottom: -10px; font-size: 8rem; color: rgba(46,125,50,0.06); z-index: 0; pointer-events: none;"></i>
-                                <div style="position: relative; z-index: 1;">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="rounded-circle d-flex justify-content-center align-items-center text-white fw-bold me-3" style="width: 50px; height: 50px; flex-shrink: 0; background: #0d2b4d;">AS</div>
-                                        <div>
-                                            <h6 class="fw-bold mb-0 text-dark">Ahmed Sayed</h6>
-                                            <small class="text-muted">Wholesale Trader</small>
-                                        </div>
-                                    </div>
-                                    <p class="card-text text-muted" style="font-size: 0.9rem;">"We were looking for a trusted platform to sell bulk scrap, and they made everything simple. From scheduling to instant payment, highly reliable."</p>
-                                    <div class="mt-auto pt-3 text-warning">
-                                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Testimonial 3 -->
-                        <div class="col-12 col-lg-4">
-                            <div class="card h-100 border-0 rounded-4 shadow-sm p-4" style="transition: transform 0.3s ease; position: relative; overflow: hidden; background-color: #ffffff;">
-                                <!-- Watermark -->
-                                <i class="fa-solid fa-quote-right" style="position: absolute; right: 10px; bottom: -10px; font-size: 8rem; color: rgba(46,125,50,0.06); z-index: 0; pointer-events: none;"></i>
-                                <div style="position: relative; z-index: 1;">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="rounded-circle d-flex justify-content-center align-items-center text-white fw-bold me-3" style="width: 50px; height: 50px; flex-shrink: 0; background: var(--primary-green);">MK</div>
-                                        <div>
-                                            <h6 class="fw-bold mb-0 text-dark">Maria Khan</h6>
-                                            <small class="text-muted">Individual Seller</small>
-                                        </div>
-                                    </div>
-                                    <p class="card-text text-muted" style="font-size: 0.9rem;">"The platform helped me clear out years of household scrap quickly. The support team is always responsive whenever I need assistance."</p>
-                                    <div class="mt-auto pt-3 text-warning">
-                                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                    </div>
-                                </div>
+                        <p class="sdw-quote-text">&ldquo;{{ $t['text'] }}&rdquo;</p>
+                        <div class="sdw-person">
+                            <div class="sdw-avatar" style="background: {{ $t['color'] }};">{{ collect(explode(' ', $t['name']))->map(fn($w) => mb_substr($w, 0, 1))->take(2)->implode('') }}</div>
+                            <div>
+                                <h6>{{ $t['name'] }}</h6>
+                                <small>{{ $t['role'] }}</small>
                             </div>
                         </div>
                     </div>
                 </div>
+                @endforeach
             </div>
         </div>
-        
     </section>
+
+    <style>
+        .sdw-section { padding: 72px 0; }
+        .sdw-how { background: linear-gradient(180deg, #ffffff 0%, #f1f8f1 100%); }
+        .sdw-testi { background: #f4f7fa; }
+        .sdw-head { text-align: center; max-width: 640px; margin: 0 auto 44px; }
+        .sdw-eyebrow { display: inline-block; padding: 6px 16px; border-radius: 50px; background: rgba(74,154,88,.1); color: var(--primary-green, #3D8B4D); font-weight: 600; font-size: .85rem; margin-bottom: 14px; }
+        .sdw-title { font-weight: 800; color: var(--primary-blue, #0d2b4d); font-size: 2.2rem; margin: 0 0 10px; letter-spacing: -.3px; }
+        .sdw-sub { color: #6b7280; font-size: 1.05rem; margin: 0; }
+
+        .sdw-step { position: relative; height: 100%; background: #fff; border: 1px solid #e8f0e8; border-radius: 20px; padding: 32px 26px; text-align: center; box-shadow: 0 6px 22px rgba(0,0,0,.04); transition: transform .25s ease, box-shadow .25s ease; overflow: hidden; }
+        .sdw-step:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,.08); }
+        .sdw-step-n { position: absolute; top: 12px; right: 18px; font-size: 2.6rem; font-weight: 900; color: rgba(74,154,88,.08); line-height: 1; }
+        .sdw-step-ic { width: 68px; height: 68px; border-radius: 20px; color: #fff; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; box-shadow: 0 8px 18px rgba(0,0,0,.15); }
+        .sdw-step h4 { font-size: 1.2rem; font-weight: 700; color: #111; margin: 0 0 8px; }
+        .sdw-step p { color: #6b7280; margin: 0; font-size: .95rem; line-height: 1.55; }
+        .sdw-cta { display: inline-flex; align-items: center; padding: 14px 30px; border-radius: 50px; background: var(--primary-green, #3D8B4D); color: #fff; font-weight: 700; text-decoration: none; box-shadow: 0 8px 20px rgba(74,154,88,.3); transition: transform .2s ease; }
+        .sdw-cta:hover { transform: translateY(-2px); color: #fff; }
+
+        .sdw-quote { height: 100%; display: flex; flex-direction: column; background: #fff; border-radius: 20px; padding: 26px; border: 1px solid #edf0f3; box-shadow: 0 6px 22px rgba(0,0,0,.04); transition: transform .25s ease, box-shadow .25s ease; }
+        .sdw-quote:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,.08); }
+        .sdw-stars { color: #ffb300; font-size: .9rem; letter-spacing: 2px; margin-bottom: 14px; }
+        .sdw-quote-text { color: #374151; font-size: .98rem; line-height: 1.65; flex: 1; margin: 0 0 20px; }
+        .sdw-person { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid #f0f2f4; }
+        .sdw-avatar { width: 46px; height: 46px; flex: 0 0 46px; border-radius: 50%; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .sdw-person h6 { margin: 0; font-weight: 700; color: #111; font-size: .95rem; }
+        .sdw-person small { color: #6b7280; font-size: .8rem; }
+
+        @media (max-width: 767.98px) {
+            .sdw-section { padding: 44px 0; }
+            .sdw-title { font-size: 1.6rem; }
+            .sdw-sub { font-size: .95rem; }
+            .sdw-head { margin-bottom: 28px; }
+            .sdw-step { padding: 24px 20px; }
+            .sdw-quote { padding: 22px; }
+        }
+    </style>
 @endsection

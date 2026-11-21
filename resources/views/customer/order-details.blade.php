@@ -55,6 +55,33 @@
             margin-bottom: 20px;
         }
 
+        /* Item rows: category image + name + quantity (never wraps) */
+        .od-item-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f1f1f1; }
+        .od-item-row:last-child { border-bottom: 0; padding-bottom: 0; }
+        .od-item-thumb { flex: 0 0 56px; width: 56px; height: 56px; border-radius: 14px; background: #f1f8e9; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px; }
+        .od-item-thumb img { width: 100%; height: 100%; object-fit: contain; }
+        .od-item-thumb i { color: #689f38; font-size: 1.4rem; }
+        .od-item-main { flex: 1; min-width: 0; }
+        .od-item-main .od-item-name { font-size: 1rem; font-weight: 700; margin: 0; color: #222; overflow-wrap: anywhere; }
+        .od-qty { flex: 0 0 auto; white-space: nowrap; font-weight: 700; font-size: .85rem; background: #f4f6f4; color: #222; padding: 6px 12px; border-radius: 50px; }
+
+        .od-status { flex: 0 0 auto; white-space: nowrap; font-size: .72rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; background: #ffc107; color: #212529; }
+        .od-status-accepted, .od-status-assigned { background: #0d6efd; color: #fff; }
+        .od-status-completed { background: #198754; color: #fff; }
+        .od-status-cancelled { background: #dc3545; color: #fff; }
+
+        .od-detail-row { gap: 16px; }
+        .od-detail-value { overflow-wrap: anywhere; }
+
+        @media (max-width: 575px) {
+            .od-header { padding-top: 0 !important; margin-bottom: 14px; }
+            .od-back-btn { width: 38px; height: 38px; left: 16px; }
+            .od-item-thumb { flex-basis: 48px; width: 48px; height: 48px; }
+            .od-item-row { gap: 10px; }
+            .od-qty { padding: 5px 10px; font-size: .8rem; }
+            .od-detail-row { font-size: .85rem; }
+        }
+
         .od-item-header {
             display: flex;
             align-items: center;
@@ -118,35 +145,44 @@
         }
 
         .od-images-grid {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: none;
-        }
-        .od-images-grid::-webkit-scrollbar {
-            display: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
         }
         .od-image-box {
-            width: 80px;
-            height: 80px;
+            aspect-ratio: 1 / 1;
             background-color: #f5f5f5;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            border-radius: 14px;
+            display: block;
             border: 1px solid #ebebeb;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform .15s ease, box-shadow .15s ease;
         }
-        .od-image-box i {
-            color: #aaa;
-            font-size: 1.5rem;
-        }
+        .od-image-box:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
         .od-image-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
+        }
+        .od-image-box.od-broken { background: #f5f5f5 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' fill='%23bbb' viewBox='0 0 16 16'%3E%3Cpath d='M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z'/%3E%3Cpath d='M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z'/%3E%3C/svg%3E") center / 32px no-repeat; }
+        .od-card .od-item-header:last-child { border-bottom: 0 !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+        .od-empty-images {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px;
+            border: 1.5px dashed #d9d9d9;
+            border-radius: 14px;
+            background: #fafafa;
+            color: #888;
+            font-size: .9rem;
+        }
+        .od-empty-images i { font-size: 1.6rem; color: #bbb; }
+        @media (max-width: 575px) {
+            .od-images-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .od-card { padding: 16px; border-radius: 14px; }
         }
 
         /* Single-Line Clean Vertical Timeline */
@@ -181,7 +217,7 @@
         }
 
         .od-timeline-item.step-done::before {
-            background-color: #2e7d32;
+            background-color: #4A9A58;
         }
         .od-timeline-item.step-cancelled::before {
             background-color: #dc3545;
@@ -207,8 +243,8 @@
         }
 
         .od-timeline-item.step-done .od-timeline-icon {
-            background-color: #2e7d32;
-            border-color: #2e7d32;
+            background-color: #4A9A58;
+            border-color: #4A9A58;
             color: #ffffff;
         }
 
@@ -220,8 +256,8 @@
 
         .od-timeline-item.step-active .od-timeline-icon {
             background-color: #ffffff;
-            border-color: #2e7d32;
-            color: #2e7d32;
+            border-color: #4A9A58;
+            color: #4A9A58;
         }
 
         .od-timeline-content h6 {
@@ -267,48 +303,44 @@
 
             <div class="px-3 px-lg-0 pb-5">
                 <!-- Items Info Card -->
+                @php
+                    $imgUrl = function ($path) {
+                        if (!$path) return null;
+                        return preg_match('#^https?://#', $path) ? $path : asset($path);
+                    };
+                    $orderItems = ($order->items && count($order->items) > 0)
+                        ? $order->items
+                        : [['name' => $order->subcategory->name ?? 'Scrap Items', 'quantity' => 1, 'subcategory_uuid' => $order->subcategory->uuid ?? null]];
+                    $statusClass = $order->status;
+                @endphp
                 <div class="od-card">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="od-section-title mb-0">Order Items</h3>
-                        <p class="od-item-id mb-0">Order #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</p>
+                    <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
+                        <div>
+                            <h3 class="od-section-title mb-1">Order Items</h3>
+                            <p class="od-item-id mb-0">Order #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</p>
+                        </div>
+                        <span class="od-status od-status-{{ $statusClass }}">{{ ucfirst($order->status) }}</span>
                     </div>
                     <div class="od-divider"></div>
-                    
-                    @if($order->items && count($order->items) > 0)
-                        @foreach($order->items as $item)
-                            <div class="od-item-header mb-3 pb-3 border-bottom">
-                                <div class="od-item-img-box" style="width: 50px; height: 50px; padding: 5px;">
-                                    <i class="fa-solid fa-couch" style="color: #689f38; font-size: 1.5rem;"></i>
-                                </div>
-                                <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h2 class="od-item-name" style="font-size: 1rem;">{{ $item['name'] ?? 'Item' }}</h2>
-                                    </div>
-                                    <div class="fw-bold bg-light px-3 py-1 rounded text-dark">
-                                        Qty: {{ $item['quantity'] ?? 1 }}
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="od-item-header mb-3 pb-3 border-bottom">
-                            <div class="od-item-img-box" style="width: 50px; height: 50px; padding: 5px;">
-                                @if($order->subcategory && $order->subcategory->image)
-                                    <img src="{{ asset(str_starts_with($order->subcategory->image, 'storage/') ? $order->subcategory->image : 'storage/' . $order->subcategory->image) }}" alt="{{ $order->subcategory->name }}">
+
+                    @foreach($orderItems as $item)
+                        @php
+                            $src = $imgUrl($itemImages[$item['subcategory_uuid'] ?? ''] ?? ($order->subcategory->image ?? null));
+                        @endphp
+                        <div class="od-item-row">
+                            <div class="od-item-thumb">
+                                @if($src)
+                                    <img src="{{ $src }}" alt="{{ $item['name'] ?? 'Item' }}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('i'), {className: 'fa-solid fa-recycle'}));">
                                 @else
-                                    <i class="fa-solid fa-couch" style="color: #689f38; font-size: 1.5rem;"></i>
+                                    <i class="fa-solid fa-recycle"></i>
                                 @endif
                             </div>
-                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h2 class="od-item-name" style="font-size: 1rem;">{{ $order->subcategory->name ?? 'Scrap Items' }}</h2>
-                                </div>
-                                <div class="fw-bold bg-light px-3 py-1 rounded text-dark">
-                                    Qty: 1
-                                </div>
+                            <div class="od-item-main">
+                                <h2 class="od-item-name">{{ $item['name'] ?? 'Item' }}</h2>
                             </div>
+                            <div class="od-qty">Qty: {{ $item['quantity'] ?? 1 }}</div>
                         </div>
-                    @endif
+                    @endforeach
                 </div>
 
                 <!-- Pickup Details Card -->
@@ -339,111 +371,29 @@
                     <h3 class="od-section-title">Uploaded Images</h3>
                     <div class="od-divider"></div>
                     
-                    <div class="od-images-grid">
-                        @if(!empty($order->images) && is_array($order->images) && count($order->images) > 0)
+                    @if(!empty($order->images) && is_array($order->images) && count($order->images) > 0)
+                        <div class="od-images-grid">
                             @foreach($order->images as $img)
-                                <div class="od-image-box">
-                                    <img src="{{ asset(str_starts_with($img, 'storage/') ? $img : 'storage/' . $img) }}" alt="Scrap Upload">
-                                </div>
+                                @php $photoUrl = preg_match('#^https?://#', $img) ? $img : asset($img); @endphp
+                                <a href="{{ $photoUrl }}" target="_blank" rel="noopener" class="od-image-box">
+                                    <img src="{{ $photoUrl }}" alt="Scrap Upload" loading="lazy" onerror="this.closest('.od-image-box').classList.add('od-broken'); this.remove();">
+                                </a>
                             @endforeach
-                            <!-- Fill placeholders if less than 4 images, like mockup -->
-                            @for($i = count($order->images); $i < 4; $i++)
-                                <div class="od-image-box">
-                                    <i class="fa-regular fa-image"></i>
-                                </div>
-                            @endfor
-                        @else
-                            <div class="od-image-box"><i class="fa-regular fa-image"></i></div>
-                            <div class="od-image-box"><i class="fa-regular fa-image"></i></div>
-                            <div class="od-image-box"><i class="fa-regular fa-image"></i></div>
-                            <div class="od-image-box"><i class="fa-regular fa-image"></i></div>
-                        @endif
-                    </div>
+                        </div>
+                    @else
+                        <div class="od-empty-images">
+                            <i class="fa-regular fa-image"></i>
+                            <span>No photos were uploaded for this pickup</span>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Pickup Progress -->
-                <h3 class="od-section-title mt-4 ms-2 mb-4">Pickup Progress</h3>
-                
-                @php
-                    $isAccepted = $order->status == 'accepted';
-                    $isCompleted = $order->status == 'completed';
-                    $isCancelled = $order->status == 'cancelled';
-                @endphp
-
-                <div class="od-timeline ms-2">
-                    @if($isCancelled)
-                        <!-- Step 1: Submitted -->
-                        <div class="od-timeline-item step-cancelled">
-                            <div class="od-timeline-icon">
-                                <i class="fa-solid fa-check"></i>
-                            </div>
-                            <div class="od-timeline-content">
-                                <h6>Submitted</h6>
-                                <p>Your pickup request has been received.</p>
-                                <small>{{ \Carbon\Carbon::parse($order->created_at)->format('l, h:i A') }}</small>
-                            </div>
-                        </div>
-
-                        <!-- Step 2: Cancelled -->
-                        <div class="od-timeline-item step-cancelled">
-                            <div class="od-timeline-icon">
-                                <i class="fa-solid fa-xmark"></i>
-                            </div>
-                            <div class="od-timeline-content">
-                                <h6 class="text-danger">Cancelled</h6>
-                                <p>Your pickup request was cancelled.</p>
-                                <small>{{ \Carbon\Carbon::parse($order->updated_at)->format('l, h:i A') }}</small>
-                            </div>
-                        </div>
-                    @else
-                        <!-- Step 1: Submitted -->
-                        <div class="od-timeline-item {{ ($isAccepted || $isCompleted) ? 'step-done' : 'step-active' }}">
-                            <div class="od-timeline-icon">
-                                <i class="fa-solid fa-check"></i>
-                            </div>
-                            <div class="od-timeline-content">
-                                <h6>Submitted</h6>
-                                <p>Your pickup request has been received.</p>
-                                <small>{{ \Carbon\Carbon::parse($order->created_at)->format('l, h:i A') }}</small>
-                            </div>
-                        </div>
-
-                        <!-- Step 2: Confirmed -->
-                        <div class="od-timeline-item {{ $isCompleted ? 'step-done' : ($isAccepted ? 'step-active' : '') }}">
-                            <div class="od-timeline-icon">
-                                <i class="fa-solid fa-check"></i>
-                            </div>
-                            <div class="od-timeline-content">
-                                <h6>Confirmed</h6>
-                                <p>We have verified and confirmed the request.</p>
-                                <small>{{ ($isAccepted || $isCompleted) ? \Carbon\Carbon::parse($order->updated_at)->format('l, h:i A') : 'Pending' }}</small>
-                            </div>
-                        </div>
-
-                        <!-- Step 3: Assigned -->
-                        <div class="od-timeline-item {{ $isCompleted ? 'step-done' : ($isAccepted ? 'step-active' : '') }}">
-                            <div class="od-timeline-icon">
-                                <i class="fa-solid fa-truck"></i>
-                            </div>
-                            <div class="od-timeline-content">
-                                <h6>Assigned</h6>
-                                <p>Our executive has accepted your pickup request.</p>
-                                <small>{{ ($isAccepted || $isCompleted) ? \Carbon\Carbon::parse($order->updated_at)->format('l, h:i A') : 'Pending' }}</small>
-                            </div>
-                        </div>
-
-                        <!-- Step 4: Completed -->
-                        <div class="od-timeline-item {{ $isCompleted ? 'step-done' : '' }}">
-                            <div class="od-timeline-icon">
-                                <i class="fa-solid fa-flag"></i>
-                            </div>
-                            <div class="od-timeline-content">
-                                <h6>Completed</h6>
-                                <p>Driver is heading to your location.</p>
-                                <small>{{ $isCompleted ? \Carbon\Carbon::parse($order->updated_at)->format('l, h:i A') : 'Pending' }}</small>
-                            </div>
-                        </div>
-                    @endif
+                <div class="od-card">
+                    <h3 class="od-section-title">Pickup Progress</h3>
+                    <div class="od-divider"></div>
+                    @include('partials.customer.pickup-tracker', ['order' => $order])
+                </div>
                 </div>
             </div>
             

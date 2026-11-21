@@ -2,8 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-    --primary-green: #1b5e20;
-    --accent-green: #2e7d32;
+    --primary-green: #3D8B4D;
+    --accent-green: #4A9A58;
     --btn-grey: #7f8c8d;
     --input-border: #ced4da;
     --text-dark: #222222;
@@ -130,7 +130,7 @@ body, html {
 
 .custom-auth-input-group:focus-within {
     border-color: var(--accent-green);
-    box-shadow: 0 0 0 3.5px rgba(46, 125, 50, 0.12);
+    box-shadow: 0 0 0 3.5px rgba(74,154,88, 0.12);
 }
 
 .custom-auth-input-group .input-icon {
@@ -223,7 +223,7 @@ body, html {
 .btn-auth-submit.active-btn {
     background-color: var(--primary-green);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(27, 94, 32, 0.25);
+    box-shadow: 0 4px 14px rgba(61,139,77, 0.25);
 }
 
 .auth-bottom-text {

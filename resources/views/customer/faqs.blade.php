@@ -20,8 +20,8 @@
             box-shadow: none !important;
         }
         .faq-accordion .accordion-button:not(.collapsed) {
-            color: var(--primary-green, #1b5e20);
-            background-color: rgba(27, 94, 32, 0.05);
+            color: var(--primary-green, #3D8B4D);
+            background-color: rgba(61,139,77, 0.05);
         }
         .faq-accordion .accordion-button::after {
             background-size: 1rem;

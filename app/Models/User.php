@@ -50,6 +50,9 @@ class User extends Authenticatable
         'otp_expires_at',
         'status',
         'reward_coins',
+        'referral_code',
+        'referred_by',
+        'referral_rewarded',
     ];
 
     /**

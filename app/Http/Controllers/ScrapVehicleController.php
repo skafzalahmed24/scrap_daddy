@@ -18,7 +18,7 @@ class ScrapVehicleController extends Controller
             'vehicle_type' => 'required|string|in:Bike,Auto,Car,Heavy Load',
             'vehicle_number' => ['required', 'string', 'max:20', 'regex:/^[A-Za-z0-9\s\-]{4,20}$/'],
             'vehicle_brand' => 'nullable|string|max:100',
-            'vehicle_model' => 'nullable|string|max:100',
+            'vehicle_model' => 'required|string|max:100',
             'photos' => 'nullable|array|max:5',
             'photos.*' => 'string|max:255',
             'remark' => 'nullable|string|max:1000',

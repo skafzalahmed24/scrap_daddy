@@ -15,15 +15,15 @@
             width: 120px;
         }
         .vehicle-type-card:hover {
-            border-color: #2e7d32;
+            border-color: #4A9A58;
             background-color: #f1f8e9;
         }
         .vehicle-type-card.selected {
-            border-color: #2e7d32;
+            border-color: #4A9A58;
             background-color: #e8f5e9;
-            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+            box-shadow: 0 0 0 2px rgba(74,154,88, 0.2);
         }
-        .vehicle-type-card i { display: block; color: #2e7d32; margin-bottom: 10px; }
+        .vehicle-type-card i { display: block; color: #4A9A58; margin-bottom: 10px; }
         .vehicle-type-card img {
             width: 80px;
             height: auto;
@@ -48,8 +48,8 @@
             font-size: 0.95rem;
         }
         .form-control:focus {
-            border-color: #2e7d32;
-            box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.1);
+            border-color: #4A9A58;
+            box-shadow: 0 0 0 0.2rem rgba(74,154,88, 0.1);
         }
         .photo-upload-area {
             border: 1px dashed #ccc;
@@ -62,7 +62,7 @@
         }
         .photo-upload-area:hover {
             background-color: #f1f8e9;
-            border-color: #2e7d32;
+            border-color: #4A9A58;
         }
         .photo-upload-icon {
             display: inline-flex;
@@ -72,7 +72,7 @@
             height: 50px;
             border-radius: 50%;
             background-color: #e8f5e9;
-            color: #2e7d32;
+            color: #4A9A58;
             font-size: 1.5rem;
             margin-bottom: 15px;
         }
@@ -135,19 +135,19 @@
                         <label class="form-label">Vehicle Type</label>
                         <div class="d-flex gap-3 flex-wrap">
                             <div class="vehicle-type-card selected" onclick="selectVehicleType(this, 'Bike')">
-                                <i class="fa-solid fa-motorcycle fa-2x mb-1"></i>
+                                <img src="{{ asset('img/vehicles/bike.png') }}" alt="Bike" loading="lazy">
                                 <span>Bike</span>
                             </div>
                             <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Auto')">
-                                <i class="fa-solid fa-van-shuttle fa-2x mb-1"></i>
+                                <img src="{{ asset('img/vehicles/auto.png') }}" alt="Auto" loading="lazy">
                                 <span>Auto</span>
                             </div>
                             <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Car')">
-                                <i class="fa-solid fa-car-side fa-2x mb-1"></i>
+                                <img src="{{ asset('img/vehicles/car.png') }}" alt="Car" loading="lazy">
                                 <span>Car</span>
                             </div>
                             <div class="vehicle-type-card" onclick="selectVehicleType(this, 'Heavy Load')">
-                                <i class="fa-solid fa-truck fa-2x mb-1"></i>
+                                <img src="{{ asset('img/vehicles/heavy.png') }}" alt="Heavy Load" loading="lazy">
                                 <span>Heavy Load</span>
                             </div>
                         </div>
@@ -156,7 +156,7 @@
 
                     <!-- Vehicle Number -->
                     <div class="mb-4">
-                        <label for="vehicle_number" class="form-label">Vehicle number</label>
+                        <label for="vehicle_number" class="form-label">Vehicle number <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" placeholder="eg. MP04 DK 9834" required>
                     </div>
 
@@ -168,8 +168,8 @@
 
                     <!-- Vehicle Model -->
                     <div class="mb-4">
-                        <label for="vehicle_model" class="form-label">Vehicle model (optional)</label>
-                        <input type="text" class="form-control" id="vehicle_model" name="vehicle_model" placeholder="eg. Civic 2019">
+                        <label for="vehicle_model" class="form-label">Vehicle model <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="vehicle_model" name="vehicle_model" placeholder="eg. Civic 2019" required maxlength="100">
                     </div>
 
                     <!-- Upload Photo -->
@@ -180,9 +180,11 @@
                                 <i class="fa-solid fa-camera-retro"></i>
                             </div>
                             <h6 class="fw-bold mb-1">Tap to add photos</h6>
-                            <small class="text-muted">JPG, PNG &bull; Max 5 photos &bull; 15 MB each</small>
+                            <small class="text-muted">JPG, PNG &bull; Max 5 photos &bull; 2 MB each</small>
                             <input type="file" id="fileInput" multiple accept="image/jpeg, image/png" class="d-none">
+                            <input type="file" id="cameraInput" accept="image/jpeg, image/png" capture="environment" class="d-none">
                         </div>
+                        <div class="text-center mt-2"><button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" id="cameraBtn"><i class="fa-solid fa-camera me-1"></i> Take a photo</button></div>
                         <div class="photo-preview-container" id="photoPreviewContainer"></div>
                         <div id="uploadedPhotosInputs"></div> <!-- hidden inputs for uploaded photo paths -->
                     </div>
@@ -195,7 +197,7 @@
 
                     <!-- Submit Button -->
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-lg text-white rounded-pill fw-bold" id="submitBtn" style="background-color: #2e7d32;">
+                        <button type="submit" class="btn btn-lg text-white rounded-pill fw-bold" id="submitBtn" style="background-color: #4A9A58;">
                             Submit Request
                         </button>
                     </div>
@@ -224,6 +226,16 @@
     let uploadedPhotos = [];
 
     photoUploadArea.addEventListener('click', () => fileInput.click());
+    const cameraInput = document.getElementById('cameraInput');
+    document.getElementById('cameraBtn').addEventListener('click', () => cameraInput.click());
+    cameraInput.addEventListener('change', () => {
+        // camera photo goes through the same checks/upload as gallery photos
+        const dt = new DataTransfer();
+        Array.from(cameraInput.files).forEach(f => dt.items.add(f));
+        fileInput.files = dt.files;
+        cameraInput.value = '';
+        fileInput.dispatchEvent(new Event('change'));
+    });
 
     fileInput.addEventListener('change', async function(e) {
         const files = Array.from(e.target.files);
@@ -237,8 +249,8 @@
         uploadBtnIcon.className = 'fa-solid fa-spinner fa-spin';
 
         for (const file of files) {
-            if (file.size > 5 * 1024 * 1024) {
-                Swal.fire('File too large', `File ${file.name} exceeds the 5MB limit.`, 'error');
+            if (file.size > 2 * 1024 * 1024) {
+                Swal.fire('File too large', `${file.name} is ${(file.size / 1048576).toFixed(1)} MB. Each photo must be 2 MB or smaller.`, 'error');
                 continue;
             }
 
@@ -333,7 +345,7 @@
                     icon: 'success',
                     title: 'Submitted Successfully',
                     text: 'Your scrap vehicle details have been recorded.',
-                    confirmButtonColor: '#2e7d32'
+                    confirmButtonColor: '#4A9A58'
                 }).then(() => {
                     window.location.href = "{{ route('customer.home') }}";
                 });

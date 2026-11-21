@@ -18,6 +18,22 @@
         min-height: 100vh;
     }
 
+    /* Web: use the full width, cards in a responsive grid */
+    .orders-grid { display: block; }
+    @media (min-width: 768px) {
+        .orders-screen-wrapper { max-width: 1400px; padding: 24px 32px 60px; min-height: auto; }
+        .orders-top-nav { padding-bottom: 24px; }
+        .orders-header-title { font-size: 1.6rem; }
+        .orders-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+        .orders-grid .order-clean-card { margin-bottom: 0; display: flex; flex-direction: column; }
+        .orders-grid .order-clean-card .btn-view-order,
+        .orders-grid .order-clean-card .btn-pay-now-blue { margin-top: auto; }
+        .orders-grid .orders-empty-state { grid-column: 1 / -1; }
+    }
+    @media (min-width: 1200px) {
+        .orders-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
     /* Header matching mockup */
     .orders-top-nav {
         display: flex;
@@ -92,7 +108,7 @@
 
     .order-category-thumb i {
         font-size: 1.6rem;
-        color: #2e7d32;
+        color: #4A9A58;
     }
 
     .order-category-thumb img {
@@ -261,6 +277,7 @@
         $ordersList = $orders ?? collect();
     @endphp
 
+    <div class="orders-grid">
     @forelse($ordersList as $order)
         @php
             // Determine Category Name & Icon
@@ -326,7 +343,7 @@
                 <i class="bi bi-geo-alt-fill"></i> Address
             </div>
             <p class="order-address-text">
-                {{ $order->pickup_location ?: 'Kakinada Urban, Kannayya Kapu Nagar, Kakinada, Andhra Pradesh, 533001, India' }}
+                {{ $order->pickup_location ?: 'Address not provided' }}
             </p>
 
             <!-- Pay Now Button (if pending payment) -->
@@ -345,8 +362,9 @@
             <i class="bi bi-box2"></i>
             <h3 class="fw-bold text-dark fs-5 mb-1">No Orders Found</h3>
             <p class="text-muted small mb-4">You haven't scheduled any pickups yet.</p>
-            <a href="{{ route('customer.orders.create') }}" class="btn text-white fw-bold px-4 py-2" style="background-color: #1b5e20; border-radius: 12px;">Schedule Pickup</a>
+            <a href="{{ route('customer.orders.create') }}" class="btn text-white fw-bold px-4 py-2" style="background-color: #3D8B4D; border-radius: 12px;">Schedule Pickup</a>
         </div>
     @endforelse
+    </div>
 </div>
 @endsection

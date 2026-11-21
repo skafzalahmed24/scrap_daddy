@@ -5,26 +5,44 @@
 @push('styles')
 
     <style>
-        /* Mobile horizontal scroll for category sidebar */
+        /* Mobile: category list becomes a single horizontally-scrollable chip row */
         @media (max-width: 991px) {
+            .subcategories-section { padding-top: 1rem !important; padding-bottom: 1.5rem !important; }
+            .subcategories-section .section-heading { font-size: 1.15rem; }
+            .subcategories-section .btn-outline-success { padding: 4px 12px !important; font-size: .8rem; }
+            .category-sidebar-card { box-shadow: none !important; background: transparent; overflow: visible !important; }
             .category-sidebar-list {
                 display: flex !important;
                 flex-direction: row !important;
-                flex-wrap: wrap !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
                 max-height: none !important;
-                padding-bottom: 0 !important;
-                gap: 10px;
-                justify-content: center;
+                gap: 8px;
+                padding: 4px 2px 8px !important;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
             }
+            .category-sidebar-list::-webkit-scrollbar { display: none; }
             .category-sidebar-list .list-group-item {
-                border-bottom: 0 !important;
-                border-left: 0 !important;
-                border-bottom: 3px solid transparent !important;
+                flex: 0 0 auto;
+                width: auto !important;
+                white-space: nowrap;
+                padding: 8px 14px !important;
+                border: 1px solid #ddd !important;
+                border-radius: 50px !important;
+                background: #fff;
+                font-size: .85rem;
             }
+            .category-sidebar-list .list-group-item img { margin-right: 8px !important; width: 20px !important; height: 20px !important; }
             .category-sidebar-list .list-group-item[style*="border-left"] {
-                border-left: 0 !important;
-                border-bottom: 3px solid var(--primary-green) !important;
+                border: 1px solid var(--primary-green) !important;
+                background: var(--primary-green) !important;
+                color: #fff !important;
             }
+            .subcat-circle { width: 76px !important; height: 76px !important; }
+            .subcat-circle img { padding: 10px !important; }
+            .subcat-name { font-size: .75rem !important; }
         }
         /* Hide scrollbar for webkit */
         .category-sidebar-list::-webkit-scrollbar {
@@ -53,7 +71,7 @@
             <div class="row g-4">
                 <!-- Sidebar: All Categories -->
                 <div class="col-lg-3">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 mb-lg-0 sticky-lg-top" style="top: 20px; z-index: 10;">
+                    <div class="card category-sidebar-card border-0 shadow-sm rounded-4 overflow-hidden mb-3 mb-lg-0 sticky-lg-top" style="top: 20px; z-index: 10;">
                         <div class="card-header bg-white border-bottom-0 pt-4 pb-2 d-none d-lg-block">
                             <a href="{{ route('categories.explore') }}" class="text-decoration-none">
                                 <h5 class="fw-bold mb-0" style="color: var(--primary-blue);">
@@ -94,19 +112,19 @@
                         <h4 class="fw-bold mb-0" style="color: #333;">{{ $category->title }} Subcategories</h4>
                     </div>
 
-                    <div class="row row-cols-3 row-cols-md-4 g-4 justify-content-center">
+                    <div class="row row-cols-3 row-cols-md-4 g-3 g-md-4 justify-content-center">
                         @if(isset($subcategories) && count($subcategories) > 0)
                             @foreach($subcategories as $sub)
                             <div class="col d-flex flex-column align-items-center">
                                 <a href="javascript:void(0)" class="text-decoration-none text-center subcategory-item" data-id="{{ $sub->id }}" data-uuid="{{ $sub->uuid }}" data-name="{{ $sub->name }}">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto mb-2" style="width: 100px; height: 100px; background-color: #ffffff; border: 2px solid var(--primary-green); overflow: hidden; transition: transform 0.3s; position: relative;">
+                                    <div class="subcat-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto mb-2" style="width: 100px; height: 100px; background-color: #ffffff; border: 2px solid var(--primary-green); overflow: hidden; transition: transform 0.3s; position: relative;">
                                         @if($sub->image)
                                             <img src="{{ asset($sub->image) }}" alt="{{ $sub->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 15px;">
                                         @else
                                             <i class="fa-solid fa-recycle fa-3x" style="color: var(--primary-green);"></i>
                                         @endif
                                     </div>
-                                    <h6 class="fw-bold text-dark" style="font-size: 0.9rem;">{{ $sub->name }}</h6>
+                                    <h6 class="subcat-name fw-bold text-dark" style="font-size: 0.9rem;">{{ $sub->name }}</h6>
                                 </a>
                             </div>
                             @endforeach
@@ -123,6 +141,17 @@
         </div>
     </section>
     
+    <script>
+        // Keep the active category chip visible in the mobile scroll row
+        document.addEventListener('DOMContentLoaded', function () {
+            const list = document.querySelector('.category-sidebar-list');
+            const active = list && list.querySelector('[style*="border-left"]');
+            if (active && list.scrollWidth > list.clientWidth) {
+                list.scrollLeft = active.offsetLeft - (list.clientWidth - active.offsetWidth) / 2;
+            }
+        });
+    </script>
+
     <!-- Location Detection Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {

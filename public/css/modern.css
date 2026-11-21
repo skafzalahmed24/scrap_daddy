@@ -4,22 +4,22 @@
  * Design tokens first, then components. Safe to delete this file to go back to the old look.
  */
 :root {
-    --sd-green-600: #2e7d32;
-    --sd-green-700: #1b5e20;
-    --sd-green-500: #43a047;
-    --sd-green-50: #ecf7ee;
+    --sd-green-600: #3D8B4D;
+    --sd-green-700: #2F7A3E;
+    --sd-green-500: #4A9A58;
+    --sd-green-50: #F4FCF4;
     --sd-orange: #ff8f00;
     --sd-ink: #14201a;
     --sd-muted: #667085;
-    --sd-bg: #f4f7f5;
+    --sd-bg: #F4FCF4;
     --sd-card: #ffffff;
-    --sd-line: rgba(16, 24, 40, 0.07);
+    --sd-line: #D8E8D9;
     --sd-radius: 20px;
     --sd-radius-sm: 12px;
-    --sd-shadow: 0 8px 28px rgba(16, 24, 40, 0.06);
-    --sd-shadow-lg: 0 16px 40px rgba(27, 94, 32, 0.16);
-    --sd-grad: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
-    --primary-green: #2e7d32;
+    --sd-shadow: 0 6px 22px rgba(16, 24, 40, 0.05);
+    --sd-shadow-lg: 0 12px 30px rgba(63, 143, 78, 0.16);
+    --sd-grad: #3D8B4D;
+    --primary-green: #3D8B4D;
 }
 
 html { scroll-behavior: smooth; }
@@ -35,7 +35,7 @@ body {
 h1, h2, h3, h4, h5, h6 { letter-spacing: -0.01em; }
 
 :focus-visible {
-    outline: 3px solid rgba(46, 125, 50, 0.35);
+    outline: 3px solid rgba(74,154,88, 0.35);
     outline-offset: 2px;
 }
 
@@ -67,7 +67,7 @@ body .hero-buttons .btn-primary {
     border: 0;
     color: #fff;
     border-radius: 14px;
-    box-shadow: 0 8px 20px rgba(46, 125, 50, 0.28);
+    box-shadow: 0 6px 16px rgba(63, 143, 78, 0.22);
 }
 body .btn-primary:hover,
 body .btn-success:hover,
@@ -86,7 +86,7 @@ body .btn-outline-primary,
 body .btn-outline-success,
 body .btn-view-details {
     border-radius: 14px;
-    border: 1.5px solid rgba(46, 125, 50, 0.35);
+    border: 1.5px solid rgba(74,154,88, 0.35);
     color: var(--sd-green-700);
     background: #fff;
 }
@@ -133,7 +133,7 @@ body .quick-action-icon, body .stat-icon, body .section-icon, body .profile-icon
 body .badge { border-radius: 999px; font-weight: 600; padding: .45em .8em; }
 
 body .filter-btn { border-radius: 999px; border: 1px solid var(--sd-line); background: #fff; transition: all .2s; }
-body .filter-btn.active { background: var(--sd-grad); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(46,125,50,.25); }
+body .filter-btn.active { background: var(--sd-grad); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(74,154,88,.25); }
 
 body .section-header h5, body .section-heading, body .right-card-title { font-weight: 800; }
 
@@ -150,11 +150,11 @@ body .form-control:focus,
 body .form-select:focus,
 body .form-control-custom:focus {
     border-color: var(--sd-green-600);
-    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.14);
+    box-shadow: 0 0 0 4px rgba(74,154,88, 0.14);
     outline: none;
 }
 body .custom-auth-input-group { border-radius: 14px; border: 1.5px solid #e4e7ec; background: #fff; }
-body .custom-auth-input-group:focus-within { border-color: var(--sd-green-600); box-shadow: 0 0 0 4px rgba(46, 125, 50, .14); }
+body .custom-auth-input-group:focus-within { border-color: var(--sd-green-600); box-shadow: 0 0 0 4px rgba(74,154,88, .14); }
 
 body .modal-content { border: 0; border-radius: 22px; box-shadow: 0 24px 60px rgba(16, 24, 40, 0.2); }
 body .alert { border-radius: var(--sd-radius-sm); border: 0; }
@@ -203,3 +203,30 @@ body .pickup-card img, body .item-row img { border-radius: 12px; object-fit: cov
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+
+/* ---------- Page loader ---------- */
+.sd-loader { position: fixed; inset: 0; z-index: 3000; background: rgba(255,255,255,.88); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; transition: opacity .15s ease, visibility .15s; }
+.sd-loader.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.sd-loader-box { text-align: center; }
+.sd-loader-truck { width: 84px; height: auto; animation: sdTruckBob .7s ease-in-out infinite alternate; }
+.sd-loader-bar { width: 120px; height: 5px; border-radius: 99px; background: #e3efe5; margin: 12px auto 0; overflow: hidden; }
+.sd-loader-bar span { display: block; height: 100%; width: 40%; border-radius: 99px; background: #66BB6A; animation: sdBar 1s ease-in-out infinite; }
+@keyframes sdTruckBob { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+@keyframes sdBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
+/* ---------- Softer surfaces (replaces the old heavy dark-green blocks) ---------- */
+body .rw-hero { background: #3D8B4D !important; box-shadow: 0 10px 26px rgba(90, 172, 104, .22) !important; }
+body .sidebar-profile { background: #3D8B4D; }
+body .hero-banner, body .hero-banner-dash { border-radius: 24px; }
+body .cat-chip { background: #EAF7EC !important; color: #3D8B4D !important; border-color: #D8E8D9 !important; }
+body .cat-chip.active { background: #4A9A58 !important; color: #fff !important; border-color: #4A9A58 !important; box-shadow: 0 4px 12px rgba(74,154,88,.22) !important; }
+body #step-1 .quantity-controls .btn-minus, body #step-1 .quantity-controls .btn-plus { background: #3D8B4D !important; box-shadow: 0 3px 8px rgba(74,154,88,.25); }
+body .period-pill.active, body #timeSlotsAccordion .time-slot-pill.selected { border-color: #66BB6A !important; background: #F3FBF4 !important; color: #2F7A3E !important; }
+body .step-nav .btn-primary-action { background: #3D8B4D !important; border-color: transparent !important; box-shadow: 0 6px 16px rgba(74,154,88,.22) !important; }
+body .quick-action-icon { background: #EAF7EC !important; color: #4A9A58 !important; }
+
+/* ---------- Same colours as the Android app (Color.kt) ---------- */
+body { background: linear-gradient(180deg, #F4FCF4 0%, #FFFFFF 100%) fixed; }
+body .btn-primary, body .btn-success, body .btn-create-account, body .btn-next-step, body .btn-auth-submit.active-btn, body .btn-new-pickup-huge, body .step-nav .btn-primary-action { background: #3D8B4D !important; background-image: none !important; border-color: #3D8B4D !important; color: #fff !important; box-shadow: 0 4px 12px rgba(61,139,77,.25) !important; }
+body .btn-outline-primary, body .btn-outline-success, body .btn-header-outline { color: #3D8B4D; border-color: #3D8B4D; }
+body .filter-btn.active { background: #3D8B4D; }

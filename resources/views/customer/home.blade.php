@@ -7,6 +7,7 @@
 @endpush
 
 @section('content')
+@include('partials.toast')
 
 <div class="dashboard-container">
     <div class="row g-4">
@@ -64,40 +65,7 @@
                 @forelse($recentOrders as $order)
                 
                 @if(in_array($order->status, ['pending', 'accepted']))
-                <!-- Active Tracker Card (Mockup Style) -->
-                <div class="pickup-card border-0 text-white flex-shrink-0" style="background: linear-gradient(145deg, #1a1a1a, #2d2d2d); min-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="d-flex gap-3 align-items-center">
-                            <div style="color: #fbbc04;"><i class="fa-solid fa-paper-plane fs-4"></i></div>
-                            <div>
-                                <h6 class="mb-0 fw-bold fs-5 text-white">Request Submitted</h6>
-                                <p class="mb-0 text-light" style="font-size: 0.8rem;">Pickup: <span class="fw-bold">{{ $order->pickup_date == date('Y-m-d') ? 'Today' : \Carbon\Carbon::parse($order->pickup_date)->format('d M') }}</span></p>
-                            </div>
-                        </div>
-                        <a href="{{ route('customer.orders') }}" class="btn btn-sm text-white px-3" style="background: #2e7d32; border-radius: 20px;">View</a>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between mb-4 mt-4 text-secondary" style="font-size: 0.75rem;">
-                        <span class="text-success fw-bold"><i class="fa-solid fa-check me-1"></i>Submitted <i class="fa-solid fa-chevron-right ms-1"></i></span>
-                        <span class="text-warning fw-bold"><i class="fa-regular fa-clock me-1"></i>Confirmed <i class="fa-solid fa-chevron-right ms-1"></i></span>
-                        <span>Assigned <i class="fa-solid fa-chevron-right ms-1"></i></span>
-                        <span>Completed</span>
-                    </div>
-
-                    <div class="p-3 rounded-4 mb-3" style="background: rgba(255,255,255,0.05);">
-                        <h6 class="fw-bold mb-2 text-white">Confirming your request...</h6>
-                        <div class="progress mb-3" style="height: 4px; background: #444;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <p class="mb-0 text-secondary" style="font-size: 0.8rem;">Please wait for a while we are confirming your request. This may take 30 mins or more...</p>
-                    </div>
-
-                    <div class="text-center mt-3 border-top pt-3 border-secondary border-opacity-25">
-                        <a href="{{ route('customer.faqs') }}" class="text-light text-decoration-none" style="font-size: 0.85rem;">
-                            <i class="fa-solid fa-headset me-2"></i>Need Support? We are happy to help
-                        </a>
-                    </div>
-                </div>
+                @include('partials.customer.pickup-tracker-card', ['order' => $order])
                 @else
                 <!-- Past Order Card -->
                 <div class="pickup-card flex-shrink-0" style="min-width: 320px;">
@@ -178,14 +146,14 @@
                         <p>Redeem your points</p>
                     </div>
                 </div>
-                <div class="quick-action-card">
+                <div class="quick-action-card" onclick="window.location.href='{{ route('customer.refer') }}'" style="cursor: pointer;">
                     <div class="quick-action-icon bg-success bg-opacity-10 text-success"><i class="fa-solid fa-users"></i></div>
                     <div>
                         <h6>Refer & Earn</h6>
                         <p>Invite friends & earn</p>
                     </div>
                 </div>
-                <div class="quick-action-card" onclick="window.location.href='{{ route('page.show', 'help-and-support') }}'">
+                <div class="quick-action-card" onclick="window.location.href='{{ route('customer.support') }}'">
                     <div class="quick-action-icon bg-success bg-opacity-10 text-success"><i class="fa-solid fa-headset"></i></div>
                     <div>
                         <h6>Help Center</h6>
@@ -353,7 +321,7 @@
                     <i class="fa-solid fa-box-open text-muted fs-1 mb-3 opacity-50"></i>
                     <h6 class="fw-bold text-dark">No Recent Pickups</h6>
                     <p class="text-muted small mb-3">You don't have any active pickup requests right now.</p>
-                    <a href="{{ route('customer.orders.create') ?? '#' }}" class="btn rounded-pill text-white fw-bold px-4" style="background: var(--primary-green, #1b5e20); font-size: 0.85rem;">Schedule a Pickup</a>
+                    <a href="{{ route('customer.orders.create') ?? '#' }}" class="btn rounded-pill text-white fw-bold px-4" style="background: var(--primary-green, #3D8B4D); font-size: 0.85rem;">Schedule a Pickup</a>
                 </div>
                 @endif
 
@@ -370,7 +338,7 @@
                     @if($banners->count() > 1)
                     <div class="carousel-indicators" style="bottom: -25px;">
                         @foreach($banners as $index => $banner)
-                            <button type="button" data-bs-target="#mobileBannerCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" style="width: 8px; height: 8px; border-radius: 50%; background-color: #2e7d32;"></button>
+                            <button type="button" data-bs-target="#mobileBannerCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" style="width: 8px; height: 8px; border-radius: 50%; background-color: #4A9A58;"></button>
                         @endforeach
                     </div>
                     @endif
@@ -423,7 +391,20 @@
                 <!-- Dynamic Categories -->
                 @php
                     $mobileCategories = \App\Models\Category::where('status', 1)->take(6)->get();
+                    // Saved PIN code of the user: when it is outside the service area, show "not available" instead of categories
+                    $svcPin = preg_match('/^[1-9][0-9]{5}$/', (string) ($user->pin_code ?? '')) ? $user->pin_code : null;
+                    $svcOk = !$svcPin || \App\Models\ServicePincode::isServiceable($svcPin);
                 @endphp
+                @if(!$svcOk)
+                    <div class="bg-white rounded-4 shadow-sm border border-light text-center p-4 mt-4 mb-4">
+                        <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                            <i class="fa-solid fa-location-crosshairs text-success fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Service not available</h5>
+                        <p class="text-muted mb-3" style="font-size: .9rem;">We don't pick up scrap in PIN code {{ $svcPin }} yet. We are expanding fast - please check back soon.</p>
+                        <a href="{{ route('customer.profile') }}" class="btn btn-sm rounded-pill px-3 fw-bold" style="border: 1.5px solid #4A9A58; color: #4A9A58;">Change my location</a>
+                    </div>
+                @else
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
                     <h5 class="fw-bold text-dark mb-0">Categories</h5>
                     <a href="{{ url('/explore-categories') }}" class="text-success text-decoration-none fw-bold" style="font-size: 0.85rem;">View All <i class="fa-solid fa-chevron-right ms-1" style="font-size: 0.7rem;"></i></a>
@@ -448,6 +429,7 @@
                     </div>
                     @endforelse
                 </div>
+                @endif
 
                 <!-- How it works -->
                 <div class="mb-4 mt-2">
@@ -488,7 +470,7 @@
                 </div>
 
                 <!-- Refer a Friend -->
-                <div class="bg-white p-3 rounded-4 shadow-sm border border-light d-flex align-items-center justify-content-between mb-4">
+                <div id="referFriendCard" role="button" tabindex="0" style="cursor:pointer;" class="bg-white p-3 rounded-4 shadow-sm border border-light d-flex align-items-center justify-content-between mb-4">
                     <div class="d-flex align-items-center gap-3">
                         <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                             <i class="fa-solid fa-users text-success fs-4"></i>
@@ -507,4 +489,23 @@
 
     </div>
 </div>
+@push('scripts')
+<script>
+    (function () {
+        const card = document.getElementById('referFriendCard');
+        if (!card) return;
+        const share = async () => {
+            const data = { title: 'Join me on ScrapDaddy', text: 'Sell your scrap from home at the best price with ScrapDaddy!', url: window.location.origin };
+            try {
+                if (navigator.share) { await navigator.share(data); return; }
+                await navigator.clipboard.writeText(data.text + ' ' + data.url);
+                if (window.sdToast) sdToast('Invite link copied. Share it with your friends!');
+            } catch (e) { /* user cancelled */ }
+        };
+        const go = () => { window.location.href = "{{ route('customer.refer') }}"; };
+        card.addEventListener('click', go);
+        card.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    })();
+</script>
+@endpush
 @endsection
