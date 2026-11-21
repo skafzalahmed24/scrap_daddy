@@ -86,4 +86,21 @@ class SupportReferralTest extends TestCase
             ->assertJson(['status' => 1])
             ->assertJsonStructure(['data' => ['code', 'link', 'share_message', 'friends_joined', 'coins_earned']]);
     }
+
+    public function test_order_api_sends_same_title_image_and_item_pictures_as_website(): void
+    {
+        $cat = \App\Models\Category::create(["title" => "Paper", "image" => "categories/paper.png", "status" => 1]);
+        $sub = \App\Models\Subcategory::create(["category_id" => $cat->uuid, "name" => "Newspaper", "image" => "subcategories/news.png", "status" => 1]);
+        $user = $this->makeUser("9000000015");
+        $token = $user->createToken("t")->plainTextToken;
+        $order = Order::create([
+            "user_uuid" => $user->uuid, "category_uuid" => $cat->uuid, "status" => "pending", "pickup_location" => "x",
+            "pickup_date" => now()->toDateString(), "pickup_time" => "09:00 - 09:30",
+            "items" => [["subcategory_uuid" => $sub->uuid, "name" => "Newspaper", "quantity" => 2]],
+        ]);
+
+        $this->withToken($token)->postJson("/api/customer/order-details", ["order_id" => $order->id])
+            ->assertJson(["status" => 1, "data" => ["display_title" => "Paper", "display_image" => "subcategories/news.png"]])
+            ->assertJsonPath("data.items_with_images.0.image", "subcategories/news.png");
+    }
 }

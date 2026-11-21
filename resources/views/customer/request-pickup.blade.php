@@ -90,7 +90,7 @@
         .cat-hero p { color:#5f6b66; margin:0; font-size:.95rem; max-width:340px; }
         .cat-hero img { width:120px; height:120px; object-fit:contain; flex-shrink:0; }
         @media (max-width:575px){ .cat-hero h3{font-size:1.6rem} .cat-hero img{width:96px;height:96px} }
-        #step-1 .item-row { border-radius:20px !important; border:1px solid rgba(16,24,40,.06) !important; box-shadow:0 6px 20px rgba(16,24,40,.07); padding:14px !important; }
+        #step-1 .item-row { display:flex; border-radius:20px !important; border:1px solid rgba(16,24,40,.06) !important; box-shadow:0 6px 20px rgba(16,24,40,.07); padding:14px !important; }
         #step-1 .item-icon-wrapper { background:#f1f8f1 !important; border:1.5px solid #cfe8d2; border-radius:16px !important; width:64px !important; height:64px !important; }
         #step-1 .item-info h6 { font-size:1.05rem; }
         #step-1 .quantity-controls .btn-minus, #step-1 .quantity-controls .btn-plus { width:36px !important; height:36px !important; border:0 !important; color:#fff !important; background:linear-gradient(135deg,#4A9A58,#3D8B4D) !important; box-shadow:0 3px 8px rgba(61,139,77,.3); }
@@ -232,7 +232,7 @@
 
                             <div class="items-list ms-md-5" id="itemsList">
                                 @foreach($subcategories as $sub)
-                                    <div class="item-card bg-white border rounded-3 p-2 mb-3 d-flex align-items-center justify-content-between item-row" data-uuid="{{ $sub->uuid }}" data-name="{{ $sub->name }}" data-category="{{ $sub->category_id }}">
+                                    <div class="item-card bg-white border rounded-3 p-2 mb-3 align-items-center justify-content-between item-row" data-uuid="{{ $sub->uuid }}" data-name="{{ $sub->name }}" data-category="{{ $sub->category_id }}">
                                         <div class="d-flex align-items-center">
                                             <div class="item-icon-wrapper rounded p-1 me-3" style="background: #f1f8f1; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                                                 @if($sub->image)
@@ -923,7 +923,7 @@
         }));
 
         const showStep = (step) => {
-            if (step === 2) renderStep2Summary();
+            if (Number(step) === 2) renderStep2Summary();
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
             document.getElementById(`step-${step}`).classList.add('active');
             

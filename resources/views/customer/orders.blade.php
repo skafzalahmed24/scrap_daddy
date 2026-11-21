@@ -282,7 +282,7 @@
         @php
             // Determine Category Name & Icon
             $firstItem = is_array($order->items) && count($order->items) > 0 ? $order->items[0] : null;
-            $catName = $order->subcategory->name ?? ($order->category->name ?? ($firstItem['name'] ?? 'Electronics'));
+            $catName = $order->display_title;
             
             // Subtitle Timing Format
             $pickupDateStr = $order->pickup_date ? \Carbon\Carbon::parse($order->pickup_date)->format('Y-m-d') : null;
@@ -323,8 +323,8 @@
             <!-- Category and Pickup Schedule -->
             <div class="order-category-row">
                 <div class="order-category-thumb">
-                    @if(isset($order->subcategory) && $order->subcategory->image)
-                        <img src="{{ asset($order->subcategory->image) }}" alt="{{ $catName }}">
+                    @if($order->display_image)
+                        <img src="{{ asset($order->display_image) }}" alt="{{ $catName }}">
                     @else
                         <i class="bi bi-box-seam"></i>
                     @endif

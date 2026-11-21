@@ -36,6 +36,44 @@ class Order extends Model
         'items' => 'array',
     ];
 
+    /** Same title / picture on the website and in the mobile app (API sends these too). */
+    protected $appends = ['display_title', 'display_image', 'items_with_images'];
+
+    public function getDisplayTitleAttribute(): string
+    {
+        $first = is_array($this->items) ? ($this->items[0] ?? null) : null;
+
+        return $this->category->title ?? $this->subcategory->name ?? ($first['name'] ?? 'Scrap pickup');
+    }
+
+    public function getDisplayImageAttribute(): ?string
+    {
+        if ($this->subcategory && $this->subcategory->image) {
+            return $this->subcategory->image;
+        }
+        foreach ($this->items_with_images as $item) {
+            if (!empty($item['image'])) {
+                return $item['image'];
+            }
+        }
+
+        return $this->category->image ?? null;
+    }
+
+    /** Each picked item with its subcategory picture (name + quantity are stored on the order). */
+    public function getItemsWithImagesAttribute(): array
+    {
+        $items = is_array($this->items) ? $this->items : [];
+        $uuids = collect($items)->pluck('subcategory_uuid')->filter()->unique()->all();
+        $images = $uuids ? Subcategory::whereIn('uuid', $uuids)->pluck('image', 'uuid') : collect();
+
+        return array_map(function ($i) use ($images) {
+            $i['image'] = $images[$i['subcategory_uuid'] ?? ''] ?? null;
+
+            return $i;
+        }, $items);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_uuid', 'uuid');
