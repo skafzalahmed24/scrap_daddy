@@ -67,6 +67,9 @@
 
 <div class="st-actions"><div class="st-actions-in">
     <a class="btn btn-outline-primary" href="{{ route('customer.order.show', $order->id) }}">Order details</a>
+    @if($status !== 'verifying')
+        <a class="btn btn-outline-success" target="_blank" href="{{ route('customer.payment.receipt', $order->id) }}"><i class="fa-solid fa-file-pdf me-1"></i> Receipt</a>
+    @endif
     @if($pay['remaining'] > 0 && $status !== 'verifying' && $order->status === 'completed')
         <a class="btn btn-primary" href="{{ route('customer.payment.initiate', $order->id) }}">Pay balance</a>
     @else

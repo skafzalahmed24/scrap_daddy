@@ -308,7 +308,7 @@ class OrderPaymentService
             'status' => self::statusKey($order, $pending),
             'status_label' => self::statusLabel(self::statusKey($order, $pending)),
             'methods' => self::methods(),
-            'payments' => $order->payments()->get(['id', 'kind', 'amount', 'method', 'reference', 'status', 'note', 'created_at'])
+            'payments' => $order->payments()->get(['id', 'kind', 'amount', 'method', 'reference', 'gateway_order_id', 'status', 'note', 'created_at'])
                 ->map(fn ($p) => $p->toArray() + ['method_label' => $p->method_label])->all(),
         ];
     }

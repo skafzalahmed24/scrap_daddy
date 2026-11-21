@@ -25,6 +25,7 @@
         </div>
     </div>
     <div class="text-end">
+        <a class="btn btn-sm btn-outline-primary mb-2" target="_blank" href="{{ route('admin.orders.receipt', $order->id) }}"><i class="fa-solid fa-file-invoice me-1"></i> Receipt / Invoice (PDF)</a>
         <div class="pr-sub">Order amount</div>
         <div class="pr-money" style="font-size:1.7rem;">{{ $order->total_amount > 0 ? '₹'.number_format($order->total_amount, 2) : 'Not set' }}</div>
     </div>

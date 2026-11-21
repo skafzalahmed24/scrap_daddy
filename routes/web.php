@@ -113,6 +113,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
     Route::post('/customer/payment/{orderId}/apply-rewards', [PaymentController::class, 'applyRewards'])->name('customer.payment.apply-rewards');
     Route::post('/customer/payment/callback', [PaymentController::class, 'paymentCallback'])->name('customer.payment.callback');
     Route::get('/customer/payment/{orderId}/status', [PaymentController::class, 'status'])->whereNumber('orderId')->name('customer.payment.status');
+    Route::get('/customer/payment/{orderId}/receipt', [\App\Http\Controllers\ReceiptController::class, 'customer'])->whereNumber('orderId')->name('customer.payment.receipt');
     // JSON endpoints used by the payment page (same logic as the mobile API)
     Route::post('/customer/payment/gateway-order', [\App\Http\Controllers\PaymentApiController::class, 'gatewayOrder'])->name('customer.payment.gateway-order');
     Route::post('/customer/payment/direct', [\App\Http\Controllers\PaymentApiController::class, 'payDirect'])->name('customer.payment.direct');
@@ -159,6 +160,7 @@ Route::post('/admin/orders/{id}/status', [OrderController::class, 'updateStatus'
 
 // Order detail page + payment actions
 Route::get('/admin/orders/{id}', [App\Http\Controllers\AdminOrderController::class, 'show'])->whereNumber('id')->name('admin.orders.show');
+Route::get('/admin/orders/{id}/receipt', [App\Http\Controllers\ReceiptController::class, 'admin'])->whereNumber('id')->name('admin.orders.receipt');
 Route::post('/admin/orders/{id}/record-payment', [App\Http\Controllers\AdminOrderController::class, 'recordPayment'])->whereNumber('id')->name('admin.orders.record-payment');
 Route::post('/admin/order-payments/{id}/review', [App\Http\Controllers\AdminOrderController::class, 'reviewPayment'])->whereNumber('id')->name('admin.order-payments.review');
 Route::get('/admin/scrap-vehicles/{id}', [App\Http\Controllers\ScrapVehicleController::class, 'adminShow'])->whereNumber('id')->name('admin.scrap-vehicles.show');
