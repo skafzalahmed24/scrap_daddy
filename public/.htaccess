@@ -69,3 +69,14 @@
     ExpiresByType text/css "access plus 1 week"
     ExpiresByType application/javascript "access plus 1 week"
 </IfModule>
+
+# PWA: correct MIME type for the manifest, and make the service worker always revalidate
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+</IfModule>
+<IfModule mod_headers.c>
+    <Files "sw.js">
+        Header set Cache-Control "no-cache, max-age=0"
+        Header set Service-Worker-Allowed "/"
+    </Files>
+</IfModule>

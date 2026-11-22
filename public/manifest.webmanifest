@@ -1,0 +1,23 @@
+{
+  "name": "Scrapdaddy - Pickup. Haul. Dispose.",
+  "short_name": "Scrapdaddy",
+  "description": "Schedule scrap pickups, track them live and earn reward coins.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#3D8B4D",
+  "lang": "en",
+  "categories": ["utilities", "lifestyle"],
+  "icons": [
+    { "src": "/images/pwa/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/images/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/images/pwa/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Request pickup", "short_name": "Pickup", "url": "/customer/request-pickup", "icons": [{ "src": "/images/pwa/icon-192.png", "sizes": "192x192" }] },
+    { "name": "My orders", "short_name": "Orders", "url": "/customer/orders", "icons": [{ "src": "/images/pwa/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

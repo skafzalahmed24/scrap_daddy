@@ -21,6 +21,7 @@
     <!-- Common Header & Footer CSS -->
     <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 
+    @include('partials.pwa-head')
     @stack('styles')
 </head>
 
@@ -224,6 +225,7 @@
     </style>
     @endif
     <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=5">
+    @include('partials.pwa-install')
 </body>
 
 </html>

@@ -14,6 +14,7 @@
     <!-- Customer Auth CSS & Embedded Styles -->
     <link rel="stylesheet" href="{{ asset('css/customer-auth.css') }}?v={{ time() }}">
     @include('partials.customer.auth-styles')
+    @include('partials.pwa-head')
 </head>
 <body>
 
@@ -260,5 +261,6 @@
     }
 </script>
 <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=5">
+@include('partials.pwa-install')
 </body>
 </html>
