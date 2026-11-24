@@ -74,7 +74,7 @@
           
           <div class="mb-3">
               <label for="image" class="form-label">Image</label>
-              <input type="file" class="form-control" id="image" name="image" accept="image/*">
+              <input type="file" class="form-control" id="image" name="image" accept=".jpg,.jpeg,.png,.gif,.svg,image/jpeg,image/png,image/gif,image/svg+xml">
               <div class="mt-2" id="currentImageContainer" style="display:none;">
                   <p class="mb-1 text-muted small">Current Image:</p>
                   <img src="" id="currentImage" class="category-img border">

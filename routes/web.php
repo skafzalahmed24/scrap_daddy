@@ -9,6 +9,12 @@ use App\Http\Controllers\PaymentController;
 
 Route::get('/', [HomeController::class, 'index']);
 // The old "Category Explorer" page is gone: categories open the pickup page directly (category chips + items).
+// Public blog ("Know your scrap"): readable by everyone and indexed by search engines
+Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->where('slug', '[A-Za-z0-9\-]+')->name('blog.show');
+Route::get('/learn/{id}', [\App\Http\Controllers\BlogController::class, 'legacy'])->whereNumber('id')->name('learn.show'); // old links -> 301 to /blog/<slug>
+Route::get('/sitemap.xml', [\App\Http\Controllers\BlogController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [\App\Http\Controllers\BlogController::class, 'robots'])->name('robots');
 Route::get('/explore-categories', fn () => redirect()->route('customer.orders.create'))->name('categories.explore');
 Route::get('/category/{id}', fn ($id) => redirect()->route('customer.orders.create', ['category' => $id]))->name('category.show');
 
@@ -32,6 +38,9 @@ Route::get('/admin/payments', [AdminPaymentController::class, 'index'])->name('a
 Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
 Route::get('/admin/users/{uuid}', [AdminUserController::class, 'show'])->name('admin.users.show');
 });
+
+// Guests can browse the pickup page; logging in is asked only when they submit the request.
+Route::get('/customer/request-pickup', [OrderController::class, 'create'])->name('customer.orders.create');
 
 Route::get('/customer/login', function () {
     return view('customer-login');
@@ -83,6 +92,8 @@ Route::middleware(['auth', 'single.session'])->group(function () {
     })->name('customer.profile');
 
     Route::post('/customer/profile/update', [\App\Http\Controllers\CustomerAuthController::class, 'updateProfile'])->name('customer.profile.update');
+    Route::post('/customer/profile/phone/send-otp', [\App\Http\Controllers\CustomerAuthController::class, 'requestPhoneChange'])->name('customer.profile.phone.send');
+    Route::post('/customer/profile/phone/verify', [\App\Http\Controllers\CustomerAuthController::class, 'confirmPhoneChange'])->name('customer.profile.phone.verify');
 
     Route::get('/customer/payments', function () {
         return view('customer.payments');
@@ -97,7 +108,6 @@ Route::middleware(['auth', 'single.session'])->group(function () {
     // User Orders & Feedback
     Route::get('/customer/orders', [OrderController::class, 'index'])->name('customer.orders');
     Route::get('/customer/order/{id}', [OrderController::class, 'show'])->name('customer.order.show');
-    Route::get('/customer/request-pickup', [OrderController::class, 'create'])->name('customer.orders.create');
     Route::post('/customer/orders', [OrderController::class, 'store'])->name('customer.orders.store');
     Route::post('/customer/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('customer.orders.cancel');
     Route::post('/customer/feedback', [FeedbackController::class, 'store'])->name('customer.feedback.store');
@@ -171,6 +181,26 @@ Route::post('/admin/payment-settings', [App\Http\Controllers\AdminPaymentSetting
 
 Route::get('/admin/tickets', [App\Http\Controllers\AdminTicketController::class, 'index'])->name('admin.tickets.index');
 Route::post('/admin/tickets/{id}', [App\Http\Controllers\AdminTicketController::class, 'update'])->name('admin.tickets.update');
+
+// Home screen content (section texts, trending items) + bulk enquiry form builder / inbox
+Route::get('/admin/home-content', [App\Http\Controllers\AdminHomeContentController::class, 'index'])->name('admin.home-content.index');
+Route::post('/admin/home-content/sections/{key}', [App\Http\Controllers\AdminHomeContentController::class, 'updateSection'])->name('admin.home-content.section');
+Route::post('/admin/home-content/trending', [App\Http\Controllers\AdminHomeContentController::class, 'saveTrending'])->name('admin.home-content.trending');
+Route::get('/admin/home-content/banners/{section}', [App\Http\Controllers\AdminHomeBannerController::class, 'index'])->name('admin.home-banners.index');
+Route::post('/admin/home-content/banners/{section}', [App\Http\Controllers\AdminHomeBannerController::class, 'store'])->name('admin.home-banners.store');
+Route::post('/admin/home-banners/{id}', [App\Http\Controllers\AdminHomeBannerController::class, 'update'])->whereNumber('id')->name('admin.home-banners.update');
+Route::delete('/admin/home-banners/{id}', [App\Http\Controllers\AdminHomeBannerController::class, 'destroy'])->whereNumber('id')->name('admin.home-banners.destroy');
+Route::get('/admin/scrap-articles', [App\Http\Controllers\AdminScrapArticleController::class, 'index'])->name('admin.scrap-articles.index');
+Route::get('/admin/scrap-articles/create', [App\Http\Controllers\AdminScrapArticleController::class, 'create'])->name('admin.scrap-articles.create');
+Route::post('/admin/scrap-articles', [App\Http\Controllers\AdminScrapArticleController::class, 'store'])->name('admin.scrap-articles.store');
+Route::get('/admin/scrap-articles/{id}/edit', [App\Http\Controllers\AdminScrapArticleController::class, 'edit'])->whereNumber('id')->name('admin.scrap-articles.edit');
+Route::post('/admin/scrap-articles/{id}', [App\Http\Controllers\AdminScrapArticleController::class, 'update'])->whereNumber('id')->name('admin.scrap-articles.update');
+Route::delete('/admin/scrap-articles/{id}', [App\Http\Controllers\AdminScrapArticleController::class, 'destroy'])->whereNumber('id')->name('admin.scrap-articles.destroy');
+Route::get('/admin/bulk-enquiries', [App\Http\Controllers\AdminBulkEnquiryController::class, 'index'])->name('admin.bulk-enquiries.index');
+Route::post('/admin/bulk-enquiries/fields', [App\Http\Controllers\AdminBulkEnquiryController::class, 'storeField'])->name('admin.bulk-enquiries.fields.store');
+Route::post('/admin/bulk-enquiries/fields/{id}', [App\Http\Controllers\AdminBulkEnquiryController::class, 'updateField'])->name('admin.bulk-enquiries.fields.update');
+Route::delete('/admin/bulk-enquiries/fields/{id}', [App\Http\Controllers\AdminBulkEnquiryController::class, 'destroyField'])->name('admin.bulk-enquiries.fields.destroy');
+Route::post('/admin/bulk-enquiries/{id}', [App\Http\Controllers\AdminBulkEnquiryController::class, 'updateEnquiry'])->whereNumber('id')->name('admin.bulk-enquiries.update');
 
 Route::get('/admin/pincodes', [App\Http\Controllers\AdminPincodeController::class, 'index'])->name('admin.pincodes.index');
 Route::post('/admin/pincodes', [App\Http\Controllers\AdminPincodeController::class, 'store'])->name('admin.pincodes.store');

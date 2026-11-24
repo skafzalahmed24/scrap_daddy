@@ -57,6 +57,17 @@
             display: inline-block;
             width: 100%;
         }
+        /* Visible scrollers: category chips scroll sideways, the item list scrolls down inside its own box */
+        .filter-pills { scrollbar-width: thin; scrollbar-color: #4A9A58 #e8f5e9; }
+        .filter-pills::-webkit-scrollbar { height: 6px; }
+        .filter-pills::-webkit-scrollbar-track { background: #e8f5e9; border-radius: 6px; }
+        .filter-pills::-webkit-scrollbar-thumb { background: #4A9A58; border-radius: 6px; }
+        #itemsList { max-height: 60vh; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; scrollbar-color: #4A9A58 #e8f5e9; }
+        #itemsList::-webkit-scrollbar { width: 7px; }
+        #itemsList::-webkit-scrollbar-track { background: #e8f5e9; border-radius: 6px; }
+        #itemsList::-webkit-scrollbar-thumb { background: #4A9A58; border-radius: 6px; }
+        .time-slot-pill.disabled, #timeSlotsAccordion .time-slot-pill.disabled { opacity:.45; background:#f2f4f7; color:#98a2b3; cursor:not-allowed; text-decoration:line-through; pointer-events:none; }
+        .period-pill.disabled { opacity:.45; cursor:not-allowed; pointer-events:none; }
         .time-slot-pill:hover {
             border-color: #ccc;
         }
@@ -116,8 +127,9 @@
         #timeSlotsAccordion .accordion-header { display:none; }
         #timeSlotsAccordion .accordion-item { border:0 !important; background:transparent; }
         #timeSlotsAccordion .accordion-body { padding:0 !important; }
-        #timeSlotsAccordion .row > div { flex:0 0 auto; width:33.3333%; }
-        #timeSlotsAccordion .time-slot-pill { border:1.5px solid #e4e7ec; border-radius:14px; padding:12px 4px; font-size:.9rem; color:#667085; background:#fff; white-space:nowrap; }
+        #timeSlotsAccordion .row > div { flex:0 0 auto; width:50%; }
+        @media (min-width:768px){ #timeSlotsAccordion .row > div { width:33.3333%; } }
+        #timeSlotsAccordion .time-slot-pill { border:1.5px solid #e4e7ec; border-radius:14px; padding:12px 4px; font-size:.85rem; color:#667085; background:#fff; white-space:nowrap; }
         #timeSlotsAccordion .time-slot-pill.selected { border-color:#4A9A58; background:#eaf6ea; color:#3D8B4D; font-weight:700; }
         .sd-upload { display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; padding:30px 16px; border:1.5px dashed #a5d6a7; background:#f6fbf6; border-radius:20px; cursor:pointer; width:100%; }
         .sd-upload .ic { width:64px; height:64px; border-radius:50%; background:#e3f3e4; color:#4A9A58; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:6px; }
@@ -213,22 +225,18 @@
                                     .cat-chip{background:#e8f5e9!important;color:#3D8B4D!important;border:1.5px solid #a5d6a7!important;font-weight:600;white-space:nowrap}
                                     .cat-chip.active{background:#4A9A58!important;color:#fff!important;border-color:#4A9A58!important;box-shadow:0 4px 12px rgba(74,154,88,.28)}
                                 </style>
-                                <div class="filter-pills d-flex overflow-auto pb-2" style="white-space: nowrap; scrollbar-width: none;">
+                                <div class="filter-pills d-flex overflow-auto pb-2" style="white-space: nowrap;">
                                     <button type="button" class="btn btn-sm rounded-pill px-3 py-1 me-2 filter-btn cat-chip active" data-filter="All" data-title="What are you looking to sell?" data-sub="Select the items and quantities you want us to pick up" data-img="">All</button>
                                     @php
                                         // Filter chips = the real categories that have at least one active item
                                         $filterCats = $subcategories->pluck('category')->filter()->unique('uuid')->values();
                                     @endphp
                                     @foreach($filterCats as $cat)
-                                        <button type="button" class="btn btn-sm rounded-pill px-3 py-1 me-2 filter-btn cat-chip" data-filter="{{ $cat->uuid }}" data-title="{{ $cat->title }}" data-sub="{{ \Illuminate\Support\Str::limit($cat->description ?: 'Best market prices for your scrap', 70) }}" data-img="{{ $cat->image ? asset($cat->image) : '' }}">{{ $cat->title }}</button>
+                                        <button type="button" class="btn btn-sm rounded-pill px-3 py-1 me-2 filter-btn cat-chip" data-filter="{{ $cat->uuid }}" data-title="{{ $cat->title }}" data-sub="{{ \Illuminate\Support\Str::limit($cat->description ?: 'Best market prices for your scrap', 160) }}" data-img="{{ $cat->image ? asset($cat->image) : '' }}">{{ $cat->title }}</button>
                                     @endforeach
                                 </div>
                             </div>
 
-                            <div id="selectedOnlyBar" class="ms-md-5 mt-3 mb-3 align-items-center justify-content-between gap-2" style="display: none;">
-                                <span class="small text-muted">Showing your selected item</span>
-                                <button type="button" id="btnAddMoreItems" class="btn btn-sm fw-bold" style="border: 1px solid var(--primary-green, #3D8B4D); color: var(--primary-green, #3D8B4D); border-radius: 20px; white-space: nowrap;"><i class="fa-solid fa-plus me-1"></i> Add more items</button>
-                            </div>
 
                             <div class="items-list ms-md-5" id="itemsList">
                                 @foreach($subcategories as $sub)
@@ -266,7 +274,8 @@
                             <div class="d-flex flex-column flex-md-row gap-2 mt-3 ms-md-5">
                                 <div class="position-relative flex-grow-1">
                                     <i class="fa-solid fa-location-dot position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                                    <input type="text" name="pickup_location" id="pickup_location" class="form-control ps-5 py-2 w-100 h-100" placeholder="Door No. 123, Main Street, City - 123456" required style="border-radius: 8px; border: 1px solid #ddd;">
+                                    <input type="text" name="pickup_location" id="pickup_location" class="form-control ps-5 py-2 w-100 h-100" placeholder="Search area / street, or type your full address" required autocomplete="off" style="border-radius: 8px; border: 1px solid #ddd;">
+                                    <div id="addrSuggest" class="list-group shadow position-absolute w-100" style="display:none; z-index:1050; top:100%; margin-top:4px; max-height:260px; overflow-y:auto; border-radius:10px;"></div>
                                 </div>
                                 <button type="button" class="btn py-2 px-3 fw-bold" id="btnDetectLocation" style="border-radius: 8px; white-space: nowrap; background: #e8f5e9; color: var(--primary-green, #3D8B4D); border: 1px solid #c8e6c9;">
                                     <i class="fa-solid fa-crosshairs me-2"></i> Use my location
@@ -317,7 +326,7 @@
                                                 <i class="fa-solid fa-cloud-sun text-primary me-3 fs-5"></i>
                                                 <div>
                                                     <h6 class="mb-0 fw-bold" style="color: #444;">Morning</h6>
-                                                    <small class="text-muted" style="font-size: 0.75rem;">07:00 AM - 12:00 PM</small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">09:00 AM - 12:00 PM</small>
                                                 </div>
                                             </div>
                                         </button>
@@ -339,7 +348,7 @@
                                                 <i class="fa-solid fa-sun text-warning me-3 fs-5"></i>
                                                 <div>
                                                     <h6 class="mb-0 fw-bold" style="color: #444;">Afternoon</h6>
-                                                    <small class="text-muted" style="font-size: 0.75rem;">12:30 PM - 03:30 PM</small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">12:00 PM - 04:00 PM</small>
                                                 </div>
                                             </div>
                                         </button>
@@ -361,7 +370,7 @@
                                                 <i class="fa-solid fa-cloud-moon text-secondary me-3 fs-5"></i>
                                                 <div>
                                                     <h6 class="mb-0 fw-bold" style="color: #444;">Evening</h6>
-                                                    <small class="text-muted" style="font-size: 0.75rem;">04:00 PM - 09:30 PM</small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">04:00 PM - 09:00 PM</small>
                                                 </div>
                                             </div>
                                         </button>
@@ -381,7 +390,7 @@
                         <label class="sd-upload" for="imageUpload">
                             <span class="ic"><i class="fa-solid fa-camera"></i></span>
                             <b>Tap to add photos</b>
-                            <small>JPG, PNG &bull; Max 10 photos &bull; 2 MB each</small>
+                            <small>JPG, PNG, GIF &bull; Max 10 photos &bull; 2 MB each</small>
                         </label>
                         <div class="text-center mt-2"><label for="cameraUpload" class="small fw-semibold" style="color:#4A9A58;cursor:pointer;"><i class="fa-solid fa-camera me-1"></i> or take a photo</label></div>
                         <span class="file-name-display d-block mt-2" id="fileNameDisplay">No file chosen</span>
@@ -467,7 +476,7 @@
                             <div class="rewards-card ms-md-5 mb-4 p-3 border rounded-3" style="background-color: #fcfcfc;">
                                 <div>
                                     <h6 class="mb-1 fw-bold" style="color: #222;"><i class="fa-solid fa-gift text-success me-2"></i>Rewards Available</h6>
-                                    <p class="text-muted small mb-0">You have <strong id="rewardCoinsDisplay">0</strong> coins worth <strong class="text-success" id="rewardBonusDisplay">₹0.00</strong>. You can apply them at payment, once the final amount is set after pickup.</p>
+                                    <p class="text-muted small mb-0">You have <strong id="rewardCoinsDisplay">0</strong> coins. You can apply them at payment, once the final amount is set after pickup.</p>
                                 </div>
                             </div>
                         </div>
@@ -720,14 +729,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        // --- Authentication Check ---
+        // Guests may browse and fill in the whole request; login is only asked on Confirm (see IS_GUEST below).
         const token = localStorage.getItem('auth_token');
-        if (!token) {
-            // Redirect to login, preserving query parameters like ?subcategory=...
-            const currentUrl = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.href = "{{ url('/customer/login') }}?redirect=" + currentUrl;
-            return;
-        }
 
         // Populate user_uuid from local storage if available
         const userData = localStorage.getItem('user_data');
@@ -759,7 +762,6 @@
                     if (u.reward_coins > 0) {
                         const coinValue = {{ $coinValue ?? 0.10 }};
                         document.getElementById('rewardCoinsDisplay').innerText = u.reward_coins;
-                        document.getElementById('rewardBonusDisplay').innerText = '₹' + (u.reward_coins * coinValue).toFixed(2);
                         document.getElementById('rewardsContainer').style.display = 'block';
                     }
                     // Update local storage so other pages have fresh data
@@ -866,6 +868,21 @@
             });
         });
         
+        // Items chosen in "Trending scrap" on Home (?items=uuid:qty,uuid:qty)
+        (function () {
+            const raw = new URLSearchParams(window.location.search).get('items');
+            if (!raw) return;
+            let any = false;
+            raw.split(',').forEach(pair => {
+                const [uuid, q] = pair.split(':');
+                const qty = Math.max(1, Math.min(999, parseInt(q, 10) || 1));
+                const row = Array.from(document.querySelectorAll('.item-row')).find(r => r.dataset.uuid === uuid);
+                if (!row) return;
+                cart[uuid] = { quantity: qty, name: row.dataset.name, image: row.querySelector('img') ? row.querySelector('img').src : null };
+                any = true;
+            });
+            if (any) updateCartUI();
+        })();
         // Auto-select the subcategory chosen on the previous page (?subcategory=uuid)
         const preUuid = new URLSearchParams(window.location.search).get('subcategory');
         if (preUuid) {
@@ -917,12 +934,17 @@
             document.getElementById('sumPin').textContent = (document.getElementById('pin_code').value || '-');
         }
         document.querySelectorAll('#periodPills .period-pill').forEach(p => p.addEventListener('click', function () {
+            if (this.classList.contains('disabled')) return;
             document.querySelectorAll('#periodPills .period-pill').forEach(x => x.classList.remove('active'));
             this.classList.add('active');
             ['Morning','Afternoon','Evening'].forEach(n => document.getElementById('collapse' + n).classList.toggle('show', n === this.dataset.period));
         }));
 
-        const showStep = (step) => {
+        let currentStep = 1;
+        const showStep = (step, fromHistory = false) => {
+            step = Number(step);
+            if (!fromHistory && step !== currentStep) history.pushState({ pickupStep: step }, '');
+            currentStep = step;
             if (Number(step) === 2) renderStep2Summary();
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
             document.getElementById(`step-${step}`).classList.add('active');
@@ -943,6 +965,10 @@
                 }
             }
         };
+
+        // Browser / phone Back walks back through the steps instead of leaving the page
+        history.replaceState({ pickupStep: 1 }, '');
+        window.addEventListener('popstate', e => showStep((e.state && e.state.pickupStep) || 1, true));
 
         document.querySelectorAll('.next-step, .prev-step').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -975,7 +1001,7 @@
         
         for(let i=0; i<7; i++) {
             const d = new Date(); d.setDate(d.getDate() + i);
-            const dateStr = d.toISOString().split('T')[0];
+            const dateStr = localISODate(d);
             
             let dayText = fullDays[d.getDay()];
             if (i === 0) dayText = 'Today';
@@ -1027,7 +1053,7 @@
                 </div>
             </div>
             <div id="customDateContainer" style="display:none; margin-top: 15px; padding-left: 35px;">
-                <input type="date" id="customDateModalInput" class="form-control" min="${new Date().toISOString().split('T')[0]}">
+                <input type="date" id="customDateModalInput" class="form-control" min="${localISODate(new Date())}">
             </div>
         `;
         dateModalList.appendChild(customLabel);
@@ -1044,7 +1070,8 @@
                 customLabel.querySelector('input[type="radio"]').checked = true;
                 
                 document.getElementById('input_pickup_date').value = this.value;
-                
+                renderSlots();
+
                 const selD = new Date(this.value);
                 let dateFormatted = `${selD.getDate().toString().padStart(2, '0')} ${months[selD.getMonth()]} ${selD.getFullYear()}`;
                 
@@ -1078,6 +1105,7 @@
                 selectedLabel.style.backgroundColor = '#f1f8f1';
                 
                 document.getElementById('input_pickup_date').value = e.target.value;
+                renderSlots();
                 selectedDateDisplayStr = e.target.dataset.display;
                 document.getElementById('selectedDateDisplay').innerText = selectedDateDisplayStr;
                 
@@ -1088,58 +1116,53 @@
             }
         });
 
-        // Time Slot Generator
-        function generateSlots(containerId, startHour, endHour, ampm) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            for(let h=startHour; h<=endHour; h++) {
-                let hour12 = h > 12 ? h - 12 : h;
-                if (hour12 === 0) hour12 = 12;
-                
-                // XX:00 slot
-                let slot1 = document.createElement('div');
-                slot1.className = 'col-4 col-sm-3 col-md-3';
-                let timeStr1 = `${hour12}:00 ${ampm}`;
-                slot1.innerHTML = `<div class="time-slot-pill" data-time="${timeStr1}">${timeStr1}</div>`;
-                container.appendChild(slot1);
-                
-                // XX:30 slot (skip if it's the end of range and we want to stop exactly at endHour:00)
-                if(h < endHour || (containerId === 'afternoonSlots' && h === endHour)) {
-                    let slot2 = document.createElement('div');
-                    slot2.className = 'col-4 col-sm-3 col-md-3';
-                    let timeStr2 = `${hour12}:30 ${ampm}`;
-                    slot2.innerHTML = `<div class="time-slot-pill" data-time="${timeStr2}">${timeStr2}</div>`;
-                    container.appendChild(slot2);
+        // Time Slots: 1-hour windows (e.g. 9:00 AM - 10:00 AM), 9 AM to 9 PM.
+        // Slots that have already started are disabled when the chosen date is today.
+        const SLOT_PERIODS = { Morning: ['morningSlots', 9, 12], Afternoon: ['afternoonSlots', 12, 16], Evening: ['eveningSlots', 16, 21] };
+        const fmtHour = h => `${(h % 12) || 12}:00 ${h < 12 ? 'AM' : 'PM'}`;
+        function localISODate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+        function renderSlots() {
+            const timeInput = document.getElementById('input_pickup_time');
+            const now = new Date();
+            const isToday = document.getElementById('input_pickup_date').value === localISODate(now);
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+            const enabledPerPeriod = {};
+            let selectedStillValid = false;
+
+            Object.entries(SLOT_PERIODS).forEach(([period, [containerId, from, to]]) => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                enabledPerPeriod[period] = 0;
+                for (let h = from; h < to; h++) {
+                    const label = `${fmtHour(h)} - ${fmtHour(h + 1)}`;
+                    const past = isToday && h * 60 <= nowMin;
+                    if (!past) enabledPerPeriod[period]++;
+                    const isSel = !past && timeInput.value === label;
+                    if (isSel) selectedStillValid = true;
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-sm-4 col-md-4';
+                    col.innerHTML = `<div class="time-slot-pill${past ? ' disabled' : ''}${isSel ? ' selected' : ''}" data-time="${label}" ${past ? 'aria-disabled="true"' : ''}>${label}</div>`;
+                    container.appendChild(col);
                 }
+            });
+            if (!selectedStillValid) timeInput.value = '';
+
+            const pills = document.querySelectorAll('#periodPills .period-pill');
+            pills.forEach(p => p.classList.toggle('disabled', enabledPerPeriod[p.dataset.period] === 0));
+            // If the open period has nothing left, jump to the first one that does.
+            const active = document.querySelector('#periodPills .period-pill.active');
+            if (!active || active.classList.contains('disabled')) {
+                const first = [...pills].find(p => !p.classList.contains('disabled'));
+                if (first) first.click();
             }
         }
-        
-        generateSlots('morningSlots', 7, 11, 'AM');
-        
-        // Custom generation for afternoon (12:30 PM - 3:30 PM)
-        const afternoonContainer = document.getElementById('afternoonSlots');
-        afternoonContainer.innerHTML = '';
-        ['12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM'].forEach(time => {
-            let slot = document.createElement('div');
-            slot.className = 'col-4 col-sm-3 col-md-3';
-            slot.innerHTML = `<div class="time-slot-pill" data-time="${time}">${time}</div>`;
-            afternoonContainer.appendChild(slot);
-        });
-
-        // Evening (4:00 PM - 9:30 PM)
-        const eveningContainer = document.getElementById('eveningSlots');
-        eveningContainer.innerHTML = '';
-        ['4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM'].forEach(time => {
-            let slot = document.createElement('div');
-            slot.className = 'col-4 col-sm-3 col-md-3';
-            slot.innerHTML = `<div class="time-slot-pill" data-time="${time}">${time}</div>`;
-            eveningContainer.appendChild(slot);
-        });
+        renderSlots();
 
         // Time Selector
         document.getElementById('timeSlotsAccordion').addEventListener('click', function(e) {
             const pill = e.target.closest('.time-slot-pill');
-            if (pill) {
+            if (pill && !pill.classList.contains('disabled')) {
                 document.querySelectorAll('.time-slot-pill').forEach(b => b.classList.remove('selected'));
                 pill.classList.add('selected');
                 document.getElementById('input_pickup_time').value = pill.dataset.time;
@@ -1277,6 +1300,49 @@
             } else { btn.innerHTML = originalText; showLocationError('Geolocation not supported by your browser.'); }
         });
 
+        // Search any other place: suggestions as you type; picking one fills the address and its PIN code.
+        (function () {
+            const input = document.getElementById('pickup_location');
+            const box = document.getElementById('addrSuggest');
+            let timer = null, seq = 0, lastQuery = '';
+            const hide = () => { box.style.display = 'none'; box.innerHTML = ''; };
+            const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+            input.addEventListener('input', function () {
+                clearTimeout(timer);
+                const q = input.value.trim();
+                if (q.length < 3 || q === lastQuery) { if (q.length < 3) hide(); return; }
+                timer = setTimeout(async () => {
+                    const my = ++seq;
+                    try {
+                        const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=in&q=' + encodeURIComponent(q), { headers: { 'Accept-Language': 'en' } });
+                        const list = await r.json();
+                        if (my !== seq) return; // a newer search is already running
+                        if (!Array.isArray(list) || !list.length) { box.innerHTML = '<div class="list-group-item small text-muted">No places found. You can still type the full address.</div>'; box.style.display = 'block'; return; }
+                        box.innerHTML = list.map((p, i) => '<button type="button" class="list-group-item list-group-item-action small" data-i="' + i + '"><i class="fa-solid fa-location-dot me-2 text-success"></i>' + esc(p.display_name) + '</button>').join('');
+                        box.style.display = 'block';
+                        box._places = list;
+                    } catch (e) { hide(); }
+                }, 600);
+            });
+
+            box.addEventListener('click', function (e) {
+                const b = e.target.closest('button[data-i]');
+                if (!b || !box._places) return;
+                const place = box._places[Number(b.dataset.i)];
+                lastQuery = place.display_name;
+                input.value = place.display_name;
+                hide();
+                const zip = place.address && place.address.postcode ? String(place.address.postcode).replace(/\D/g, '').slice(0, 6) : '';
+                if (zip.length === 6) { pinInput.value = zip; checkPin(zip); }
+                else { pinInput.value = ''; renderPinStatus(null, ''); renderPinStatus(false, 'Please enter the PIN code for this address.'); pinInput.focus(); }
+            });
+
+            document.addEventListener('click', e => { if (!e.target.closest('#addrSuggest') && e.target !== input) hide(); });
+            // "Use my location" fills the address too: don't re-open suggestions for that text
+            document.getElementById('btnDetectLocation').addEventListener('click', () => { lastQuery = ''; hide(); });
+        })();
+
         const MAX_IMG_BYTES = 2 * 1024 * 1024;
         const MAX_IMG_COUNT = 10;
         const ALLOWED_IMG_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -1398,11 +1464,64 @@
             showStep(3);
         });
 
+        // --- Guest mode: browse and fill in the request freely; login is asked only on submit ---
+        const IS_GUEST = {{ auth()->check() ? 'false' : 'true' }};
+        const DRAFT_KEY = 'pickup_draft_v1';
+        function saveDraft() {
+            try {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify({
+                    cart, pickup_location: document.getElementById('pickup_location').value,
+                    pin_code: pinInput.value, notes: document.getElementById('notes').value,
+                    date: document.getElementById('input_pickup_date').value, dateDisplay: selectedDateDisplayStr,
+                    time: document.getElementById('input_pickup_time').value,
+                    images: [...document.querySelectorAll('#hiddenImagesContainer input')].map(i => i.value), at: Date.now()
+                }));
+            } catch (e) {}
+        }
+        if (!IS_GUEST) {
+            try {
+                const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+                localStorage.removeItem(DRAFT_KEY);
+                if (d && Date.now() - d.at < 2 * 3600 * 1000 && d.cart && Object.keys(d.cart).length) {
+                    cart = d.cart;
+                    updateCartUI();
+                    if (d.pickup_location) document.getElementById('pickup_location').value = d.pickup_location;
+                    if (d.pin_code) { pinInput.value = d.pin_code; pinInput.dispatchEvent(new Event('input')); }
+                    if (d.notes) document.getElementById('notes').value = d.notes;
+                    if (d.date) {
+                        document.getElementById('input_pickup_date').value = d.date;
+                        selectedDateDisplayStr = d.dateDisplay || d.date;
+                        document.getElementById('selectedDateDisplay').innerText = selectedDateDisplayStr;
+                    }
+                    if (d.time) document.getElementById('input_pickup_time').value = d.time;
+                    renderSlots(); // clears the slot if it has meanwhile passed
+                    if (Array.isArray(d.images)) {
+                        const hc = document.getElementById('hiddenImagesContainer');
+                        d.images.forEach(v => { const i = document.createElement('input'); i.type = 'hidden'; i.name = 'images[]'; i.value = v; hc.appendChild(i); });
+                    }
+                    // Everything was filled in before login: carry straight on to the review step.
+                    if (document.getElementById('input_pickup_date').value && document.getElementById('input_pickup_time').value) {
+                        document.getElementById('previewBtn').click();
+                        sdToast('Logged in. Review your pickup and tap Confirm.');
+                    } else {
+                        showStep(2);
+                        sdToast('Logged in. Please choose a time slot to continue.');
+                    }
+                }
+            } catch (e) {}
+        }
+
         // Form Submit Logic for Success Popup
         const pickupForm = document.getElementById('pickupForm');
         if(pickupForm) {
             pickupForm.addEventListener('submit', function(e) {
                 e.preventDefault(); // Prevent direct submission
+                if (IS_GUEST) {
+                    saveDraft();
+                    sdToast('Please log in to confirm your pickup. Your details are saved.');
+                    setTimeout(() => { window.location.href = "{{ url('/customer/login') }}?redirect=" + encodeURIComponent("{{ url('/customer/request-pickup') }}"); }, 900);
+                    return;
+                }
                 
                 // Basic validation check
                 if(!document.getElementById('input_pickup_date').value || !document.getElementById('input_pickup_time').value) {

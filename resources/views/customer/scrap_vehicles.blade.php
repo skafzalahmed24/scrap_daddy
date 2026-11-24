@@ -8,12 +8,20 @@
         .vehicle-type-card {
             border: 1px solid #e0e0e0;
             border-radius: 12px;
-            padding: 15px;
+            padding: 14px 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            width: 120px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            background: #fff;
         }
+        /* even grid: 2 per row on phones, 4 on wider screens; every card the same size */
+        .vehicle-type-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        @media (min-width: 576px) { .vehicle-type-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
         .vehicle-type-card:hover {
             border-color: #4A9A58;
             background-color: #f1f8e9;
@@ -25,8 +33,10 @@
         }
         .vehicle-type-card i { display: block; color: #4A9A58; margin-bottom: 10px; }
         .vehicle-type-card img {
-            width: 80px;
-            height: auto;
+            width: 100%;
+            max-width: 92px;
+            height: 62px;
+            object-fit: contain;
             margin-bottom: 10px;
         }
         .vehicle-type-card span {
@@ -34,6 +44,7 @@
             font-weight: 600;
             font-size: 0.9rem;
             color: #333;
+            line-height: 1.2;
         }
         .form-label {
             font-weight: 600;
@@ -133,7 +144,7 @@
                     <!-- Vehicle Type -->
                     <div class="mb-4">
                         <label class="form-label">Vehicle Type</label>
-                        <div class="d-flex gap-3 flex-wrap">
+                        <div class="vehicle-type-grid">
                             <div class="vehicle-type-card selected" onclick="selectVehicleType(this, 'Bike')">
                                 <img src="{{ asset('img/vehicles/bike.png') }}" alt="Bike" loading="lazy">
                                 <span>Bike</span>
@@ -180,9 +191,9 @@
                                 <i class="fa-solid fa-camera-retro"></i>
                             </div>
                             <h6 class="fw-bold mb-1">Tap to add photos</h6>
-                            <small class="text-muted">JPG, PNG &bull; Max 5 photos &bull; 2 MB each</small>
-                            <input type="file" id="fileInput" multiple accept="image/jpeg, image/png" class="d-none">
-                            <input type="file" id="cameraInput" accept="image/jpeg, image/png" capture="environment" class="d-none">
+                            <small class="text-muted">JPG, PNG, GIF &bull; Max 5 photos &bull; 2 MB each</small>
+                            <input type="file" id="fileInput" multiple accept="image/jpeg, image/png, image/gif" class="d-none">
+                            <input type="file" id="cameraInput" accept="image/jpeg, image/png, image/gif" capture="environment" class="d-none">
                         </div>
                         <div class="text-center mt-2"><button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" id="cameraBtn"><i class="fa-solid fa-camera me-1"></i> Take a photo</button></div>
                         <div class="photo-preview-container" id="photoPreviewContainer"></div>

@@ -366,6 +366,43 @@
                     </div>
                 </div>
 
+                @php
+                    $pinfo = $order->payment_info;
+                    $payBtn = $pinfo['due_kind'] === 'advance' ? 'Pay advance' : ($pinfo['due_kind'] === 'balance' ? 'Pay balance' : 'Pay now');
+                @endphp
+                @if($order->status !== 'cancelled' && ($pinfo['status'] !== 'none' || $pinfo['can_pay']))
+                <!-- Payment Card -->
+                <div class="od-card" id="payment">
+                    <h3 class="od-section-title">Payment</h3>
+                    <div class="od-divider"></div>
+                    @if($pinfo['order_amount'] > 0)
+                    <div class="od-detail-row">
+                        <span class="od-detail-label">Order amount</span>
+                        <span class="od-detail-value">₹{{ number_format($pinfo['order_amount'], 2) }}</span>
+                    </div>
+                    @endif
+                    @if($pinfo['discount'] > 0)
+                    <div class="od-detail-row">
+                        <span class="od-detail-label">Coins discount</span>
+                        <span class="od-detail-value" style="color:#3D8B4D;">- ₹{{ number_format($pinfo['discount'], 2) }}</span>
+                    </div>
+                    @endif
+                    <div class="od-detail-row">
+                        <span class="od-detail-label">Status</span>
+                        <span class="od-detail-value">{{ $pinfo['label'] }}</span>
+                    </div>
+                    @if($pinfo['paid'] > 0)
+                    <div class="od-detail-row">
+                        <span class="od-detail-label">Paid</span>
+                        <span class="od-detail-value">₹{{ number_format($pinfo['paid'], 0) }}</span>
+                    </div>
+                    @endif
+                    @if($pinfo['can_pay'])
+                    <a href="{{ route('customer.payment.initiate', $order->id) }}" class="btn w-100 text-white fw-bold mt-3 py-2" style="background:#3D8B4D;border-radius:12px;">{{ $payBtn }} ₹{{ number_format($pinfo['due_now'], 0) }}</a>
+                    @endif
+                </div>
+                @endif
+
                 <!-- Uploaded Images Card -->
                 <div class="od-card">
                     <h3 class="od-section-title">Uploaded Images</h3>

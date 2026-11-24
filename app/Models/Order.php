@@ -44,6 +44,24 @@ class Order extends Model
     protected $appends = ['display_title', 'display_image', 'items_with_images', 'payment_info'];
 
     /** Small payment summary for cards in the app and website (status chip + what is due). */
+    /**
+     * Older orders stored slots without AM/PM ("09:00 - 09:30", "03:30 - 04:00").
+     * Pickups run 9 AM - 9 PM, so 9-11 are AM and 12-8 are PM; add the suffix when reading.
+     * Values that already carry AM/PM (new orders) are returned untouched.
+     */
+    public function getPickupTimeAttribute($value)
+    {
+        if (!is_string($value) || preg_match('/AM|PM/i', $value)) {
+            return $value;
+        }
+        if (!preg_match('/^\s*(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\s*$/', $value, $m)) {
+            return $value;
+        }
+        $fmt = fn ($h, $min) => sprintf('%02d:%s %s', $h, $min, ($h >= 9 && $h <= 11) ? 'AM' : 'PM');
+
+        return $fmt((int) $m[1], $m[2]) . ' - ' . $fmt((int) $m[3], $m[4]);
+    }
+
     public function getPaymentInfoAttribute(): array
     {
         $verifying = $this->exists && $this->payments()->where('status', 'pending')->where('method', '!=', 'razorpay')->exists();
@@ -54,6 +72,9 @@ class Order extends Model
             'status' => $key,
             'label' => \App\Services\OrderPaymentService::statusLabel($key),
             'paid' => (float) $this->paid_amount,
+            'order_amount' => (float) $this->total_amount,
+            'discount' => (float) ($this->discount_applied ?? 0),
+            'coins_redeemed' => (int) ($this->coins_redeemed ?? 0),
             'remaining' => $due['remaining'],
             'due_now' => $due['amount'],
             'due_kind' => $due['kind'],

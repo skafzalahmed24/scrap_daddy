@@ -86,6 +86,12 @@
                                     <div>
                                         <h6 class="fw-bold mb-1 text-dark">Order #ORD-{{ str_pad($payment->id, 4, '0', STR_PAD_LEFT) }}</h6>
                                         <p class="text-muted mb-0 small">{{ \Carbon\Carbon::parse($payment->updated_at)->format('d M Y, h:i A') }}</p>
+                                        @if(($payment->discount_applied ?? 0) > 0)
+                                            <p class="mb-0 small" style="color:#3D8B4D;font-weight:600;"><i class="fa-solid fa-gift me-1"></i>Order ₹{{ number_format($payment->total_amount, 2) }} &minus; coins discount ₹{{ number_format($payment->discount_applied, 2) }}</p>
+                                        @endif
+                                        @if(($payment->paid_amount ?? 0) > 0)
+                                            <p class="text-muted mb-0 small">Paid ₹{{ number_format($payment->paid_amount, 2) }}</p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -93,13 +99,18 @@
                                 <div class="d-flex justify-content-between align-items-center justify-content-md-end gap-md-4">
                                     <div class="text-start text-md-end">
                                         <h5 class="fw-bold mb-1 {{ $payment->payment_status == 'completed' ? 'text-success' : 'text-warning' }}">
-                                            ₹{{ number_format($payment->total_amount ?? 0, 2) }}
+                                            ₹{{ number_format(max(0, ($payment->total_amount ?? 0) - ($payment->discount_applied ?? 0)), 2) }}
                                         </h5>
                                         <span class="badge {{ $payment->payment_status == 'completed' ? 'bg-success' : 'bg-warning' }} bg-opacity-10 {{ $payment->payment_status == 'completed' ? 'text-success' : 'text-warning' }} border {{ $payment->payment_status == 'completed' ? 'border-success' : 'border-warning' }} rounded-pill px-3 py-1">
                                             {{ ucfirst($payment->payment_status) }}
                                         </span>
                                     </div>
-                                    <a href="{{ route('customer.order.show', $payment->id) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-4 py-2 fw-bold">View Details</a>
+                                    <div class="d-flex flex-column gap-2">
+                                        <a href="{{ route('customer.order.show', $payment->id) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-4 py-2 fw-bold">View Details</a>
+                                        @if(($payment->paid_amount ?? 0) > 0)
+                                            <a href="{{ route('customer.payment.receipt', $payment->id) }}" class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 fw-bold"><i class="fa-solid fa-file-invoice me-1"></i>Receipt</a>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>

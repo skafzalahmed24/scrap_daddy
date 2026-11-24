@@ -332,13 +332,8 @@
                 const subName = this.getAttribute('data-name');
                 currentSubcategoryName = subName;
                 
-                if(!isLoggedIn) {
-                    document.getElementById('loginSubcategoryName').innerText = subName;
-                    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                    loginModal.show();
-                } else {
-                    window.location.href = "{{ url('/customer/request-pickup') }}?subcategory=" + this.getAttribute('data-uuid');
-                }
+                // Guests go straight on; login is only asked when they confirm the pickup.
+                window.location.href = "{{ url('/customer/request-pickup') }}?subcategory=" + this.getAttribute('data-uuid');
             });
         });
 

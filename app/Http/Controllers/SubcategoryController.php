@@ -31,7 +31,7 @@ class SubcategoryController extends Controller
             'category_id' => 'required|exists:categories,uuid',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048', // JPG, PNG, SVG, GIF - 2 MB
             'status' => 'boolean'
         ]);
 
@@ -73,7 +73,7 @@ class SubcategoryController extends Controller
             'category_id' => 'required|exists:categories,uuid',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048', // JPG, PNG, SVG, GIF - 2 MB
             'status' => 'boolean'
         ]);
 

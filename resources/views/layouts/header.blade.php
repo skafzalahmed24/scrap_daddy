@@ -38,17 +38,8 @@
             <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 38px; object-fit: contain;">
         </a>
 
-        <!-- Right Quick Actions on Mobile (Search, Explore, User) -->
-        <div class="d-flex d-lg-none align-items-center gap-3 ms-auto">
-            <a href="{{ route('categories.explore') }}" class="text-dark" title="Explore Categories" style="font-size: 1.2rem; text-decoration: none; display: flex; align-items: center;">
-                <i class="fa-solid fa-magnifying-glass" style="color: #333;"></i>
-            </a>
-            <a href="{{ route('customer.home') }}" class="text-dark" title="Account" style="font-size: 1.2rem; text-decoration: none; display: flex; align-items: center;">
-                <i class="fa-regular fa-user" style="color: #333;"></i>
-            </a>
-        </div>
 
-        <div id="userLocationMobile" class="px-3 py-1 d-none"
+        <div id="userLocationMobile" class="px-3 py-1 d-none ms-auto"
              style="cursor: pointer; align-items: center; gap: 8px; font-weight: 600; color: var(--primary-blue); background: rgba(27,94,32,0.05); border-radius: 20px;">
             <i class="fa-solid fa-location-dot"></i>
             <span id="locationTextMobile"
@@ -79,6 +70,7 @@
                     <a href="{{ url('/') }}">Home</a>
                     <a href="{{ route('categories.explore') }}">All Categories</a>
                     <a href="{{ url('/#services') }}">Our Services</a>
+                    <a href="{{ route('blog.index') }}">Blog</a>
                     <a href="{{ url('/#testimonials') }}">Testimonials</a>
                 </div>
             </div>

@@ -100,6 +100,15 @@
             <a href="{{ route('admin.pincodes.index') }}" class="nav-item {{ request()->is('admin/pincodes*') ? 'active' : '' }}">
                 <i class="fa-solid fa-location-dot"></i> Service Areas
             </a>
+            <a href="{{ route('admin.home-content.index') }}" class="nav-item {{ request()->is('admin/home-content*') ? 'active' : '' }}">
+                <i class="fa-solid fa-house-chimney"></i> Home Content
+            </a>
+            <a href="{{ route('admin.bulk-enquiries.index') }}" class="nav-item {{ request()->is('admin/bulk-enquiries*') ? 'active' : '' }}">
+                <i class="fa-solid fa-boxes-stacked"></i> Bulk Enquiries
+            </a>
+            <a href="{{ route('admin.scrap-articles.index') }}" class="nav-item {{ request()->is('admin/scrap-articles*') ? 'active' : '' }}">
+                <i class="fa-solid fa-book-open"></i> Scrap Articles
+            </a>
             <a href="{{ route('admin.settings.index') }}" class="nav-item {{ request()->is('admin/settings*') ? 'active' : '' }}">
                 <i class="fa-solid fa-gear"></i> Site Settings
             </a>

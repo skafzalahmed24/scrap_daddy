@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Scrap Daddy - Turn Scrap into Cash')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @stack('meta')
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon_new.ico') }}">
@@ -153,9 +154,13 @@
             <i class="fa-solid fa-house"></i>
             <span>Home</span>
         </a>
-        <a href="{{ route('customer.orders') }}" class="nav-item {{ request()->routeIs('customer.orders', 'customer.order.show', 'customer.orders.create') ? 'active' : '' }}">
+        <a href="{{ route('customer.orders') }}" class="nav-item {{ request()->routeIs('customer.orders', 'customer.order.show') ? 'active' : '' }}">
             <i class="fa-solid fa-clipboard-list"></i>
             <span>My Orders</span>
+        </a>
+        <a href="{{ route('customer.orders.create') }}" class="nav-item nav-book" aria-label="Book now">
+            <span class="nav-book-btn"><i class="fa-solid fa-plus"></i></span>
+            <span class="nav-book-label">Book Now</span>
         </a>
         <a href="{{ route('customer.rewards') }}" class="nav-item {{ request()->routeIs('customer.rewards') ? 'active' : '' }}">
             <i class="fa-solid fa-gift"></i>
@@ -192,7 +197,7 @@
             font-size: 0.74rem;
             font-weight: 500;
             transition: all 0.2s ease;
-            width: 25%;
+            width: 20%;
             position: relative;
         }
 
@@ -200,6 +205,18 @@
             font-size: 1.25rem;
             margin-bottom: 3px;
         }
+
+        /* Big green centre "+ Book Now" button, raised above the bar */
+        .bottom-nav .nav-book { overflow: visible; }
+        .bottom-nav .nav-book-btn {
+            width: 62px; height: 62px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #4A9A58, #3D8B4D);
+            color: #fff; margin-top: -30px; border: 4px solid #fff;
+            box-shadow: 0 8px 20px rgba(61, 139, 77, 0.45);
+        }
+        .bottom-nav .nav-book-btn i { font-size: 1.7rem; margin: 0; }
+        .bottom-nav .nav-book-label { color: #3D8B4D; font-weight: 700; margin-top: 2px; }
 
         .bottom-nav .nav-item.active {
             color: #4A9A58;

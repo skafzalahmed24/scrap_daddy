@@ -105,7 +105,6 @@
         <h3>Rewards</h3>
         @if($pay['coins_redeemed'] > 0)
             <div class="kv"><span>Coins used on this order</span><b>{{ number_format($pay['coins_redeemed']) }} coins</b></div>
-            <div class="kv"><span>Coin value</span><b>1 coin = {{ $inr($pay['coin_value']) }}</b></div>
             <div class="kv"><span>Discount from coins</span><b class="green">- {{ $inr($pay['discount']) }}</b></div>
         @endif
         @if($pay['coins_earned'] > 0)

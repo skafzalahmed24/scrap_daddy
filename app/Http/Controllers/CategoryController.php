@@ -34,7 +34,7 @@ class CategoryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048', // JPG, PNG, SVG, GIF - 2 MB
             'status' => 'nullable|boolean'
         ]);
 
@@ -83,7 +83,7 @@ class CategoryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048', // JPG, PNG, SVG, GIF - 2 MB
             'status' => 'nullable|boolean'
         ]);
 

@@ -32,7 +32,12 @@ class BannerController extends Controller
             'short_description' => 'nullable|string',
             'status' => 'required|boolean',
             'type' => 'required|string|in:web,mobile',
-            'uploads' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg|max:20480', // 20MB max
+            'uploads' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg', 'max:20480', function ($attribute, $value, $fail) {
+                $video = in_array(strtolower($value->getClientOriginalExtension()), ['mp4', 'webm', 'ogg'], true);
+                if (!$video && $value->getSize() > 2 * 1024 * 1024) {
+                    $fail('Images (JPG, PNG, SVG, GIF) must be 2 MB or smaller.');
+                }
+            }],
         ]);
 
         $data = $request->only(['title', 'short_description', 'status', 'type']);
@@ -74,7 +79,12 @@ class BannerController extends Controller
             'short_description' => 'nullable|string',
             'status' => 'required|boolean',
             'type' => 'required|string|in:web,mobile',
-            'uploads' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg|max:20480',
+            'uploads' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg', 'max:20480', function ($attribute, $value, $fail) {
+                $video = in_array(strtolower($value->getClientOriginalExtension()), ['mp4', 'webm', 'ogg'], true);
+                if (!$video && $value->getSize() > 2 * 1024 * 1024) {
+                    $fail('Images (JPG, PNG, SVG, GIF) must be 2 MB or smaller.');
+                }
+            }],
         ]);
 
         $data = $request->only(['title', 'short_description', 'status', 'type']);

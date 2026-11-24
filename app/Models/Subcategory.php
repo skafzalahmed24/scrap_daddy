@@ -21,6 +21,8 @@ class Subcategory extends Model
         'description',
         'image',
         'status',
+        'is_trending',
+        'trending_order',
     ];
 
     protected static function boot()

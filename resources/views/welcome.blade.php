@@ -300,6 +300,11 @@
         </div>
     </section>
 
+     <div class="container py-3">
+         @include('partials.home-sections')
+     </div>
+
+
     <!-- Subcategories Section -->
     <section class="subcategories-section py-5 bg-light">
         <div class="container">

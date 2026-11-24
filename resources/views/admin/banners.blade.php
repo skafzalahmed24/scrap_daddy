@@ -90,7 +90,7 @@
           
           <div class="mb-3">
               <label for="uploads" class="form-label">Uploads (Image or Video)</label>
-              <input type="file" class="form-control" id="uploads" name="uploads" accept="image/*,video/*">
+              <input type="file" class="form-control" id="uploads" name="uploads" accept=".jpg,.jpeg,.png,.gif,.svg,image/jpeg,image/png,image/gif,image/svg+xml,video/*">
               <div class="mt-2" id="currentMediaContainer" style="display:none;">
                   <p class="mb-1 text-muted small">Current File:</p>
                   <div id="mediaPreview"></div>

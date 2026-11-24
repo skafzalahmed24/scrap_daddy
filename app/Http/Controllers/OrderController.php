@@ -59,6 +59,10 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
+        if ($slotError = \App\Services\PickupSlot::error($request->pickup_date, $request->pickup_time)) {
+            return back()->withInput()->with('error', $slotError);
+        }
+
         // The order always belongs to the logged-in customer
         $user = auth()->user();
 

@@ -266,7 +266,26 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold text-muted small text-uppercase">Phone Number</label>
-                    <input type="text" name="phone_number" class="form-control rounded-3 py-2" value="{{ $user->phone_number }}" required>
+                    <div class="input-group">
+                        <input type="text" name="phone_number" id="phoneCurrent" class="form-control rounded-start-3 py-2" value="{{ $user->phone_number }}" readonly style="background:#f6f8f6;">
+                        <button type="button" class="btn btn-outline-success fw-bold" id="phoneChangeBtn">Change</button>
+                    </div>
+                    <div class="form-text">To change your mobile number we send an OTP to the new number.</div>
+                    <div id="phoneChangeBox" class="border rounded-3 p-3 mt-2 d-none" style="background:#F4FCF4;">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">New mobile number</label>
+                        <div class="input-group mb-2">
+                            <input type="tel" id="newPhone" class="form-control" inputmode="numeric" maxlength="10" placeholder="10 digit mobile number">
+                            <button type="button" class="btn btn-success fw-bold" id="sendPhoneOtp">Send OTP</button>
+                        </div>
+                        <div id="otpRow" class="d-none">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-1">Enter OTP</label>
+                            <div class="input-group">
+                                <input type="tel" id="phoneOtp" class="form-control" inputmode="numeric" maxlength="6" placeholder="6 digit OTP">
+                                <button type="button" class="btn btn-success fw-bold" id="verifyPhoneOtp">Verify &amp; update</button>
+                            </div>
+                        </div>
+                        <div id="phoneMsg" class="small mt-2"></div>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold text-muted small text-uppercase">Email Address</label>
@@ -336,6 +355,44 @@
                 }
             });
         }
+
+        // ---- change mobile number with OTP ----
+        (function () {
+            const box = document.getElementById('phoneChangeBox');
+            if (!box) return;
+            const msg = document.getElementById('phoneMsg');
+            const token = localStorage.getItem('auth_token');
+            const say = (t, ok) => { msg.textContent = t; msg.style.color = ok ? '#2B7A3D' : '#D32F2F'; };
+            const post = (path, body) => fetch("{{ url('/api/customer') }}" + path, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify(body)
+            }).then(r => r.json());
+
+            document.getElementById('phoneChangeBtn').addEventListener('click', () => box.classList.toggle('d-none'));
+            document.getElementById('sendPhoneOtp').addEventListener('click', function () {
+                const phone = document.getElementById('newPhone').value.trim();
+                if (!/^[6-9][0-9]{9}$/.test(phone)) { say('Enter a valid 10 digit mobile number.', false); return; }
+                if (!token) { say('Please log in again.', false); return; }
+                this.disabled = true;
+                post('/profile/phone/send-otp', { phone_number: phone }).then(d => {
+                    this.disabled = false;
+                    if (d.status === 1) { document.getElementById('otpRow').classList.remove('d-none'); say(d.message, true); }
+                    else say(d.message || 'Could not send OTP.', false);
+                }).catch(() => { this.disabled = false; say('Network error. Try again.', false); });
+            });
+            document.getElementById('verifyPhoneOtp').addEventListener('click', function () {
+                const phone = document.getElementById('newPhone').value.trim();
+                const otp = document.getElementById('phoneOtp').value.trim();
+                if (!/^[0-9]{6}$/.test(otp)) { say('Enter the 6 digit OTP.', false); return; }
+                this.disabled = true;
+                post('/profile/phone/verify', { phone_number: phone, otp: otp }).then(d => {
+                    this.disabled = false;
+                    if (d.status === 1) { say('Mobile number updated.', true); setTimeout(() => window.location.reload(), 800); }
+                    else say(d.message || 'Invalid OTP.', false);
+                }).catch(() => { this.disabled = false; say('Network error. Try again.', false); });
+            });
+        })();
 
         const editForm = document.querySelector('#editProfileModal form');
         if (editForm) {

@@ -57,11 +57,14 @@
 
             <!-- My Pickups Horizontal List -->
             <div class="section-header">
-                <h5>My Pickups</h5>
+                <h5>My Pickups
+                    @php $pendingCount = \App\Models\Order::where('user_uuid', $user->uuid)->whereNotIn('status', ['completed', 'cancelled'])->count(); @endphp
+                    @if($pendingCount > 0)<span class="pk-badge">{{ $pendingCount }} Pending</span>@endif
+                </h5>
                 <a href="{{ route('customer.orders') }}">View All Pickups <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
             
-            <div class="horizontal-scroll-container">
+            <div class="horizontal-scroll-container" id="pickupScroller">
                 @forelse($recentOrders as $order)
                 
                 @if(in_array($order->status, ['pending', 'accepted']))
@@ -127,6 +130,44 @@
                 @endforelse
             </div>
 
+            @if($recentOrders->count() > 1)
+            <div class="pk-controls" aria-label="Scroll through your pickups">
+                <button type="button" class="pk-nav" id="pkPrev" aria-label="Previous pickup"><i class="fa-solid fa-chevron-left"></i></button>
+                <span class="pk-count"><b id="pkIndex">1</b> / {{ $recentOrders->count() }}</span>
+                <button type="button" class="pk-nav" id="pkNext" aria-label="Next pickup"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <style>
+                .pk-badge { display: inline-block; vertical-align: middle; margin-left: 8px; background: #fff3cd; color: #8a6d00; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+                #pickupScroller { scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 12px; }
+                #pickupScroller::-webkit-scrollbar { display: none; }
+                .pk-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 4px 0 12px; }
+                .pk-nav { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #cfe6d3; background: #fff; color: #3D8B4D; display: inline-flex; align-items: center; justify-content: center; }
+                .pk-nav:disabled { opacity: .4; }
+                .pk-count { font-size: .85rem; color: #667085; font-weight: 600; }
+                .pk-count b { color: #3D8B4D; }
+            </style>
+            <script>
+                (function () {
+                    var sc = document.getElementById('pickupScroller');
+                    if (!sc) return;
+                    var idx = document.getElementById('pkIndex'), prev = document.getElementById('pkPrev'), next = document.getElementById('pkNext');
+                    var cards = function () { return sc.children.length; };
+                    var step = function () { var c = sc.children[0]; return c ? c.getBoundingClientRect().width + 16 : 300; };
+                    var update = function () {
+                        var i = Math.min(cards(), Math.round(sc.scrollLeft / step()) + 1);
+                        idx.textContent = i;
+                        prev.disabled = sc.scrollLeft <= 2;
+                        next.disabled = sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 2;
+                    };
+                    prev.addEventListener('click', function () { sc.scrollBy({ left: -step(), behavior: 'smooth' }); });
+                    next.addEventListener('click', function () { sc.scrollBy({ left: step(), behavior: 'smooth' }); });
+                    sc.addEventListener('scroll', update, { passive: true });
+                    window.addEventListener('resize', update);
+                    update();
+                })();
+            </script>
+            @endif
+
             <!-- Quick Actions -->
             <div class="section-header">
                 <h5>Quick Actions</h5>
@@ -161,6 +202,7 @@
                     </div>
                 </div>
             </div>
+                <div id="hsSlotDesktop" class="mt-4"></div>
             </div> <!-- End Desktop View -->
 
             <!-- MOBILE VIEW -->
@@ -209,7 +251,7 @@
                         background: #f5f5f5; color: #9e9e9e; font-size: .85rem; }
                     .sd-dot.is-check { background: #fff; border: 2px solid #4CAF50; color: #4CAF50; }
                     .sd-dot.is-cancelled { background: #fff; border: 2px solid #dc3545; color: #dc3545; }
-                    .sd-truck { width: 40px; height: auto; background: #fff; border-radius: 8px; animation: sdTruckIn .6s ease-out both; }
+                    .sd-truck { width: 40px; height: auto; background: transparent; animation: sdTruckIn .6s ease-out both; }
                     @keyframes sdTruckIn { from { transform: translateX(-14px); opacity: 0; } to { transform: none; opacity: 1; } }
                     .sd-title { font-size: .75rem; font-weight: 700; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
                     .sd-sub { font-size: .625rem; color: #8a8a8a; line-height: 1.25; margin-top: 4px; }
@@ -230,7 +272,18 @@
                     $activeOrders = $recentOrders->whereIn('status', ['pending', 'accepted', 'assigned']);
                 @endphp
                 @if($activeOrders->count() > 0)
-                <div class="d-flex overflow-x-auto gap-3 pb-3 mb-4" style="scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none;">
+                <div class="ao-head">
+                    <span class="ao-title">Active pickups</span>
+                    <span class="ao-badge">{{ $activeOrders->count() }} Pending</span>
+                    @if($activeOrders->count() > 1)
+                    <span class="ao-controls" aria-label="Scroll through your pickups">
+                        <button type="button" class="ao-nav" id="aoPrev" aria-label="Previous pickup"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span class="ao-count"><b id="aoIndex">1</b>/{{ $activeOrders->count() }}</span>
+                        <button type="button" class="ao-nav" id="aoNext" aria-label="Next pickup"><i class="fa-solid fa-chevron-right"></i></button>
+                    </span>
+                    @endif
+                </div>
+                <div class="d-flex overflow-x-auto gap-3 pb-3" id="activeScroller" style="scroll-snap-type: x mandatory;">
                     @foreach($activeOrders as $order)
                     <div class="bg-white rounded-4 p-3 p-sm-4 shadow-sm border border-light flex-shrink-0" style="width: 100%; min-width: 300px; max-width: 100%; scroll-snap-align: start;">
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -271,7 +324,7 @@
                                     <div class="sd-step">
                                         <div class="sd-ic">
                                             @if(!$isCancelled && $i === $trackStep)
-                                                <img src="{{ asset('green_truck.png') }}" alt="Truck" class="sd-truck">
+                                                <img src="{{ asset('green_truck.png') }}" alt="Truck" class="sd-truck" onerror="this.style.display='none'; this.nextElementSibling && (this.nextElementSibling.style.display='flex');"><span class="sd-dot" style="display:none;"><i class="fa-solid fa-truck"></i></span>
                                             @elseif($isCancelled)
                                                 <span class="sd-dot is-cancelled"><i class="{{ $i === 3 ? 'fa-solid fa-xmark' : $s['icon'] }}"></i></span>
                                             @else
@@ -285,36 +338,50 @@
                             </div>
                         </div>
 
-                        @if($order->status == 'pending')
-                        <div class="sd-info">
-                            <h6>Confirming your request...</h6>
-                            <p>
-                                Please wait while we confirm your pickup request. This usually takes 15-30 minutes.
-                            </p>
-                        </div>
-                        @elseif($order->status == 'completed')
-                        <div class="rounded-4 p-3 bg-success bg-opacity-10 border border-success">
-                            <h6 class="fw-bold text-success mb-1">Pickup Successful!</h6>
-                            <p class="text-success mb-0" style="font-size: 0.8rem;">You earned rewards for this pickup.</p>
-                        </div>
-                        @elseif($order->status == 'cancelled')
-                        <div class="rounded-4 p-3 bg-danger bg-opacity-10 border border-danger">
-                            <h6 class="fw-bold text-danger mb-1">Pickup Cancelled</h6>
-                            <p class="text-danger mb-0" style="font-size: 0.8rem;">This pickup request was cancelled.</p>
-                        </div>
-                        @else
-                        <div class="rounded-4 p-3" style="background-color: #f8f9fa;">
-                            <h6 class="fw-bold text-dark mb-1">Scheduled for Pickup</h6>
-                            <p class="text-muted mb-0" style="font-size: 0.8rem;">Your pickup is scheduled for {{ \Carbon\Carbon::parse($order->pickup_date)->format('d M') }}, {{ $order->pickup_time }}.</p>
-                        </div>
-                        @endif
+                        @include('partials.customer.pickup-info', ['order' => $order])
                     </div>
                     @endforeach
                 </div>
-                <!-- Hide scrollbar for webkit browsers via style block injected quickly -->
+                @if($activeOrders->count() > 1)
+                <div class="ao-dots" id="aoDots">@foreach($activeOrders as $o)<span class="ao-dot {{ $loop->first ? 'on' : '' }}"></span>@endforeach</div>
+                @endif
                 <style>
-                    .overflow-x-auto::-webkit-scrollbar { display: none; }
+                    .ao-head { display: flex; align-items: center; gap: 8px; margin: 48px 2px 12px; }
+                    .ao-head .ao-controls { margin: 0 0 0 auto; }
+                    .ao-dots { display: flex; justify-content: center; gap: 6px; margin: -2px 0 14px; }
+                    .ao-dot { width: 7px; height: 7px; border-radius: 50%; background: #d0d5dd; transition: all .2s; }
+                    .ao-dot.on { width: 20px; border-radius: 6px; background: #4A9A58; }
+                    .ao-title { font-weight: 700; color: #222; font-size: 1rem; }
+                    .ao-badge { background: #fff3cd; color: #8a6d00; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+                    #activeScroller { scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 10px; }
+                    #activeScroller::-webkit-scrollbar { display: none; }
+                    .ao-controls { display: inline-flex; align-items: center; gap: 8px; }
+                    .ao-nav { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid #cfe6d3; background: #fff; color: #3D8B4D; display: inline-flex; align-items: center; justify-content: center; }
+                    .ao-nav:disabled { opacity: .4; }
+                    .ao-count { font-size: .85rem; color: #667085; font-weight: 600; }
+                    .ao-count b { color: #3D8B4D; }
+                    #activeScroller + .ao-controls, #activeScroller + style { margin-top: 0; }
                 </style>
+                <script>
+                    (function () {
+                        var sc = document.getElementById('activeScroller');
+                        var idx = document.getElementById('aoIndex'), prev = document.getElementById('aoPrev'), next = document.getElementById('aoNext');
+                        if (!sc || !idx) return;
+                        var step = function () { var c = sc.children[0]; return c ? c.getBoundingClientRect().width + 16 : 300; };
+                        var update = function () {
+                            var i = Math.min(sc.children.length, Math.round(sc.scrollLeft / step()) + 1);
+                            idx.textContent = i;
+                            document.querySelectorAll('#aoDots .ao-dot').forEach(function (d, k) { d.classList.toggle('on', k === i - 1); });
+                            prev.disabled = sc.scrollLeft <= 2;
+                            next.disabled = sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 2;
+                        };
+                        prev.addEventListener('click', function () { sc.scrollBy({ left: -step(), behavior: 'smooth' }); });
+                        next.addEventListener('click', function () { sc.scrollBy({ left: step(), behavior: 'smooth' }); });
+                        sc.addEventListener('scroll', update, { passive: true });
+                        window.addEventListener('resize', update);
+                        update();
+                    })();
+                </script>
                 @else
                 <!-- Fallback Empty State -->
                 <div class="bg-white rounded-4 p-4 mb-4 shadow-sm border border-light text-center">
@@ -431,6 +498,9 @@
                 </div>
                 @endif
 
+                <!-- Admin-driven sections (Trending, Bulk enquiry, banners, articles) are placed here on phones -->
+                <div id="hsSlotMobile"></div>
+
                 <!-- How it works -->
                 <div class="mb-4 mt-2">
                     <h5 class="fw-bold text-dark mb-3">How it works</h5>
@@ -489,6 +559,9 @@
 
     </div>
 </div>
+{{-- Home sections: included once, then placed into the desktop or mobile slot --}}
+@include('partials.home-sections')
+
 @push('scripts')
 <script>
     (function () {

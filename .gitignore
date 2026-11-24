@@ -20,3 +20,6 @@ yarn-error.log
 
 # deployment archives
 *.zip
+
+# images uploaded from the admin panel (Home banners / articles) are content, not code
+/public/uploads/home/

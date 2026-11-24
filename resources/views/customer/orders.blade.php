@@ -19,6 +19,13 @@
     }
 
     /* Web: use the full width, cards in a responsive grid */
+    .order-filter-chips { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 14px; margin-bottom: 4px; scrollbar-width: thin; scrollbar-color: #4A9A58 #e8f5e9; }
+    .order-filter-chips::-webkit-scrollbar { height: 5px; }
+    .order-filter-chips::-webkit-scrollbar-thumb { background: #4A9A58; border-radius: 6px; }
+    .order-chip { flex: 0 0 auto; border: 1.5px solid #e4e7ec; background: #fff; color: #475467; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: .88rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
+    .order-chip .order-chip-count { background: #f2f4f7; color: #475467; border-radius: 999px; min-width: 24px; height: 24px; padding: 0 7px; display: inline-flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; }
+    .order-chip.active { background: #4A9A58; border-color: #4A9A58; color: #fff; box-shadow: 0 4px 12px rgba(74,154,88,.28); }
+    .order-chip.active .order-chip-count { background: rgba(255,255,255,.25); color: #fff; }
     .orders-grid { display: block; }
     @media (min-width: 768px) {
         .orders-screen-wrapper { max-width: 1400px; padding: 24px 32px 60px; min-height: auto; }
@@ -275,7 +282,27 @@
     <!-- Orders List -->
     @php
         $ordersList = $orders ?? collect();
+        $groupOf = fn ($o) => in_array($o->status, ['completed', 'cancelled'], true) ? $o->status : 'pending';
+        $cnt = [
+            'all' => $ordersList->count(),
+            'pending' => $ordersList->filter(fn ($o) => $groupOf($o) === 'pending')->count(),
+            'completed' => $ordersList->filter(fn ($o) => $groupOf($o) === 'completed')->count(),
+            'cancelled' => $ordersList->filter(fn ($o) => $groupOf($o) === 'cancelled')->count(),
+        ];
     @endphp
+
+    <div class="order-filter-chips" id="orderFilterChips" role="tablist" aria-label="Filter orders">
+        @foreach(['all' => 'All', 'pending' => 'Pending', 'completed' => 'Completed', 'cancelled' => 'Cancelled'] as $key => $label)
+            <button type="button" class="order-chip {{ $key === 'all' ? 'active' : '' }}" data-filter="{{ $key }}" role="tab">
+                {{ $label }} <span class="order-chip-count">{{ $cnt[$key] }}</span>
+            </button>
+        @endforeach
+    </div>
+    <div id="orderFilterEmpty" class="orders-empty-state" style="display:none;">
+        <i class="bi bi-box2"></i>
+        <h3 class="fw-bold text-dark fs-5 mb-1">No orders here</h3>
+        <p class="text-muted small mb-0">You have no orders in this list.</p>
+    </div>
 
     <div class="orders-grid">
     @forelse($ordersList as $order)
@@ -322,7 +349,7 @@
             $chipStyle = ['paid' => 'background:#E4F4E8;color:#2B7A3D', 'partial' => 'background:#E8F1FE;color:#2F6FE4', 'verifying' => 'background:#EFE9FE;color:#7A4CE0', 'due' => 'background:#FEF3DC;color:#B7770A', 'cancelled' => 'background:#FDE8EC;color:#C42B45'][$pinfo['status']] ?? '';
         @endphp
 
-        <div class="order-clean-card">
+        <div class="order-clean-card" data-status="{{ $groupOf($order) }}">
             <!-- Category and Pickup Schedule -->
             <div class="order-category-row">
                 <div class="order-category-thumb">
@@ -352,7 +379,7 @@
 
             <!-- Pay Now Button (if pending payment) -->
             @if($needsPayment)
-                <a href="{{ route('customer.payment.initiate', $order->id) }}" class="btn-pay-now-blue">
+                <a href="{{ route('customer.order.show', $order->id) }}#payment" class="btn-pay-now-blue">
                     {{ $payLabel }}
                 </a>
             @elseif($pinfo['status'] === 'verifying' || $pinfo['status'] === 'paid')
@@ -375,4 +402,25 @@
     @endforelse
     </div>
 </div>
+@push('scripts')
+<script>
+    (function () {
+        const chips = document.querySelectorAll('#orderFilterChips .order-chip');
+        const cards = document.querySelectorAll('.orders-grid .order-clean-card');
+        const empty = document.getElementById('orderFilterEmpty');
+        chips.forEach(chip => chip.addEventListener('click', function () {
+            const f = this.dataset.filter;
+            chips.forEach(c => c.classList.toggle('active', c === this));
+            let shown = 0;
+            cards.forEach(card => {
+                const ok = f === 'all' || card.dataset.status === f;
+                card.style.display = ok ? '' : 'none';
+                if (ok) shown++;
+            });
+            // only when there are orders overall but none in this list
+            empty.style.display = (cards.length && !shown) ? 'block' : 'none';
+        }));
+    })();
+</script>
+@endpush
 @endsection

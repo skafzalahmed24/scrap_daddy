@@ -23,7 +23,7 @@
     .sd-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #f5f5f5; color: #9e9e9e; font-size: .85rem; }
     .sd-dot.is-check { background: #fff; border: 2px solid #4CAF50; color: #4CAF50; }
     .sd-dot.is-cancelled { background: #fff; border: 2px solid #dc3545; color: #dc3545; }
-    .sd-truck { width: 40px; height: auto; background: #fff; border-radius: 8px; animation: sdTruckIn .6s ease-out both; }
+    .sd-truck { width: 40px; height: auto; background: transparent; animation: sdTruckIn .6s ease-out both; }
     @keyframes sdTruckIn { from { transform: translateX(-14px); opacity: 0; } to { transform: none; opacity: 1; } }
     .sd-title { font-size: .75rem; font-weight: 700; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sd-sub { font-size: .625rem; color: #8a8a8a; line-height: 1.25; margin-top: 4px; }
@@ -65,7 +65,9 @@
                 <div class="sd-step">
                     <div class="sd-ic">
                         @if(!$isCancelled && $i === $trackStep)
-                            <img src="{{ asset('green_truck.png') }}" alt="Truck" class="sd-truck">
+                            <img src="{{ asset('green_truck.png') }}" alt="Truck" class="sd-truck" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            {{-- shown only if the truck picture can not load --}}
+                            <span class="sd-dot" style="display:none;"><i class="{{ $s['icon'] }}"></i></span>
                         @elseif($isCancelled)
                             <span class="sd-dot is-cancelled"><i class="{{ $i === 3 ? 'fa-solid fa-xmark' : $s['icon'] }}"></i></span>
                         @else
@@ -79,13 +81,4 @@
         </div>
     </div>
 
-    @if($st === 'pending')
-        <div class="sd-info"><h6>Confirming your request...</h6><p>Please wait while we confirm your pickup request. This usually takes 15-30 minutes.</p></div>
-    @elseif($st === 'completed')
-        <div class="sd-info is-ok"><h6>Pickup Successful!</h6><p>You earned rewards for this pickup.</p></div>
-    @elseif($isCancelled)
-        <div class="sd-info is-bad"><h6>Pickup Cancelled</h6><p>This pickup request was cancelled.</p></div>
-    @else
-        <div class="sd-info is-plain"><h6>{{ $st === 'accepted' ? 'Team is on the way...' : 'Scheduled for Pickup' }}</h6><p>Your pickup is scheduled for {{ \Carbon\Carbon::parse($order->pickup_date)->format('d M') }}, {{ $order->pickup_time }}.</p></div>
-    @endif
-
+    @include('partials.customer.pickup-info', ['order' => $order])

@@ -448,6 +448,108 @@ class CustomerAuthController extends Controller
         ]);
     }
 
+
+    /**
+     * Changing the mobile number needs proof of ownership: step 1 sends an OTP to the NEW number,
+     * step 2 (confirmPhoneChange) checks it and only then saves the number.
+     */
+    public function requestPhoneChange(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'phone_number' => [
+                'required', 'string', 'regex:/^[6-9][0-9]{9}$/',
+                Rule::unique('users', 'phone_number')->ignore($user->uuid, 'uuid')->where('status', 1),
+            ],
+        ], [
+            'phone_number.regex' => 'Enter a valid 10 digit mobile number.',
+            'phone_number.unique' => 'This mobile number is already registered with another account.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => $validator->errors()->first(),
+                'data' => ['errors' => $validator->errors()],
+            ], 200);
+        }
+
+        if ($request->phone_number === $user->phone_number) {
+            return response()->json(['status' => 0, 'message' => 'This is already your mobile number.'], 200);
+        }
+
+        // at most 5 OTP requests per 15 minutes
+        $rateKey = 'phone_change_rate:' . $user->uuid;
+        $count = (int) Cache::get($rateKey, 0);
+        if ($count >= 5) {
+            return response()->json(['status' => 0, 'message' => 'Too many attempts. Please try again after some time.'], 200);
+        }
+        Cache::put($rateKey, $count + 1, now()->addMinutes(15));
+
+        $otp = $this->generateOtp();
+        Cache::put('phone_change:' . $user->uuid, [
+            'phone' => $request->phone_number,
+            'otp' => Hash::make($otp),
+            'tries' => 0,
+        ], now()->addMinutes(10));
+
+        if (!app()->environment('production')) {
+            Log::info("OTP for Phone change (User: {$user->uuid}, new number {$request->phone_number}): {$otp}");
+        }
+        // TODO: send $otp by SMS to $request->phone_number once an SMS provider is connected
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'OTP sent to ' . substr($request->phone_number, 0, 2) . '******' . substr($request->phone_number, -2) . '. It is valid for 10 minutes.',
+            'data' => ['phone_number' => $request->phone_number],
+        ]);
+    }
+
+    public function confirmPhoneChange(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'phone_number' => 'required|string',
+            'otp' => 'required|digits:6',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 0, 'message' => $validator->errors()->first()], 200);
+        }
+
+        $key = 'phone_change:' . $user->uuid;
+        $pending = Cache::get($key);
+        if (!$pending || $pending['phone'] !== $request->phone_number) {
+            return response()->json(['status' => 0, 'message' => 'OTP expired. Please request a new OTP.'], 200);
+        }
+        if (($pending['tries'] ?? 0) >= 5) {
+            Cache::forget($key);
+            return response()->json(['status' => 0, 'message' => 'Too many wrong attempts. Please request a new OTP.'], 200);
+        }
+        if (!Hash::check($request->otp, $pending['otp'])) {
+            $pending['tries'] = ($pending['tries'] ?? 0) + 1;
+            Cache::put($key, $pending, now()->addMinutes(10));
+            return response()->json(['status' => 0, 'message' => 'Invalid OTP.'], 200);
+        }
+
+        // the number could have been taken since the OTP was sent
+        $taken = User::where('phone_number', $pending['phone'])->where('status', 1)->where('uuid', '!=', $user->uuid)->exists();
+        if ($taken) {
+            Cache::forget($key);
+            return response()->json(['status' => 0, 'message' => 'This mobile number is already registered with another account.'], 200);
+        }
+
+        $user->update(['phone_number' => $pending['phone']]);
+        Cache::forget($key);
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Mobile number updated successfully.',
+            'data' => ['user' => $user->fresh()],
+        ]);
+    }
+
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -473,7 +575,17 @@ class CustomerAuthController extends Controller
         }
 
         $user = $request->user();
-        $data = $request->only(['full_name', 'phone_number', 'email', 'pin_code', 'location']);
+
+        // The mobile number can only be changed through the OTP flow (requestPhoneChange / confirmPhoneChange)
+        if ($request->filled('phone_number') && $request->phone_number !== $user->phone_number) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'To change your mobile number, verify the new number with an OTP.',
+                'data' => ['errors' => ['phone_number' => ['Verify the new number with an OTP first.']]],
+            ], 200);
+        }
+
+        $data = $request->only(['full_name', 'email', 'pin_code', 'location']);
         
         if ($request->hasFile('profile_image')) {
             $image = $request->file('profile_image');
@@ -680,6 +792,10 @@ class CustomerAuthController extends Controller
             ], 200);
         }
 
+        if ($slotError = \App\Services\PickupSlot::error($request->pickup_date, $request->pickup_time)) {
+            return response()->json(['status' => 0, 'message' => $slotError], 200);
+        }
+
         $pin = trim((string) $request->pin_code);
         if (!preg_match(ServicePincode::FORMAT, $pin) || !ServicePincode::isServiceable($pin)) {
             return response()->json([
@@ -717,7 +833,8 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'min' => 'nullable|integer|min:0',
-            'max' => 'nullable|integer|min:1'
+            'max' => 'nullable|integer|min:1',
+            'status' => 'nullable|in:all,pending,completed,cancelled',
         ]);
 
         if ($validator->fails()) {
@@ -727,8 +844,28 @@ class CustomerAuthController extends Controller
         ], 422);
         }
 
+        $userUuid = $request->user()->uuid;
+        // Badge counts for the filter chips (Pending = everything still open: pending, accepted ...)
+        $byStatus = Order::where('user_uuid', $userUuid)->selectRaw('status, COUNT(*) as c')->groupBy('status')->pluck('c', 'status');
+        $completedCount = (int) ($byStatus['completed'] ?? 0);
+        $cancelledCount = (int) ($byStatus['cancelled'] ?? 0);
+        $allCount = (int) $byStatus->sum();
+        $counts = [
+            'all' => $allCount,
+            'pending' => $allCount - $completedCount - $cancelledCount,
+            'completed' => $completedCount,
+            'cancelled' => $cancelledCount,
+        ];
+
         $query = Order::with(['category', 'subcategory'])
-                       ->where('user_uuid', $request->user()->uuid);
+                       ->where('user_uuid', $userUuid);
+
+        $filter = $request->input('status', 'all');
+        if ($filter === 'completed' || $filter === 'cancelled') {
+            $query->where('status', $filter);
+        } elseif ($filter === 'pending') {
+            $query->whereNotIn('status', ['completed', 'cancelled']);
+        }
 
         $total_count = $query->count();
 
@@ -761,6 +898,7 @@ class CustomerAuthController extends Controller
             'message' => 'Orders fetched successfully',
             'data' => [
                 'count' => $total_count,
+                'counts' => $counts,
                 'rows' => $orders
             ]
         ]);
@@ -829,7 +967,14 @@ class CustomerAuthController extends Controller
             $query->limit((int)$request->max);
         }
 
-        $orders = $query->get(['id', 'total_amount', 'paid_amount', 'payment_method', 'payment_status', 'payment_id', 'created_at']);
+        $orders = $query->get(['id', 'total_amount', 'discount_applied', 'coins_redeemed', 'paid_amount', 'payment_method', 'payment_status', 'payment_id', 'created_at'])
+            ->map(function ($o) {
+                $row = $o->toArray();
+                $row['discount'] = (float) ($o->discount_applied ?? 0);
+                // what the customer actually has to pay after the coins discount
+                $row['payable'] = max(0, round((float) $o->total_amount - $row['discount'], 2));
+                return $row;
+            });
 
         return response()->json([
             'status' => 1,
@@ -962,6 +1107,11 @@ class CustomerAuthController extends Controller
             }
         }
 
+        // Real number of open pickups (the list above shows at most 5)
+        $livePickupsTotal = $authUser
+            ? Order::where('user_uuid', $authUser->uuid)->whereNotIn('status', ['completed', 'cancelled', 'rejected'])->count()
+            : 0;
+
         // Fetch Categories
         $categories = \App\Models\Category::where('status', 1)->take(6)->get();
 
@@ -982,6 +1132,7 @@ class CustomerAuthController extends Controller
             'data' => [
                 'banners' => $banners,
                 'live_pickups' => $livePickups,
+                'live_pickups_total' => $livePickupsTotal,
                 'categories' => $categories,
                 'service_available' => $serviceAvailable,
                 'service_message' => $serviceMessage,

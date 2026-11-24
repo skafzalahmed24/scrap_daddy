@@ -33,6 +33,10 @@ Route::prefix('customer')->group(function () {
     Route::post('/home', [CustomerAuthController::class, 'home']);
     Route::post('/banners', [CustomerAuthController::class, 'banners']);
     Route::post('/categories', [CustomerAuthController::class, 'categories']);
+    // Home screen sections (texts, trending items, bulk enquiry form) + bulk enquiry submit (guests allowed)
+    Route::post('/home-content', [\App\Http\Controllers\HomeContentController::class, 'show']);
+    Route::post('/scrap-article', [\App\Http\Controllers\HomeContentController::class, 'article']);
+    Route::post('/bulk-enquiry', [\App\Http\Controllers\HomeContentController::class, 'submitEnquiry'])->middleware('throttle:10,1');
     Route::post('/subcategories', [CustomerAuthController::class, 'subcategories']);
     Route::post('/check-pincode', [CustomerAuthController::class, 'checkPincode']);
     Route::post('/service-request', [\App\Http\Controllers\ServiceRequestController::class, 'store']);
@@ -49,6 +53,8 @@ Route::prefix('customer')->group(function () {
         // Profile
         Route::post('/user', [CustomerAuthController::class, 'user']);
         Route::post('/update-profile', [CustomerAuthController::class, 'updateProfile']);
+        Route::post('/profile/phone/send-otp', [CustomerAuthController::class, 'requestPhoneChange']);
+        Route::post('/profile/phone/verify', [CustomerAuthController::class, 'confirmPhoneChange']);
         Route::post('/change-password', [CustomerAuthController::class, 'changePassword']);
         Route::post('/refresh-token', [CustomerAuthController::class, 'refreshToken']);
         Route::post('/logout', [CustomerAuthController::class, 'logout']);
