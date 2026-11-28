@@ -39,6 +39,9 @@ class CustomerAuthController extends Controller
         if (!app()->environment('production')) {
             Log::info("OTP for {$label} (User: {$user->phone_number}): {$otp}");
         }
+
+        // Deliver the code on WhatsApp (does nothing until WHATSAPP_ENABLED=true and an API key is set)
+        \App\Services\WhatsAppService::sendOtp($user->phone_number, $otp);
     }
 
     public function register(Request $request)
@@ -497,7 +500,7 @@ class CustomerAuthController extends Controller
         if (!app()->environment('production')) {
             Log::info("OTP for Phone change (User: {$user->uuid}, new number {$request->phone_number}): {$otp}");
         }
-        // TODO: send $otp by SMS to $request->phone_number once an SMS provider is connected
+        \App\Services\WhatsAppService::sendOtp($request->phone_number, $otp);
 
         return response()->json([
             'status' => 1,
@@ -770,10 +773,14 @@ class CustomerAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'items' => 'required|array|min:1',
-            'items.*.subcategory_uuid' => 'required|exists:subcategories,uuid',
+            'items.*.subcategory_uuid' => ['required_without:items.*.custom', 'nullable', 'exists:subcategories,uuid'],
+            'items.*.custom' => 'nullable|boolean',
             'items.*.quantity' => 'required|integer|min:1|max:100000',
             'items.*.name' => 'required|string|max:255',
             'pickup_location' => 'required|string|max:500',
+            'door_no' => 'nullable|string|max:40',
+            'floor' => 'nullable|string|max:20',
+            'landmark' => 'nullable|string|max:100',
             'pin_code' => 'required|string',
             'pickup_date' => 'required|date|after_or_equal:today',
             'pickup_time' => 'required|string|max:50',
@@ -806,14 +813,18 @@ class CustomerAuthController extends Controller
             ], 200);
         }
 
-        $firstSubcategory = Subcategory::find($request->items[0]['subcategory_uuid']);
+        $firstUuid = collect($request->items)->pluck('subcategory_uuid')->filter()->first();
+        $firstSubcategory = $firstUuid ? Subcategory::find($firstUuid) : null;
 
         $order = new Order();
         $order->user_uuid = $request->user()->uuid;
         $order->category_uuid = $firstSubcategory ? $firstSubcategory->category_id : null;
         $order->items = $request->items;
         $order->status = 'pending';
-        $order->pickup_location = $request->pickup_location;
+        $order->pickup_location = \App\Services\PickupAddress::compose($request->pickup_location, $request->door_no, $request->floor, $request->landmark);
+        $order->door_no = $request->door_no;
+        $order->floor = $request->floor;
+        $order->landmark = $request->landmark;
         $order->pin_code = $pin;
         $order->pickup_date = $request->pickup_date;
         $order->pickup_time = $request->pickup_time;
@@ -821,6 +832,9 @@ class CustomerAuthController extends Controller
 
         $order->images = $request->images ?? [];
         $order->save();
+
+        // WhatsApp: alert the admin number and confirm to the customer (after the response is sent)
+        \App\Services\WhatsAppService::orderBooked($order);
 
         return response()->json([
             'status' => 1,

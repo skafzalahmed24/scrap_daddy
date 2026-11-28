@@ -96,7 +96,7 @@
                                     <div class="text-dark text-truncate" style="font-size: 0.8rem; max-width: 200px;">{{ $order->pickup_location }}</div>
                                 </div>
                                 <div class="mt-3">
-                                    <div class="text-muted" style="font-size: 0.75rem;">Scrapdaddy Hub</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Scrap Daddy Hub</div>
                                     <div class="text-dark text-truncate" style="font-size: 0.8rem; max-width: 200px;">Bengaluru</div>
                                 </div>
                             </div>
@@ -400,6 +400,12 @@
                     }
                 @endphp
                 
+                <style>
+                    /* all banners share one size, and each carries a booking button */
+                    .bn-img { aspect-ratio: 16 / 7; object-fit: cover; width: 100%; display: block; }
+                    .bn-cta { position: absolute; left: 14px; bottom: 14px; z-index: 3; display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #2b7a3d !important; font-weight: 800; font-size: .82rem; border-radius: 999px; padding: 9px 16px; text-decoration: none; box-shadow: 0 6px 16px rgba(0,0,0,.22); }
+                    .bn-cta i { font-size: .7rem; }
+                </style>
                 @if($banners->count() > 0)
                 <div id="mobileBannerCarousel" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="4000">
                     @if($banners->count() > 1)
@@ -415,8 +421,9 @@
                             <div class="position-relative w-100">
                                 @if($banner->uploads)
                                     <a href="{{ route('categories.explore') }}" class="d-block w-100">
-                                        <img src="{{ asset($banner->uploads) }}" class="d-block w-100 rounded-4" style="object-fit: cover; max-height: 220px; width: 100%;" alt="{{ $banner->title }}">
+                                        <img src="{{ asset($banner->uploads) }}" class="d-block w-100 rounded-4 bn-img" alt="{{ $banner->title }}" loading="lazy" decoding="async">
                                     </a>
+                                    <a href="{{ $banner->cta_link ?: route('customer.orders.create') }}" class="bn-cta">{{ $banner->cta_text ?: 'Book a Pickup' }} <i class="fa-solid fa-arrow-right"></i></a>
                                 @else
                                     <div class="p-4 w-100 position-relative text-center" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
                                         <h3 class="fw-bolder mb-2" style="color: #2e3025; font-size: 1.3rem; line-height: 1.2;">
@@ -501,44 +508,27 @@
                 <!-- Admin-driven sections (Trending, Bulk enquiry, banners, articles) are placed here on phones -->
                 <div id="hsSlotMobile"></div>
 
-                <!-- How it works -->
+                <!-- How it works (steps are edited in Admin > Home Content) -->
+                @php
+                    $howSteps = \App\Models\HowStep::active()->take(5);
+                    $howHead = \App\Models\HomeSection::where('key', 'how_it_works')->first();
+                @endphp
+                @if($howSteps->count())
                 <div class="mb-4 mt-2">
-                    <h5 class="fw-bold text-dark mb-3">How it works</h5>
-                    <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-4 shadow-sm border border-light">
-                        <!-- Step 1 -->
-                        <div class="text-center position-relative">
-                            <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="fa-solid fa-location-dot text-success fs-5"></i>
+                    <h5 class="fw-bold text-dark mb-3">{{ $howHead->title ?? 'How it works' }}</h5>
+                    <div class="d-flex justify-content-between align-items-start bg-white p-3 rounded-4 shadow-sm border border-light gap-1">
+                        @foreach($howSteps as $i => $st)
+                            @if($i > 0)<i class="fa-solid fa-chevron-right text-muted mt-3" style="font-size: 0.6rem;"></i>@endif
+                            <div class="text-center" style="flex: 1 1 0; min-width: 0;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 45px; height: 45px; background: {{ $st->color }}1f;">
+                                    <i class="fa-solid fa-{{ $st->icon }} fs-5" style="color: {{ $st->color }};"></i>
+                                </div>
+                                <div class="fw-bold text-dark" style="font-size: 0.65rem; line-height: 1.2;">{{ $st->title }}</div>
                             </div>
-                            <div class="fw-bold text-dark" style="font-size: 0.65rem;">Location</div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.6rem;"></i>
-                        <!-- Step 2 -->
-                        <div class="text-center position-relative">
-                            <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="fa-solid fa-sack-dollar text-success fs-5"></i>
-                            </div>
-                            <div class="fw-bold text-dark" style="font-size: 0.65rem;">Add Scrap</div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.6rem;"></i>
-                        <!-- Step 3 -->
-                        <div class="text-center position-relative">
-                            <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="fa-solid fa-truck text-success fs-5"></i>
-                            </div>
-                            <div class="fw-bold text-dark" style="font-size: 0.65rem;">Schedule</div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.6rem;"></i>
-                        <!-- Step 4 -->
-                        <div class="text-center position-relative">
-                            <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="fa-solid fa-coins text-warning fs-5"></i>
-                            </div>
-                            <div class="fw-bold text-dark" style="font-size: 0.65rem;">Earn Rewards</div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
-
+                @endif
                 <!-- Refer a Friend -->
                 <div id="referFriendCard" role="button" tabindex="0" style="cursor:pointer;" class="bg-white p-3 rounded-4 shadow-sm border border-light d-flex align-items-center justify-content-between mb-4">
                     <div class="d-flex align-items-center gap-3">

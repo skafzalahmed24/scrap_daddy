@@ -1,6 +1,6 @@
 {
-  "name": "Scrapdaddy - Pickup. Haul. Dispose.",
-  "short_name": "Scrapdaddy",
+  "name": "Scrap Daddy - Pickup. Haul. Dispose.",
+  "short_name": "Scrap Daddy",
   "description": "Schedule scrap pickups, track them live and earn reward coins.",
   "id": "/",
   "start_url": "/?source=pwa",

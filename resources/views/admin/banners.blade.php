@@ -87,6 +87,17 @@
               <label for="short_description" class="form-label">Short Description</label>
               <textarea class="form-control" id="short_description" name="short_description" rows="3"></textarea>
           </div>
+
+          <div class="row">
+              <div class="col-md-5 mb-3">
+                  <label for="cta_text" class="form-label">Button text <span class="text-muted small">(optional)</span></label>
+                  <input type="text" class="form-control" id="cta_text" name="cta_text" maxlength="40" placeholder="Book a Pickup">
+              </div>
+              <div class="col-md-7 mb-3">
+                  <label for="cta_link" class="form-label">Button link <span class="text-muted small">(optional)</span></label>
+                  <input type="text" class="form-control" id="cta_link" name="cta_link" maxlength="500" placeholder="Empty = opens the booking page">
+              </div>
+          </div>
           
           <div class="mb-3">
               <label for="uploads" class="form-label">Uploads (Image or Video)</label>
@@ -233,6 +244,8 @@
             document.getElementById('title').value = banner.title;
             document.getElementById('type').value = banner.type || 'web';
             document.getElementById('short_description').value = banner.short_description || '';
+            document.getElementById('cta_text').value = banner.cta_text || '';
+            document.getElementById('cta_link').value = banner.cta_link || '';
             document.getElementById('status').checked = banner.status == 1;
             
             if(banner.uploads) {
@@ -256,6 +269,8 @@
         formData.append('title', document.getElementById('title').value);
         formData.append('type', document.getElementById('type').value);
         formData.append('short_description', document.getElementById('short_description').value);
+        formData.append('cta_text', document.getElementById('cta_text').value);
+        formData.append('cta_link', document.getElementById('cta_link').value);
         formData.append('status', document.getElementById('status').checked ? 1 : 0);
         
         const file = document.getElementById('uploads').files[0];

@@ -6,7 +6,7 @@
         <div class="row align-items-center">
             <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
                 <a href="{{ url('/') }}" class="brand-logo" style="gap: 0;">
-                    <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 60px;">
+                    <img src="{{ $site['logo_url'] }}" alt="Scrap Daddy Logo" style="height: 60px;">
                 </a>
             </div>
             <div
@@ -35,7 +35,7 @@
 
         <!-- Mobile Logo (Left Side) -->
         <a href="{{ url('/') }}" class="brand-logo d-lg-none me-2" style="text-decoration: none;">
-            <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 38px; object-fit: contain;">
+            <img src="{{ $site['logo_url'] }}" alt="Scrap Daddy Logo" style="height: 38px; object-fit: contain;">
         </a>
 
 
@@ -69,9 +69,11 @@
                     style="margin-left: 0; padding-left: 15px;">
                     <a href="{{ url('/') }}">Home</a>
                     <a href="{{ route('categories.explore') }}">All Categories</a>
-                    <a href="{{ url('/#services') }}">Our Services</a>
+                    <a href="{{ route('site.services') }}">Our Services</a>
+                    <a href="{{ route('site.about') }}">About Us</a>
+                    <a href="{{ route('site.faqs') }}">FAQs</a>
                     <a href="{{ route('blog.index') }}">Blog</a>
-                    <a href="{{ url('/#testimonials') }}">Testimonials</a>
+                    <a href="{{ route('site.contact') }}">Contact</a>
                 </div>
             </div>
 

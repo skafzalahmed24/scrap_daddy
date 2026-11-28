@@ -39,7 +39,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy" class="sidebar-logo">
+            <img src="{{ $site['logo_url'] }}" alt="Scrap Daddy" class="sidebar-logo">
             <button type="button" class="close-sidebar" id="closeSidebar" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
         </div>
         

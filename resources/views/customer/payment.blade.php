@@ -193,7 +193,7 @@
                 new Razorpay({
                     key: g.key_id, amount: g.amount_paise, currency: g.currency, order_id: g.gateway_order_id,
                     name: 'Scrap Daddy', description: (g.kind === 'advance' ? 'Advance' : 'Payment') + ' - Order #' + orderId,
-                    image: "{{ asset('scraplogo.jpeg') }}",
+                    image: "{{ $site['logo_url'] }}",
                     prefill: { name: @json($user->full_name ?? ''), contact: @json($user->phone_number ?? '') },
                     theme: { color: '#3D8B4D' },
                     handler: function (resp) {

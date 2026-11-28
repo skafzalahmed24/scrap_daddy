@@ -52,6 +52,8 @@ class HomeContentController extends Controller
                 'trending' => $trending,
                 'bulk_fields' => $fields,
                 // an empty list must still be a JSON object {} for the app
+                'logo' => \App\Models\SiteSetting::get('logo_url'),
+                'how_steps' => \App\Models\HowStep::active()->map(fn ($x) => ['title' => $x->title, 'description' => $x->description, 'icon' => $x->icon, 'color' => $x->color])->values(),
                 'banners' => $banners->isEmpty() ? new \stdClass : $banners,
                 'articles' => $articles,
             ],

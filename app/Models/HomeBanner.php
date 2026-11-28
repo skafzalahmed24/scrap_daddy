@@ -15,9 +15,9 @@ class HomeBanner extends Model
     /** What a tap on the banner does. */
     public const LINKS = [
         'none' => 'Nothing (image only)',
-        'bulk_enquiry' => 'Open the bulk enquiry form',
+        'bulk_enquiry' => 'Open the enquiry form (bulk enquiry)',
         'pickup' => 'Open the pickup booking',
-        'vehicle' => 'Open the scrap vehicle form',
+        'vehicle' => 'Open the vehicle form (scrap vehicle)',
         'url' => 'Open a web link',
     ];
 

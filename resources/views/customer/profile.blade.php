@@ -219,14 +219,6 @@
                         <i class="fa-solid fa-chevron-right profile-chevron"></i>
                     </a>
 
-                    <a href="#" onclick="event.preventDefault(); confirmDeleteAccount();" class="profile-menu-item">
-                        <div class="profile-icon-box" style="background-color: rgba(244, 67, 54, 0.1); color: #f44336;">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </div>
-                        <span class="profile-menu-label">Delete Account</span>
-                        <i class="fa-solid fa-chevron-right profile-chevron"></i>
-                    </a>
-
                     <a href="#" onclick="event.preventDefault(); logoutCustomer();" class="profile-menu-item">
                         <div class="profile-icon-box" style="background-color: rgba(103, 58, 183, 0.1); color: #673ab7;">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>

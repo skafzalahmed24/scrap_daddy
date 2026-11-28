@@ -8,7 +8,7 @@
                 <!-- Column 1: Logo & Info -->
                 <div class="col-lg-4 col-md-6">
                     <a href="{{ url('/') }}" class="brand-logo mb-3 d-flex align-items-center" style="text-decoration: none;">
-                        <img src="{{ asset('scraplogo.jpeg') }}" alt="Scrap Daddy Logo" style="height: 60px;">
+                        <img src="{{ $site['logo_url'] }}" alt="Scrap Daddy Logo" style="height: 60px;">
                     </a>
                     <p class="text-muted mb-4" style="font-size: 0.95rem;">
                         {{ $site['footer_about'] }}
@@ -39,9 +39,11 @@
                     <ul class="list-unstyled" style="line-height: 2;">
                         <li><a href="{{ url('/') }}" class="text-muted text-decoration-none footer-link">Home</a></li>
                         <li><a href="{{ url('/#categories') }}" class="text-muted text-decoration-none footer-link">Categories</a></li>
-                        <li><a href="{{ url('/#services') }}" class="text-muted text-decoration-none footer-link">Services</a></li>
-                        <li><a href="{{ url('/#testimonials') }}" class="text-muted text-decoration-none footer-link">Testimonials</a></li>
-                        <li><a href="{{ url('/#contact') }}" class="text-muted text-decoration-none footer-link">Contact</a></li>
+                        <li><a href="{{ route('site.services') }}" class="text-muted text-decoration-none footer-link">Services</a></li>
+                        <li><a href="{{ route('site.about') }}" class="text-muted text-decoration-none footer-link">About Us</a></li>
+                        <li><a href="{{ route('site.faqs') }}" class="text-muted text-decoration-none footer-link">FAQs</a></li>
+                        <li><a href="{{ route('blog.index') }}" class="text-muted text-decoration-none footer-link">Blog</a></li>
+                        <li><a href="{{ route('site.contact') }}" class="text-muted text-decoration-none footer-link">Contact Us</a></li>
                     </ul>
                 </div>
 

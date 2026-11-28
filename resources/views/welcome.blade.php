@@ -137,6 +137,12 @@
         </div>
 
         <!-- Mobile View (Mobile Banners) -->
+        <style>
+            /* all banners share one size, and each carries a booking button */
+            .bn-img { aspect-ratio: 16 / 7; object-fit: cover; width: 100%; display: block; }
+            .bn-cta { position: absolute; left: 14px; bottom: 14px; z-index: 3; display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #2b7a3d !important; font-weight: 800; font-size: .82rem; border-radius: 999px; padding: 9px 16px; text-decoration: none; box-shadow: 0 6px 16px rgba(0,0,0,.22); }
+            .bn-cta i { font-size: .7rem; }
+        </style>
         <div class="d-block d-md-none hero-mobile-wrapper">
             @if($mobileBanners->count() > 0)
                 <div id="heroCarouselMobile" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
@@ -162,6 +168,9 @@
                                         </div>
                                     @endif
                                 </a>
+                                @if($banner->uploads)
+                                    <a href="{{ $banner->cta_link ?: route('customer.orders.create') }}" class="bn-cta">{{ $banner->cta_text ?: 'Book a Pickup' }} <i class="fa-solid fa-arrow-right"></i></a>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -304,120 +313,6 @@
          @include('partials.home-sections')
      </div>
 
-
-    <!-- Subcategories Section -->
-    <section class="subcategories-section py-5 bg-light">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="section-heading mb-0">Subcategories</h3>
-                <!-- <a href="#all-subcategories" class="btn rounded-pill px-4 fw-bold shadow-sm" style="border: 2px solid var(--primary-green); color: var(--primary-green); background: white; transition: all 0.3s;" onmouseover="this.style.background='var(--primary-green)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--primary-green)';">View More <i class="fa-solid fa-arrow-right ms-1"></i></a> -->
-            </div>
-            
-            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-4 justify-content-center">
-                @if(isset($subcategories))
-                    @forelse($subcategories->take(12) as $index => $sub)
-                    <div class="col {{ $index >= 6 ? 'd-none d-md-flex' : 'd-flex' }} flex-column align-items-center mb-3">
-                        <a href="{{ route('customer.orders.create') }}?subcategory={{ $sub->uuid }}" class="text-decoration-none text-center group"
-                           onmouseover="this.querySelector('.subcategory-circle').style.transform='translateY(-8px)'; this.querySelector('.subcategory-circle').style.boxShadow='0 15px 30px rgba(74,154,88,0.15)'; this.querySelector('.ring-overlay').style.borderColor='var(--primary-green)'; this.querySelector('h6').style.color='var(--primary-green)';"
-                           onmouseout="this.querySelector('.subcategory-circle').style.transform='translateY(0)'; this.querySelector('.subcategory-circle').style.boxShadow='0 4px 15px rgba(0,0,0,0.05)'; this.querySelector('.ring-overlay').style.borderColor='rgba(0,0,0,0.05)'; this.querySelector('h6').style.color='#212529';">
-                            
-                            <div class="subcategory-circle position-relative mb-3 mx-auto" style="width: 120px; height: 120px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                                <!-- Soft border overlay -->
-                                <div class="ring-overlay" style="position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s;"></div>
-                                <!-- Subtle gradient background -->
-                                <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(74,154,88,0.02) 0%, transparent 100%); border-radius: 50%;"></div>
-                                
-                                @if($sub->image)
-                                    <img src="{{ asset($sub->image) }}" alt="{{ $sub->name }}" style="width: 65px; height: 65px; object-fit: contain; z-index: 1; transition: transform 0.3s;">
-                                @else
-                                    <i class="fa-solid fa-recycle fa-2x" style="color: var(--primary-green); z-index: 1;"></i>
-                                @endif
-                            </div>
-                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem; transition: color 0.3s;">{{ $sub->name }}</h6>
-                        </a>
-                    </div>
-                    @empty
-                    <div class="col-12 text-center text-muted">
-                        No subcategories available yet.
-                    </div>
-                    @endforelse
-                @endif
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section id="services" class="sdw-section sdw-how">
-        <div class="container">
-            <div class="sdw-head">
-                <span class="sdw-eyebrow">Our Process</span>
-                <h2 class="sdw-title">How It Works</h2>
-                <p class="sdw-sub">Selling your scrap is simple. Book a pickup, we weigh it in front of you and pay you instantly.</p>
-            </div>
-
-            <div class="row g-4">
-                @foreach([
-                    ['n' => '01', 'icon' => 'fa-truck-fast', 'color' => '#4A9A58', 'title' => 'Doorstep Pickup', 'text' => 'Schedule a pickup at a time that suits you. Our team arrives at your location and takes care of the rest.'],
-                    ['n' => '02', 'icon' => 'fa-scale-balanced', 'color' => '#0d2b4d', 'title' => 'Accurate Weighing', 'text' => 'Certified digital scales weigh your scrap right in front of you, so you always get the right value.'],
-                    ['n' => '03', 'icon' => 'fa-money-bill-transfer', 'color' => '#f57c00', 'title' => 'Instant Payment', 'text' => 'Get paid on the spot through UPI, bank transfer or cash. No waiting and no delays.'],
-                ] as $step)
-                <div class="col-12 col-md-4">
-                    <div class="sdw-step">
-                        <span class="sdw-step-n">{{ $step['n'] }}</span>
-                        <div class="sdw-step-ic" style="background: {{ $step['color'] }};"><i class="fa-solid {{ $step['icon'] }}"></i></div>
-                        <h4>{{ $step['title'] }}</h4>
-                        <p>{{ $step['text'] }}</p>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-
-            <div class="text-center mt-5">
-                <a href="{{ url('/#categories') }}" class="sdw-cta">Start Selling Now <i class="fa-solid fa-arrow-right ms-2"></i></a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials -->
-    @php
-        $testimonials = [
-            ['name' => 'Ravi Teja', 'role' => 'Kirana Store Owner, Jayanagar', 'color' => '#0d2b4d', 'text' => 'Scrap Daddy has made clearing the cardboard and paper waste from my shop so easy. They come on time, weigh it properly and pay me on the spot.'],
-            ['name' => 'Lakshmi Prasanna', 'role' => 'Homemaker, Indiranagar', 'color' => '#4A9A58', 'text' => 'We had years of old newspapers and metal items at home. One booking and the team collected everything. Very polite staff and a fair price.'],
-            ['name' => 'Mohammed Imran', 'role' => 'Wholesale Trader, Yeshwanthpur', 'color' => '#f57c00', 'text' => 'I sell scrap in bulk, and the weighing is accurate and the payment is instant. It saved me a lot of running around. Highly reliable.'],
-            ['name' => 'Suresh Reddy', 'role' => 'Office Manager, Whitefield', 'color' => '#6a1b9a', 'text' => 'We use it to dispose of our old office paper and e-waste every month. Booking is simple and the support team always responds quickly.'],
-            ['name' => 'Anitha Kumari', 'role' => 'Teacher, HSR Layout', 'color' => '#c62828', 'text' => 'I booked a pickup from the app in two minutes. The executive came the next morning, and the payment reached my UPI immediately.'],
-            ['name' => 'Venkata Rao', 'role' => 'Workshop Owner, Peenya', 'color' => '#00695c', 'text' => 'Heavy iron and battery scrap used to be a headache. Now they pick it up from my workshop and the rates are clear and honest.'],
-        ];
-    @endphp
-    <section id="testimonials" class="sdw-section sdw-testi">
-        <div class="container">
-            <div class="sdw-head">
-                <span class="sdw-eyebrow">Testimonials</span>
-                <h2 class="sdw-title">Trusted by Our Customers</h2>
-                <p class="sdw-sub">Households, shops and businesses across {{ $site['city'] }} sell their scrap with us.</p>
-            </div>
-
-            <div class="row g-4">
-                @foreach($testimonials as $t)
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="sdw-quote">
-                        <div class="sdw-stars">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        </div>
-                        <p class="sdw-quote-text">&ldquo;{{ $t['text'] }}&rdquo;</p>
-                        <div class="sdw-person">
-                            <div class="sdw-avatar" style="background: {{ $t['color'] }};">{{ collect(explode(' ', $t['name']))->map(fn($w) => mb_substr($w, 0, 1))->take(2)->implode('') }}</div>
-                            <div>
-                                <h6>{{ $t['name'] }}</h6>
-                                <small>{{ $t['role'] }}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
 
     <style>
         .sdw-section { padding: 72px 0; }

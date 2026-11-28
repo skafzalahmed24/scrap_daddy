@@ -47,10 +47,15 @@ class OrderController extends Controller
     {
         $request->validate([
             'items' => 'required|array|min:1',
-            'items.*.subcategory_uuid' => 'required|exists:subcategories,uuid',
+            // a custom item typed by the customer ("can't find it") has no category link
+            'items.*.subcategory_uuid' => ['required_without:items.*.custom', 'nullable', 'exists:subcategories,uuid'],
+            'items.*.custom' => 'nullable|boolean',
             'items.*.quantity' => 'required|integer|min:1|max:100000',
             'items.*.name' => 'required|string|max:255',
             'pickup_location' => 'required|string|max:500',
+            'door_no' => 'nullable|string|max:40',
+            'floor' => 'nullable|string|max:20',
+            'landmark' => 'nullable|string|max:100',
             'pin_code' => ['required', 'string', 'regex:/^[1-9][0-9]{5}$/'],
             'pickup_date' => 'required|date|after_or_equal:today',
             'pickup_time' => 'required|string|max:50',
@@ -70,15 +75,19 @@ class OrderController extends Controller
             return back()->withInput()->with('error', \App\Models\ServicePincode::unavailableMessage($request->pin_code));
         }
 
-        $firstSubcategory = \App\Models\Subcategory::where('uuid', $request->items[0]['subcategory_uuid'])->first();
+        $firstUuid = collect($request->items)->pluck('subcategory_uuid')->filter()->first();
+        $firstSubcategory = $firstUuid ? \App\Models\Subcategory::where('uuid', $firstUuid)->first() : null;
 
         // Reward coins are applied later, once the admin has set the final amount
         // (same flow as the mobile app: Checkout -> redeem coins).
-        Order::create([
+        $order = Order::create([
             'user_uuid' => $user->uuid,
             'category_uuid' => $firstSubcategory ? $firstSubcategory->category_id : null,
             'items' => $request->items,
-            'pickup_location' => $request->pickup_location,
+            'pickup_location' => \App\Services\PickupAddress::compose($request->pickup_location, $request->door_no, $request->floor, $request->landmark),
+            'door_no' => $request->door_no,
+            'floor' => $request->floor,
+            'landmark' => $request->landmark,
             'pin_code' => $request->pin_code,
             'pickup_date' => $request->pickup_date,
             'pickup_time' => $request->pickup_time,
@@ -86,6 +95,9 @@ class OrderController extends Controller
             'notes' => $request->notes,
             'status' => 'pending',
         ]);
+
+        // WhatsApp: alert the admin number and confirm to the customer
+        \App\Services\WhatsAppService::orderBooked($order);
 
         return redirect('/customer/home')->with('success', 'Confirmed! Our admin team will connect with you shortly within 24 to 48 hours to finalize the pickup.');
     }
@@ -97,6 +109,7 @@ class OrderController extends Controller
         if (in_array($order->status, ['pending', 'accepted'])) {
             $order->status = 'cancelled';
             $order->save();
+            \App\Services\WhatsAppService::orderCancelledByCustomer($order);
 
             return redirect()->back()->with('success', 'Pick-up request has been cancelled.');
         }
@@ -149,6 +162,7 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Enter the final amount before completing the order.');
         }
 
+        $previousStatus = $order->status;
         $order->status = $request->status;
         if ($request->filled('estimated_pickup_date')) {
             $order->estimated_pickup_date = $request->estimated_pickup_date;
@@ -170,6 +184,9 @@ class OrderController extends Controller
 
         $order->save();
         OrderPaymentService::settleIfCovered($order);
+
+        // WhatsApp: the customer hears about the new status
+        \App\Services\WhatsAppService::orderStatusChanged($order, $previousStatus);
 
         return redirect()->back()->with('success', 'Order updated.');
     }

@@ -30,6 +30,8 @@ class BannerController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'short_description' => 'nullable|string',
+            'cta_text' => 'nullable|string|max:40',
+            'cta_link' => 'nullable|string|max:500',
             'status' => 'required|boolean',
             'type' => 'required|string|in:web,mobile',
             'uploads' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg', 'max:20480', function ($attribute, $value, $fail) {
@@ -40,7 +42,7 @@ class BannerController extends Controller
             }],
         ]);
 
-        $data = $request->only(['title', 'short_description', 'status', 'type']);
+        $data = $request->only(['title', 'short_description', 'cta_text', 'cta_link', 'status', 'type']);
 
         if ($request->hasFile('uploads')) {
             $file = $request->file('uploads');
@@ -77,6 +79,8 @@ class BannerController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'short_description' => 'nullable|string',
+            'cta_text' => 'nullable|string|max:40',
+            'cta_link' => 'nullable|string|max:500',
             'status' => 'required|boolean',
             'type' => 'required|string|in:web,mobile',
             'uploads' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,mp4,webm,ogg', 'max:20480', function ($attribute, $value, $fail) {
@@ -87,7 +91,7 @@ class BannerController extends Controller
             }],
         ]);
 
-        $data = $request->only(['title', 'short_description', 'status', 'type']);
+        $data = $request->only(['title', 'short_description', 'cta_text', 'cta_link', 'status', 'type']);
 
         if ($request->hasFile('uploads')) {
             $file = $request->file('uploads');

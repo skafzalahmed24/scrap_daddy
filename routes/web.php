@@ -9,6 +9,21 @@ use App\Http\Controllers\PaymentController;
 
 Route::get('/', [HomeController::class, 'index']);
 // The old "Category Explorer" page is gone: categories open the pickup page directly (category chips + items).
+// Information pages (content comes from the admin panel)
+Route::get('/about-us', [\App\Http\Controllers\SitePagesController::class, 'about'])->name('site.about');
+Route::get('/contact-us', [\App\Http\Controllers\SitePagesController::class, 'contact'])->name('site.contact');
+Route::get('/faqs', [\App\Http\Controllers\SitePagesController::class, 'faqs'])->name('site.faqs');
+Route::get('/services', [\App\Http\Controllers\SitePagesController::class, 'services'])->name('site.services');
+
+// Addresses of the previous website that Google still lists: send visitors (and search engines) to the right page instead of a 404
+foreach ([
+    'about' => '/about-us', 'about-us.html' => '/about-us', 'contact' => '/contact-us', 'contact-us.html' => '/contact-us', 'faq' => '/faqs',
+    'junk-removal-services' => '/services', 'junk-removal-service' => '/services', 'junk-removal' => '/services', 'our-services' => '/services',
+    'store' => '/', 'shop' => '/', 'products' => '/', 'handmade-vase' => '/', 'product/handmade-vase' => '/',
+] as $from => $to) {
+    Route::redirect('/' . $from, $to, 301);
+}
+
 // Public blog ("Know your scrap"): readable by everyone and indexed by search engines
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->where('slug', '[A-Za-z0-9\-]+')->name('blog.show');
@@ -196,6 +211,10 @@ Route::post('/admin/scrap-articles', [App\Http\Controllers\AdminScrapArticleCont
 Route::get('/admin/scrap-articles/{id}/edit', [App\Http\Controllers\AdminScrapArticleController::class, 'edit'])->whereNumber('id')->name('admin.scrap-articles.edit');
 Route::post('/admin/scrap-articles/{id}', [App\Http\Controllers\AdminScrapArticleController::class, 'update'])->whereNumber('id')->name('admin.scrap-articles.update');
 Route::delete('/admin/scrap-articles/{id}', [App\Http\Controllers\AdminScrapArticleController::class, 'destroy'])->whereNumber('id')->name('admin.scrap-articles.destroy');
+Route::get('/admin/how-it-works', [App\Http\Controllers\AdminHowStepController::class, 'index'])->name('admin.how-steps.index');
+Route::post('/admin/how-it-works', [App\Http\Controllers\AdminHowStepController::class, 'store'])->name('admin.how-steps.store');
+Route::post('/admin/how-it-works/{id}', [App\Http\Controllers\AdminHowStepController::class, 'update'])->whereNumber('id')->name('admin.how-steps.update');
+Route::delete('/admin/how-it-works/{id}', [App\Http\Controllers\AdminHowStepController::class, 'destroy'])->whereNumber('id')->name('admin.how-steps.destroy');
 Route::get('/admin/bulk-enquiries', [App\Http\Controllers\AdminBulkEnquiryController::class, 'index'])->name('admin.bulk-enquiries.index');
 Route::post('/admin/bulk-enquiries/fields', [App\Http\Controllers\AdminBulkEnquiryController::class, 'storeField'])->name('admin.bulk-enquiries.fields.store');
 Route::post('/admin/bulk-enquiries/fields/{id}', [App\Http\Controllers\AdminBulkEnquiryController::class, 'updateField'])->name('admin.bulk-enquiries.fields.update');

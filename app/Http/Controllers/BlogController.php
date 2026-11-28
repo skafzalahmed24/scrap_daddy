@@ -43,6 +43,10 @@ class BlogController extends Controller
         $urls = [
             ['loc' => url('/'), 'lastmod' => null, 'freq' => 'weekly', 'prio' => '1.0'],
             ['loc' => route('blog.index'), 'lastmod' => optional($articles->first())->updated_at, 'freq' => 'weekly', 'prio' => '0.8'],
+            ['loc' => route('site.services'), 'lastmod' => null, 'freq' => 'monthly', 'prio' => '0.9'],
+            ['loc' => route('site.about'), 'lastmod' => null, 'freq' => 'monthly', 'prio' => '0.6'],
+            ['loc' => route('site.faqs'), 'lastmod' => null, 'freq' => 'monthly', 'prio' => '0.6'],
+            ['loc' => route('site.contact'), 'lastmod' => null, 'freq' => 'monthly', 'prio' => '0.6'],
         ];
         foreach ($articles as $a) {
             $urls[] = ['loc' => route('blog.show', $a->slug), 'lastmod' => $a->updated_at, 'freq' => 'monthly', 'prio' => '0.7'];

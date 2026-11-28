@@ -24,10 +24,10 @@
     #sdIosSheet .sd-go { width: 100%; padding: 13px; font-size: 1rem; }
 </style>
 
-<div id="sdInstall" role="dialog" aria-label="Install Scrapdaddy">
+<div id="sdInstall" role="dialog" aria-label="Install Scrap Daddy">
     <div class="sd-in">
         <img src="{{ asset('images/pwa/icon-192.png') }}" alt="">
-        <div class="sd-t"><b>Install Scrapdaddy</b><span id="sdInstallHint">Add to your home screen for faster pickups.</span></div>
+        <div class="sd-t"><b>Install Scrap Daddy</b><span id="sdInstallHint">Add to your home screen for faster pickups.</span></div>
         <button type="button" class="sd-go" id="sdInstallBtn">Install</button>
         <button type="button" class="sd-x" id="sdInstallClose" aria-label="Close">&times;</button>
     </div>
@@ -35,14 +35,14 @@
 
 <div id="sdIosSheet" role="dialog" aria-label="Install on iPhone">
     <div class="sd-card">
-        <h4>Install Scrapdaddy on your iPhone</h4>
+        <h4>Install Scrap Daddy on your iPhone</h4>
         <p class="sub">It only takes a few seconds:</p>
         <ol>
             <li><span class="n">1</span><span>Tap the <b>Share</b> button
                 <svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>
                 at the bottom (or top) of Safari</span></li>
             <li><span class="n">2</span><span>Scroll down and tap <b>Add to Home Screen</b></span></li>
-            <li><span class="n">3</span><span>Tap <b>Add</b>. The Scrapdaddy icon appears on your home screen.</span></li>
+            <li><span class="n">3</span><span>Tap <b>Add</b>. The Scrap Daddy icon appears on your home screen.</span></li>
         </ol>
         <button type="button" class="sd-go" id="sdIosClose">Got it</button>
     </div>

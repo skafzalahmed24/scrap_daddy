@@ -18,7 +18,7 @@
     <div class="alert alert-danger">{{ $errors->first() }}</div>
 @endif
 
-<p class="text-muted">These banners scroll sideways under the section title on the website and the app. Use wide images (about 1000 x 450 px, JPG, PNG, SVG or GIF, up to 2 MB).</p>
+<p class="text-muted">These banners scroll sideways under the section title on the website and the app. Images are cropped to a square box automatically (centre of the picture), so use square-friendly pictures (about 800 x 800 px). JPG, PNG, SVG or GIF, up to 2 MB. The title is shown on the card; choose below what opens when a customer taps it.</p>
 
 {{-- Add --}}
 <form method="POST" action="{{ route('admin.home-banners.store', $section) }}" enctype="multipart/form-data" class="card shadow-sm border-0 rounded-3 mb-4">
@@ -65,7 +65,7 @@
         <div class="col-lg-6">
             <form method="POST" action="{{ route('admin.home-banners.update', $b->id) }}" enctype="multipart/form-data" class="card shadow-sm border-0 rounded-3 h-100">
                 @csrf
-                <img src="{{ asset($b->image) }}" alt="" style="width:100%;height:170px;object-fit:cover;border-radius:12px 12px 0 0;">
+                <img src="{{ asset($b->image) }}" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px 12px 0 0;">
                 <div class="card-body">
                     <div class="row g-2">
                         <div class="col-12"><input type="text" name="title" class="form-control form-control-sm" maxlength="120" placeholder="Title" value="{{ $b->title }}"></div>

@@ -15,11 +15,9 @@
     {{-- ===== Bulk enquiry hero ===== --}}
     <section id="hsBulk" class="hs-panel hs-bulkband" style="display:none;">
         <div class="hs-bulk">
-            <i class="hs-orb hs-orb1"></i><i class="hs-orb hs-orb2"></i>
-            <div class="hs-bulk-ic"><i class="fa-solid fa-boxes-stacked"></i></div>
-            <h5 id="hsBulkTitle"></h5>
-            <p id="hsBulkDesc"></p>
-            <button type="button" class="hs-bulk-btn" id="hsBulkBtn"><span>Start enquiry</span><i class="fa-solid fa-arrow-right"></i></button>
+            <div class="hs-bulk-text"><h5 id="hsBulkTitle"></h5>
+            <p id="hsBulkDesc"></p></div>
+            <button type="button" class="hs-bulk-btn" id="hsBulkBtn"><span>Start enquiry</span></button>
         </div>
     </section>
 
@@ -56,7 +54,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form class="modal-content" id="hsEnquiryForm" style="border-radius: 28px; border: 0;" novalidate>
             <div class="modal-header border-0 pb-0 align-items-center">
-                <span class="hs-ic ic-green me-2" style="width:44px;height:44px;"><i class="fa-solid fa-boxes-stacked"></i></span>
+                <span class="hs-ic ic-green me-2" style="width:44px;height:44px;"><i class="fa-solid fa-weight-scale"></i></span>
                 <h5 class="modal-title fw-bold flex-grow-1" id="hsEnquiryTitle">Bulk enquiry</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -199,6 +197,87 @@
     /* ===== Modern "handle" line on each curve ===== */
     .hs-panel::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; border-radius: 4px; background: rgba(16,24,40,.16); }
     .hs-bulkband::before { background: rgba(255,255,255,.45); }
+    /* Scrolling rows run to the screen edges but their FIRST item lines up with the heading (higher specificity than .hs-slider / .hs-trend-row) */
+    .hs-panel .hs-trend-row, .hs-panel .hs-slider { margin-left: calc(var(--hs-pad) * -1); margin-right: calc(var(--hs-pad) * -1); padding-left: var(--hs-pad); padding-right: var(--hs-pad); scroll-padding-left: var(--hs-pad); scroll-padding-right: var(--hs-pad); }
+    /* a banner and its neighbour always have the same size */
+    .hs-panel .hs-slide { flex: 0 0 min(86%, 520px); aspect-ratio: 2 / 1; }
+    .hs-panel .hs-slide img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ===== Clean, flat sections: no stacking animation, no heavy curves, light backgrounds ===== */
+    .hs-root { margin-top: 0; }
+    .hs-panel, .hs-panel.hs-first { position: relative; top: auto !important; margin-top: 0; border-radius: 0; box-shadow: none; transform: none !important; filter: none !important; will-change: auto; padding: 36px var(--hs-pad) 34px; overflow: visible; }
+    .hs-panel::before { display: none; }
+    .hs-mint, .hs-sand, .hs-sky, .hs-lilac, .hs-cream { background: #fff; }
+    .hs-sand, .hs-lilac { background: #f7faf7; }
+    .hs-panel + .hs-panel { border-top: 1px solid #eef1ee; }
+    .hs-ic { width: 42px; height: 42px; flex-basis: 42px; border-radius: 12px; background: #eef7ef; box-shadow: none; }
+    .hs-h h5 { font-size: 1.2rem; }
+    .hs-card { border: 1px solid #eef1ee; box-shadow: none; border-radius: 18px; }
+    .hs-add { box-shadow: none; }
+    .hs-panel .hs-slide, .hs-feat, .hs-article { box-shadow: none; border: 1px solid #eef1ee; border-radius: 18px; }
+    .hs-viewall { box-shadow: none; border: 1px solid #dfe5df; }
+    .hs-cartbar { box-shadow: none; }
+    /* bulk enquiry: a quiet light banner, no icon / circles / round arrow */
+    .hs-bulkband { background: #eef7ef; color: #1d2939; }
+    .hs-bulk { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; color: #1d2939; }
+    .hs-bulk .hs-bulk-text { flex: 1 1 260px; }
+    .hs-bulk h5 { color: #1d2939; font-size: 1.2rem; margin: 0 0 4px; }
+    .hs-bulk p { color: #475467; opacity: 1; max-width: none; margin: 0; }
+    .hs-bulk-btn { background: #3D8B4D; color: #fff; padding: 11px 24px; box-shadow: none; }
+
+    /* ===== Reference layout: contained rounded panels, light green tints, arrows on carousels ===== */
+    html, body { overflow-x: visible; }
+    .hs-root { --hs-pad: 0px; width: 100%; margin: 20px 0 0; display: flex; flex-direction: column; gap: 22px; }
+    .hs-root .hs-panel, .hs-root .hs-panel.hs-first { margin: 0; border: 1px solid #dcefdc; border-radius: 24px; padding: 20px 22px 22px; border-top-width: 1px; background: linear-gradient(180deg, #eef8ef, #f8fcf8); }
+    .hs-root .hs-panel + .hs-panel { border-top: 1px solid #dcefdc; }
+    /* plain sections (no tinted box): heading + content straight on the page */
+    .hs-root #hsSellBulk, .hs-root #hsOffers, .hs-root #hsKnow { background: transparent; border: 0; padding: 4px 0 0; }
+    .hs-root .hs-trend-row, .hs-root .hs-slider { margin-left: 0; margin-right: 0; padding-left: 2px; padding-right: 2px; scroll-padding-left: 0; scroll-padding-right: 0; }
+    .hs-root .hs-ic { width: 34px; height: 34px; flex-basis: 34px; border-radius: 50%; background: #fff; border: 1px solid #dcefdc; }
+    .hs-root .hs-ic i { font-size: .95rem; }
+    .hs-root .hs-h h5 { font-size: 1.15rem; }
+    .hs-wrap { position: relative; }
+    /* trending cards */
+    .hs-root .hs-card { flex: 0 0 150px; border-radius: 16px; padding: 10px 10px 12px; background: #fff; border: 1px solid #e3efe3; }
+    .hs-root .hs-circle { width: 100%; height: 96px; border-radius: 12px; background: #f4f6f4 !important; padding: 8px; }
+    .hs-root .hs-name { font-size: .84rem; margin: 10px 0 10px; }
+    .hs-root .hs-add { width: 100%; border-radius: 10px; padding: 8px 0; }
+    .hs-root .hs-step { width: 100%; justify-content: space-between; border-radius: 10px; }
+    /* bulk banner */
+    .hs-root #hsBulk { background: linear-gradient(90deg, #e3f4e5, #f1f9f2); padding: 22px 28px; }
+    .hs-root .hs-bulk-btn { border-radius: 12px; padding: 12px 26px; }
+    .hs-root .hs-bulk-btn::after { content: '\f061'; font-family: 'Font Awesome 6 Free'; font-weight: 900; margin-left: 10px; font-size: .8rem; }
+    /* banner carousels: three across on desktop, round arrows on the sides */
+    .hs-root .hs-panel .hs-slide, .hs-root .hs-slide { flex: 0 0 min(86%, 520px); aspect-ratio: 2 / 1; border-radius: 16px; }
+    @media (min-width: 992px) { .hs-root .hs-panel .hs-slide, .hs-root .hs-slide { flex: 0 0 calc((100% - 24px) / 3); aspect-ratio: 2.4 / 1; } }
+    .hs-root .hs-cap { padding-top: 34px; }
+    .hs-root .hs-cap b { font-size: .95rem; }
+    .hs-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e0e6e0; background: #fff; color: #1d2939; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16,24,40,.14); }
+    .hs-arrow.prev { left: -14px; } .hs-arrow.next { right: -14px; }
+    @media (min-width: 992px) { .hs-arrow { display: inline-flex; } }
+    .hs-root #hsTrending .hs-arrow { top: 22px; transform: none; }
+    .hs-root #hsTrending .hs-arrow.prev { left: auto; right: 64px; } .hs-root #hsTrending .hs-arrow.next { right: 22px; }
+    /* vehicle band + know your scrap */
+    .hs-root #hsVehicle { background: linear-gradient(90deg, #e9f6eb, #f6fbf6); }
+    .hs-root .hs-feat { display: flex; align-items: stretch; aspect-ratio: auto; background: #fff; border: 1px solid #e3efe3; border-radius: 18px; color: #1d2939; }
+    .hs-root .hs-feat img { width: 42%; height: auto; min-height: 190px; flex: 0 0 42%; }
+    .hs-root .hs-feat .hs-cap { position: static; background: none; color: #1d2939; padding: 22px 24px; display: flex; flex-direction: column; justify-content: center; }
+    .hs-root .hs-feat .hs-cap b { font-size: 1.2rem; }
+    .hs-root .hs-feat .hs-cap small { color: #475467; }
+    .hs-root .hs-feat .hs-pill { align-self: flex-start; background: #3D8B4D; color: #fff; padding: 8px 18px; border-radius: 10px; }
+    @media (max-width: 640px) { .hs-root .hs-feat { flex-direction: column; } .hs-root .hs-feat img { width: 100%; flex-basis: auto; min-height: 0; aspect-ratio: 16 / 9; } }
+    .hs-root .hs-article { border-radius: 16px; }
+    .hs-root .hs-viewall { background: #fff; }
+
+    /* ===== Square cards: whole picture visible, only the title below it (light, not dark) ===== */
+    .hs-root .hs-slide, .hs-root .hs-panel .hs-slide { aspect-ratio: auto; display: flex; flex-direction: column; background: #fff; border: 1px solid #e3efe3; border-radius: 18px; box-shadow: 0 4px 14px rgba(16,24,40,.06); flex: 0 0 62%; max-width: 280px; }
+    @media (min-width: 992px) { .hs-root .hs-slide, .hs-root .hs-panel .hs-slide { flex: 0 0 calc((100% - 54px) / 4); max-width: none; } }
+    .hs-root .hs-slide img { aspect-ratio: 1 / 1; height: auto; width: 100%; object-fit: cover; }
+    .hs-root .hs-cap { position: static; background: #fff; color: #1d2939; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+    .hs-root .hs-cap b { flex: 1; min-width: 0; font-size: .95rem; font-weight: 700; color: #1d2939; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .hs-root .hs-cap i { background: #3D8B4D; color: #fff; width: 28px; height: 28px; }
+    .hs-root .hs-count { background: rgba(255,255,255,.9); color: #1d2939; }
+    .hs-root .hs-slide:hover { border-color: #b9dfbf; }
 </style>
 
 <script>
@@ -224,7 +303,7 @@
         let fields = [];
 
         // ---- stacked cards ----
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduce = true;   // stacking animation switched off
         const bands = () => Array.from($('hsRoot').children).filter(x => x.style.display !== 'none');
         // where each band pins: earlier bands peek out a little above the later ones; a band taller than the screen pins by its bottom
         function layoutStack() {
@@ -255,8 +334,26 @@
         window.addEventListener('resize', () => { layoutStack(); depth(); });
         window.addEventListener('load', () => { layoutStack(); depth(); });
 
+        // round prev / next arrows for the scrolling rows (desktop only; phones just swipe)
+        function addArrows(el) {
+            el.querySelectorAll('.hs-trend-row, .hs-slider').forEach(row => {
+                if (row.dataset.arrows) return;
+                row.dataset.arrows = '1';
+                const host = el.id === 'hsTrending' ? el : row.parentNode;
+                if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+                const mk = (cls, icon, dir) => {
+                    const b = document.createElement('button');
+                    b.type = 'button'; b.className = 'hs-arrow ' + cls; b.setAttribute('aria-label', dir > 0 ? 'Next' : 'Previous');
+                    b.innerHTML = '<i class="fa-solid ' + icon + '"></i>';
+                    b.addEventListener('click', () => row.scrollBy({ left: dir * Math.max(240, row.clientWidth * 0.8), behavior: 'smooth' }));
+                    host.appendChild(b);
+                };
+                mk('prev', 'fa-chevron-left', -1); mk('next', 'fa-chevron-right', 1);
+            });
+        }
         const show = el => {
             el.style.display = ''; $('hsRoot').style.display = '';
+            addArrows(el);
             layoutStack(); depth();
             // the first visible band sits flat under whatever is above; the rest tuck their curve over the band before
             Array.from($('hsRoot').children).filter(x => x.style.display !== 'none').forEach((x, i) => x.classList.toggle('hs-first', i === 0));
@@ -400,7 +497,7 @@
                 <button type="button" class="hs-slide ${b.link_type === 'none' ? 'is-static' : ''}" data-i="${i}">
                     <img src="${esc(ASSET + b.image)}" alt="${esc(b.title || '')}" loading="lazy">
                     ${list.length > 1 ? `<span class="hs-count">${i + 1}/${list.length}</span>` : ''}
-                    ${(b.title || b.subtitle || b.link_type !== 'none') ? `<div class="hs-cap"><div>${b.title ? '<b>' + esc(b.title) + '</b>' : ''}${b.subtitle ? '<small>' + esc(b.subtitle) + '</small>' : ''}</div>${b.link_type !== 'none' ? '<i class="fa-solid fa-arrow-right"></i>' : ''}</div>` : ''}
+                    ${(b.title || b.link_type !== 'none') ? `<div class="hs-cap"><b>${esc(b.title || '')}</b>${b.link_type !== 'none' ? '<i class="fa-solid fa-arrow-right"></i>' : ''}</div>` : ''}
                 </button>`).join('');
             slider.querySelectorAll('.hs-slide').forEach(btn => btn.addEventListener('click', () => bannerTap(list[+btn.dataset.i])));
             if (list.length > 1) {

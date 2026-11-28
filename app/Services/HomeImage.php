@@ -10,6 +10,7 @@ class HomeImage
 {
     public const DIR = 'uploads/home';
     public const RULE = 'file|mimes:jpeg,png,jpg,gif,svg|max:2048'; // JPG, PNG, SVG, GIF - 2 MB
+    public const SIDE = 800;                                         // every JPG / PNG is saved as a square box this size
 
     /** @return string path relative to /public, e.g. uploads/home/1700000000_abc.jpg */
     public static function store(UploadedFile $file): string
@@ -18,11 +19,43 @@ class HomeImage
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
-        $name = time() . '_' . Str::random(10) . '.' . ($file->extension() ?: 'jpg');
-        file_put_contents($dir . '/' . $name, file_get_contents($file->getRealPath()));
-        @chmod($dir . '/' . $name, 0644);
+        $ext = strtolower($file->extension() ?: 'jpg');
+        $name = time() . '_' . Str::random(10) . '.' . $ext;
+        $target = $dir . '/' . $name;
+
+        if (!self::saveSquare($file->getRealPath(), $ext, $target)) {
+            file_put_contents($target, file_get_contents($file->getRealPath()));   // GIF / SVG (or no GD): kept as uploaded
+        }
+        @chmod($target, 0644);
 
         return self::DIR . '/' . $name;
+    }
+
+    /** Centre-crops a JPG / PNG to a square box so every card has the same shape. */
+    private static function saveSquare(string $src, string $ext, string $target): bool
+    {
+        if (!function_exists('imagecreatetruecolor') || !in_array($ext, ['jpg', 'jpeg', 'png'], true)) {
+            return false;
+        }
+        $img = @($ext === 'png' ? imagecreatefrompng($src) : imagecreatefromjpeg($src));
+        if (!$img) {
+            return false;
+        }
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $side = min($w, $h);
+        $out = imagecreatetruecolor(self::SIDE, self::SIDE);
+        if ($ext === 'png') {
+            imagealphablending($out, false);
+            imagesavealpha($out, true);
+            imagefill($out, 0, 0, imagecolorallocatealpha($out, 0, 0, 0, 127));
+        }
+        imagecopyresampled($out, $img, 0, 0, (int) (($w - $side) / 2), (int) (($h - $side) / 2), self::SIDE, self::SIDE, $side, $side);
+        $ok = $ext === 'png' ? imagepng($out, $target, 6) : imagejpeg($out, $target, 85);
+        imagedestroy($img);
+        imagedestroy($out);
+
+        return (bool) $ok;
     }
 
     public static function delete(?string $path): void

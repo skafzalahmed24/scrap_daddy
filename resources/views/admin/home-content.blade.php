@@ -24,6 +24,7 @@
         'scrap_vehicle' => ['Scrap your vehicle', 'Title, description and hashtags above the vehicle banners.'],
         'offers' => ['Offers', 'Title above the offer banners.'],
         'know_scrap' => ['Know your scrap', 'Title and description above the articles.'],
+        'how_it_works' => ['How it works', 'Heading above the steps. Edit the steps themselves with the button.'],
     ];
 @endphp
 
@@ -67,6 +68,8 @@
                     <button class="btn btn-success fw-bold btn-sm mt-1"><i class="fa-solid fa-floppy-disk me-1"></i> Save</button>
                     @if(in_array($section->key, ['sell_bulk', 'scrap_vehicle', 'offers']))
                         <a href="{{ route('admin.home-banners.index', $section->key) }}" class="btn btn-outline-success fw-bold btn-sm mt-1 ms-1"><i class="fa-solid fa-images me-1"></i> Manage banners</a>
+                    @elseif($section->key === 'how_it_works')
+                        <a href="{{ route('admin.how-steps.index') }}" class="btn btn-outline-success fw-bold btn-sm mt-1 ms-1"><i class="fa-solid fa-list-ol me-1"></i> Manage steps</a>
                     @elseif($section->key === 'know_scrap')
                         <a href="{{ route('admin.scrap-articles.index') }}" class="btn btn-outline-success fw-bold btn-sm mt-1 ms-1"><i class="fa-solid fa-book-open me-1"></i> Manage articles</a>
                     @endif

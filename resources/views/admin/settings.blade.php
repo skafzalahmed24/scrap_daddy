@@ -19,7 +19,7 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('admin.settings.update') }}">
+<form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
     @csrf
 
     <div class="row g-4">
@@ -29,6 +29,17 @@
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-3"><i class="fa-solid fa-location-dot text-success me-2"></i>Company &amp; Address</h5>
 
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-semibold small mb-1">Logo</label>
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="{{ $settings['logo_url'] }}" alt="Current logo" style="height:56px;max-width:200px;object-fit:contain;border:1px solid #eee;border-radius:10px;padding:6px;background:#fff;">
+                            <div>
+                                <input type="file" name="logo" accept=".jpg,.jpeg,.png,.gif,.svg,image/jpeg,image/png,image/gif,image/svg+xml" class="form-control form-control-sm">
+                                <div class="form-text">JPG, PNG, SVG or GIF, up to 2 MB. Shown in the website header and footer and in the app.</div>
+                                @if($settings['logo'] !== '')<div class="form-check mt-1"><input class="form-check-input" type="checkbox" name="remove_logo" value="1" id="removeLogo"><label class="form-check-label small" for="removeLogo">Go back to the original logo</label></div>@endif
+                            </div>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Company name</label>
                         <input type="text" name="company_name" class="form-control" value="{{ old('company_name', $settings['company_name']) }}" required>

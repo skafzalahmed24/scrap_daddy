@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 
     @include('partials.pwa-head')
+    <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=5">
     @stack('styles')
 </head>
 
@@ -41,49 +42,50 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Location Detection Script -->
+    <!-- Location Detection Script: shows the remembered place at once, refreshes quietly in the background -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const locText = document.getElementById('locationText');
             const locTextMobile = document.getElementById('locationTextMobile');
+            const KEY = 'sd_location_v2';
 
-            function updateLocationText(text) {
+            function updateLocationText(text, detected) {
                 if (locText) locText.innerText = text;
                 if (locTextMobile) locTextMobile.innerText = text;
-                
                 const locTextMobile2 = document.getElementById('locationTextMobile2');
                 if (locTextMobile2) {
                     locTextMobile2.innerText = text;
-                    locTextMobile2.nextElementSibling.innerText = 'Detected automatically';
+                    if (locTextMobile2.nextElementSibling) locTextMobile2.nextElementSibling.innerText = detected ? 'Detected automatically' : 'Tap to set your location';
                 }
             }
 
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
+            let saved = null;
+            try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+            if (saved && saved.name) updateLocationText(saved.name, true);   // instant: no waiting for GPS
+            // a place found in the last 30 minutes is good enough - do not ask the phone again
+            if (saved && saved.name && Date.now() - saved.at < 30 * 60 * 1000) return;
 
-                    // Reverse geocoding using free Nominatim API
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data && data.address) {
-                                // Fallbacks for different location granularity
-                                const locationName = data.address.city || data.address.town || data.address.village || data.address.county || data.address.state || 'Location found';
-                                updateLocationText(locationName);
-                            } else {
-                                updateLocationText('Location found');
-                            }
-                        })
-                        .catch(err => {
-                            updateLocationText('Set Location');
-                        });
-                }, function (error) {
-                    updateLocationText('Location denied');
-                });
-            } else {
-                updateLocationText('Location unsupported');
-            }
+            if (!('geolocation' in navigator)) { if (!(saved && saved.name)) updateLocationText('Set Location', false); return; }
+
+            navigator.geolocation.getCurrentPosition(function (position) {
+                const lat = position.coords.latitude, lon = position.coords.longitude;
+                const ctrl = ('AbortController' in window) ? new AbortController() : null;
+                const timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 6000);   // the look-up service can be slow: never wait long
+                fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lon + '&zoom=10', ctrl ? { signal: ctrl.signal } : {})
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        clearTimeout(timer);
+                        const a = (data && data.address) || {};
+                        const name = a.city || a.town || a.village || a.county || a.state || '';
+                        if (name) {
+                            updateLocationText(name, true);
+                            try { localStorage.setItem(KEY, JSON.stringify({ name: name, lat: lat, lon: lon, at: Date.now() })); } catch (e) {}
+                        } else if (!(saved && saved.name)) { updateLocationText('Location found', true); }
+                    })
+                    .catch(function () { clearTimeout(timer); if (!(saved && saved.name)) updateLocationText('Set Location', false); });
+            }, function () {
+                if (!(saved && saved.name)) updateLocationText('Set Location', false);
+            }, { enableHighAccuracy: false, timeout: 6000, maximumAge: 10 * 60 * 1000 });   // a rough, recent position is enough for a city name
         });
     </script>
 
@@ -241,7 +243,6 @@
         }
     </style>
     @endif
-    <link rel="stylesheet" href="{{ asset('css/modern.css') }}?v=5">
     @include('partials.pwa-install')
 </body>
 

@@ -54,6 +54,7 @@ class SiteSetting extends Model
             'youtube' => '',
             'twitter' => '',
             'linkedin' => '',
+            'logo' => '',   // uploaded in Admin > Site Settings; empty = the built-in logo
         ];
     }
 
@@ -78,6 +79,9 @@ class SiteSetting extends Model
                 $merged[$key] = (string) $value;
             }
         }
+
+        // ready-to-use logo address for every page, e-mail and the app (falls back to the built-in logo)
+        $merged['logo_url'] = asset($merged['logo'] !== '' ? $merged['logo'] : 'scraplogo.jpeg');
 
         return self::$memo = $merged;
     }

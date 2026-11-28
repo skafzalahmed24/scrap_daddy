@@ -49,6 +49,17 @@ class AdminSettingsController extends Controller
             SiteSetting::updateOrCreate(['key' => $key], ['value' => trim((string) ($data[$key] ?? ''))]);
         }
 
+        // Logo: a new file replaces the old one; the checkbox goes back to the built-in logo
+        $request->validate(['logo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+        $currentLogo = (string) SiteSetting::get('logo', '');
+        if ($request->hasFile('logo')) {
+            \App\Services\HomeImage::delete($currentLogo);
+            SiteSetting::updateOrCreate(['key' => 'logo'], ['value' => \App\Services\HomeImage::store($request->file('logo'))]);
+        } elseif ($request->boolean('remove_logo') && $currentLogo !== '') {
+            \App\Services\HomeImage::delete($currentLogo);
+            SiteSetting::updateOrCreate(['key' => 'logo'], ['value' => '']);
+        }
+
         SiteSetting::flush();
 
         return redirect()->route('admin.settings.index')->with('success', 'Site settings saved. The website footer and contact details are updated.');

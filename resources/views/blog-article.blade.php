@@ -5,7 +5,7 @@
     $paragraphs = preg_split('/\n\s*\n/', trim((string) $article->content), -1, PREG_SPLIT_NO_EMPTY);
     $url = route('blog.show', $article->slug);
     $desc = $article->metaDescription();
-    $img = $article->cover_image ? asset($article->cover_image) : asset('scraplogo.jpeg');
+    $img = $article->cover_image ? asset($article->cover_image) : $site['logo_url'];
     $jsonFlags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP;
     $schema = [
         '@context' => 'https://schema.org',
@@ -17,7 +17,7 @@
         'dateModified' => $article->updated_at->toAtomString(),
         'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $url],
         'author' => ['@type' => 'Organization', 'name' => 'Scrap Daddy'],
-        'publisher' => ['@type' => 'Organization', 'name' => 'Scrap Daddy', 'logo' => ['@type' => 'ImageObject', 'url' => asset('scraplogo.jpeg')]],
+        'publisher' => ['@type' => 'Organization', 'name' => 'Scrap Daddy', 'logo' => ['@type' => 'ImageObject', 'url' => $site['logo_url']]],
     ];
     $crumbs = [
         '@context' => 'https://schema.org',

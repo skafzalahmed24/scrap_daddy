@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Receipt {{ $invoiceNo }} - Scrapdaddy</title>
+    <title>Receipt {{ $invoiceNo }} - Scrap Daddy</title>
     <style>
         :root { --brand:#3D8B4D; --ink:#14201A; --muted:#64748B; --line:#D8E8D9; --soft:#F3FBF4; }
         * { box-sizing: border-box; }
@@ -57,7 +57,7 @@
 
 <div class="page">
     <div class="head">
-        <img src="{{ asset('images/sd_logo_mark.png') }}" alt="Scrapdaddy">
+        <img src="{{ asset('images/sd_logo_mark.png') }}" alt="Scrap Daddy">
         <div class="t"><b>PAYMENT RECEIPT / INVOICE @if($admin)<span class="tag">ADMIN COPY</span>@endif</b><div>Pickup. Haul. Dispose.</div></div>
     </div>
 
@@ -143,7 +143,7 @@
         </div>
     @endif
 
-    <div class="foot"><b>Thank you for recycling with Scrapdaddy!</b>Keep the transaction ids above for any payment query. This is a computer-generated receipt and needs no signature. Invoice {{ $invoiceNo }}.</div>
+    <div class="foot"><b>Thank you for recycling with Scrap Daddy!</b>Keep the transaction ids above for any payment query. This is a computer-generated receipt and needs no signature. Invoice {{ $invoiceNo }}.</div>
 </div>
 </body>
 </html>

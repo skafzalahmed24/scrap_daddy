@@ -10,7 +10,7 @@
         'name' => 'Scrap Daddy Blog',
         'description' => $desc,
         'url' => $pageUrl,
-        'publisher' => ['@type' => 'Organization', 'name' => 'Scrap Daddy', 'logo' => ['@type' => 'ImageObject', 'url' => asset('scraplogo.jpeg')]],
+        'publisher' => ['@type' => 'Organization', 'name' => 'Scrap Daddy', 'logo' => ['@type' => 'ImageObject', 'url' => $site['logo_url']]],
         'blogPost' => $articles->map(fn ($a) => [
             '@type' => 'BlogPosting',
             'headline' => $a->title,
@@ -34,7 +34,7 @@
     <meta property="og:title" content="{{ $heading }} - Scrap Daddy Blog">
     <meta property="og:description" content="{{ $desc }}">
     <meta property="og:url" content="{{ $pageUrl }}">
-    <meta property="og:image" content="{{ asset('scraplogo.jpeg') }}">
+    <meta property="og:image" content="{{ $site['logo_url'] }}">
     <meta name="twitter:card" content="summary_large_image">
     <script type="application/ld+json">{!! json_encode($schema, $jsonFlags) !!}</script>
 @endpush

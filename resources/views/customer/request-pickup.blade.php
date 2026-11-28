@@ -141,6 +141,55 @@
         .item-row .item-info { min-width: 0; }
         @media (min-width: 768px) { .step-nav .btn-primary-action { flex: 0 1 auto; min-width: 240px; margin-left: auto; } }
         @media (max-width: 380px) { .step-nav .btn { padding: 0 14px; font-size: .88rem; } .step-nav { gap: 8px; } }
+        /* ===== layout fixes: items always one tidy row (the "+" is no longer cropped), shorter header blocks ===== */
+        .item-row { display: flex !important; align-items: center; justify-content: space-between; gap: 10px; }
+        .item-row > .d-flex:first-child { flex: 1 1 auto; min-width: 0; }
+        .item-row .item-info h6 { overflow-wrap: anywhere; line-height: 1.25; font-size: .95rem; }
+        .item-row .quantity-controls { flex: 0 0 auto; }
+        .item-row .quantity-controls .qty-display { min-width: 22px; text-align: center; margin: 0 8px !important; }
+        @media (max-width: 420px) {
+            #step-1 .quantity-controls .btn-minus, #step-1 .quantity-controls .btn-plus { width: 32px !important; height: 32px !important; }
+            .item-row .item-icon-wrapper { width: 48px !important; height: 48px !important; margin-right: 10px !important; }
+        }
+        /* the two big blocks at the top used to take over half of a phone screen */
+        .col-lg-8 > .hero-banner { padding: 14px 18px !important; min-height: 0 !important; }
+        .col-lg-8 > .hero-banner h2 { font-size: 1.3rem; margin-bottom: 2px; }
+        .col-lg-8 > .hero-banner p { font-size: .85rem; }
+        .cat-hero { margin: 0 0 10px; gap: 10px; }
+        .cat-hero h3 { font-size: 1.3rem !important; margin-bottom: 2px; }
+        .cat-hero p { font-size: .84rem; max-width: none; }
+        .cat-hero img { width: 62px !important; height: 62px !important; }
+        @media (max-width: 767px) { .form-container.p-4 { padding: 16px !important; } .stepper-wrapper.mb-5 { margin-bottom: 14px !important; } }
+
+        /* selected items bar: always shows how many items are in the cart */
+        .sel-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 84px; z-index: 1055; width: calc(100% - 28px); max-width: 520px; display: none; align-items: center; justify-content: space-between; gap: 10px; background: #1d2939; color: #fff; border-radius: 999px; padding: 8px 8px 8px 18px; box-shadow: 0 12px 28px rgba(0,0,0,.28); font-size: .9rem; }
+        .sel-bar b { color: #8be29b; }
+        .sel-bar button { border: 0; background: linear-gradient(135deg, #4A9A58, #3D8B4D); color: #fff; font-weight: 700; border-radius: 999px; padding: 9px 18px; white-space: nowrap; }
+        @media (min-width: 992px) { .sel-bar { bottom: 22px; } }
+
+        /* "can't find it?" box + manually added items */
+        .no-item-box { border: 1.5px dashed #a5d6a7; background: #f6fbf6; border-radius: 16px; padding: 14px 16px; text-align: center; margin-bottom: 14px; }
+        .no-item-box .btn-add-custom { margin-top: 8px; border-radius: 999px; font-weight: 700; background: #3D8B4D; color: #fff; padding: 8px 18px; border: 0; }
+        .custom-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff; border: 1px solid #c8e6c9; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; }
+        .custom-row .nm { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+        .custom-row .nm small { display: block; font-weight: 500; color: #667085; }
+        .custom-row .qc { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+        .custom-row .qc button { width: 32px; height: 32px; border-radius: 50%; border: 0; background: #3D8B4D; color: #fff; padding: 0; }
+        .custom-row .qc button.minus { background: #eef1f4; color: #3D8B4D; }
+
+        /* photo buttons: easy to hit */
+        .sd-photo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .sd-photo-btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: 16px; font-weight: 700; font-size: 1rem; border: 1.5px solid #4A9A58; background: #fff; color: #3D8B4D; }
+        .sd-photo-btn.primary { background: #4A9A58; color: #fff; }
+        .addr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .addr-grid .full { grid-column: 1 / -1; }
+        .addr-grid input, .addr-grid select { border-radius: 8px; border: 1px solid #ddd; padding: 9px 12px; width: 100%; background: #fff; }
+        .sort-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; background: #fff; border: 1px solid #e4e7ec; border-radius: 16px; box-shadow: 0 14px 30px rgba(16,24,40,.16); padding: 8px; min-width: 190px; }
+        .sort-menu .sort-title { font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #98a2b3; padding: 4px 10px 6px; }
+        .sort-menu button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; padding: 10px 12px; border-radius: 10px; font-weight: 600; color: #344054; text-align: left; }
+        .sort-menu button .ck { margin-left: auto; opacity: 0; color: #3D8B4D; }
+        .sort-menu button.active { background: #eaf6ea; color: #2b7a3d; } .sort-menu button.active .ck { opacity: 1; }
+        #sortToggle.is-on { background: #eaf6ea !important; border-radius: 10px; width: 34px; height: 34px; }
     </style>
 @endpush
 
@@ -197,6 +246,7 @@
                     <input type="hidden" name="user_uuid" value="">
                     <!-- Cart inputs will be generated dynamically -->
                     <div id="cartHiddenInputs"></div>
+                    <div class="sel-bar" id="selBar" role="status" aria-live="polite"><span><b id="selCount">0</b> <span id="selLabel">items</span> selected</span><button type="button" id="selNext">Next <i class="fa-solid fa-arrow-right ms-1"></i></button></div>
                     <input type="hidden" name="pickup_date" id="input_pickup_date">
                     <input type="hidden" name="pickup_time" id="input_pickup_time">
                     <div id="hiddenImagesContainer"></div>
@@ -219,7 +269,8 @@
                                 <div class="position-relative mb-3">
                                     <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
                                     <input type="text" id="itemSearch" class="form-control ps-5 py-2" placeholder="Search items..." style="border-radius: 20px; border: 1px solid #ddd;">
-                                    <button type="button" id="sortToggle" class="btn p-0 border-0 position-absolute top-50 end-0 translate-middle-y me-3 text-success" title="Sort A to Z" aria-label="Sort items"><i class="fa-solid fa-sliders"></i></button>
+                                    <button type="button" id="sortToggle" class="btn p-0 border-0 position-absolute top-50 end-0 translate-middle-y me-3 text-success" title="Sort items" aria-label="Sort items" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-sliders"></i></button>
+                                    <div id="sortMenu" class="sort-menu" role="menu" style="display:none;"><div class="sort-title">Sort items</div><button type="button" data-sort="az" class="active" role="menuitem"><i class="fa-solid fa-arrow-down-a-z"></i> A to Z <i class="fa-solid fa-check ck"></i></button><button type="button" data-sort="za" role="menuitem"><i class="fa-solid fa-arrow-down-z-a"></i> Z to A <i class="fa-solid fa-check ck"></i></button><button type="button" data-sort="sel" role="menuitem"><i class="fa-solid fa-cart-shopping"></i> Selected first <i class="fa-solid fa-check ck"></i></button></div>
                                 </div>
                                 <style>
                                     .cat-chip{background:#e8f5e9!important;color:#3D8B4D!important;border:1.5px solid #a5d6a7!important;font-weight:600;white-space:nowrap}
@@ -263,6 +314,13 @@
                             </div>
                         </div>
 
+                        <div id="noItemBox" class="no-item-box ms-md-5" style="display:none;">
+                            <div>Can't find <b id="noItemTerm"></b>?</div>
+                            <small class="text-muted">Type what you have and add it yourself. Our team will confirm it at pickup.</small><br>
+                            <button type="button" class="btn-add-custom" id="btnAddCustom"><i class="fa-solid fa-plus me-1"></i> Add it manually</button>
+                        </div>
+                        <div id="customList" class="ms-md-5"></div>
+
                         <!-- Location Selection -->
                         <div class="mb-4 mt-5">
                             <div class="section-title">
@@ -280,6 +338,12 @@
                                 <button type="button" class="btn py-2 px-3 fw-bold" id="btnDetectLocation" style="border-radius: 8px; white-space: nowrap; background: #e8f5e9; color: var(--primary-green, #3D8B4D); border: 1px solid #c8e6c9;">
                                     <i class="fa-solid fa-crosshairs me-2"></i> Use my location
                                 </button>
+                            </div>
+                            <div class="ms-md-5 mt-3 addr-grid">
+                                <div><label for="door_no" class="form-label fw-semibold small mb-1">Door / Flat no.</label><input type="text" name="door_no" id="door_no" maxlength="40" placeholder="e.g. 12-A" autocomplete="off"></div>
+                                <div><label for="floor" class="form-label fw-semibold small mb-1">Floor</label>
+                                    <select name="floor" id="floor"><option value="">Select floor</option><option value="Ground">Ground floor</option>@for($f = 1; $f <= 20; $f++)<option value="{{ $f }}{{ $f == 1 ? 'st' : ($f == 2 ? 'nd' : ($f == 3 ? 'rd' : 'th')) }}">{{ $f }}{{ $f == 1 ? 'st' : ($f == 2 ? 'nd' : ($f == 3 ? 'rd' : 'th')) }} floor</option>@endfor<option value="20+">Above 20th floor</option></select></div>
+                                <div class="full"><label for="landmark" class="form-label fw-semibold small mb-1">Landmark <span class="text-muted fw-normal">(optional)</span></label><input type="text" name="landmark" id="landmark" maxlength="100" placeholder="Near temple, opposite bank ..." autocomplete="off"></div>
                             </div>
                             <div class="ms-md-5 mt-3">
                                 <label for="pin_code" class="form-label fw-semibold small mb-1">PIN code <span class="text-danger">*</span></label>
@@ -392,7 +456,10 @@
                             <b>Tap to add photos</b>
                             <small>JPG, PNG, GIF &bull; Max 10 photos &bull; 2 MB each</small>
                         </label>
-                        <div class="text-center mt-2"><label for="cameraUpload" class="small fw-semibold" style="color:#4A9A58;cursor:pointer;"><i class="fa-solid fa-camera me-1"></i> or take a photo</label></div>
+                        <div class="sd-photo-row">
+                            <button type="button" class="sd-photo-btn primary" id="btnTakePhoto"><i class="fa-solid fa-camera"></i> Take photo</button>
+                            <button type="button" class="sd-photo-btn" id="btnGallery"><i class="fa-regular fa-images"></i> From gallery</button>
+                        </div>
                         <span class="file-name-display d-block mt-2" id="fileNameDisplay">No file chosen</span>
                         <input type="file" id="imageUpload" class="d-none" multiple accept="image/jpeg,image/png,image/gif,image/webp">
                         <input type="file" id="cameraUpload" class="d-none" accept="image/jpeg,image/png,image/gif,image/webp" capture="environment">
@@ -483,7 +550,7 @@
 
                         <div class="alert-success-custom ms-md-5 mb-4" style="background-color: #e8f5e9; border: 1px solid #c8e6c9; color: #4A9A58;">
                             <i class="fa-solid fa-shield-check"></i>
-                            <div>Once confirmed, Scrapdaddy will review your request. Your request will be assigned soon. Please wait for a while.</div>
+                            <div>Once confirmed, Scrap Daddy will review your request. Your request will be assigned soon. Please wait for a while.</div>
                         </div>
 
                         <div class="step-nav">
@@ -779,6 +846,40 @@
         // --- CART LOGIC ---
         let cart = {};
         
+        const CART_KEY = 'pickup_cart_v2';
+        const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const cartCount = () => Object.keys(cart).filter(k => cart[k] && cart[k].quantity > 0).length;
+        const cartQty = () => Object.values(cart).reduce((n, i) => n + ((i && i.quantity) || 0), 0);
+
+        function saveCart() {
+            try {
+                if (cartCount()) localStorage.setItem(CART_KEY, JSON.stringify({ cart: cart, at: Date.now() }));
+                else localStorage.removeItem(CART_KEY);
+            } catch (e) {}
+        }
+
+        function updateSelBar() {
+            const bar = document.getElementById('selBar'); if (!bar) return;
+            const n = cartCount();
+            const onStep1 = document.getElementById('step-1') && document.getElementById('step-1').classList.contains('active');
+            document.getElementById('selCount').textContent = n;
+            document.getElementById('selLabel').textContent = n === 1 ? 'item' : 'items';
+            bar.style.display = (n > 0 && onStep1) ? 'flex' : 'none';
+        }
+
+        function renderCustomList() {
+            const box = document.getElementById('customList'); if (!box) return;
+            const keys = Object.keys(cart).filter(k => k.startsWith('custom:') && cart[k].quantity > 0);
+            box.innerHTML = keys.map(k => `<div class="custom-row" data-key="${esc(k)}">
+                <div class="nm">${esc(cart[k].name)}<small>Added manually</small></div>
+                <div class="qc"><button type="button" class="minus" aria-label="Less"><i class="fa-solid fa-minus"></i></button><b>${cart[k].quantity}</b><button type="button" class="plus" aria-label="More"><i class="fa-solid fa-plus"></i></button></div></div>`).join('');
+            box.querySelectorAll('.custom-row').forEach(row => {
+                const k = row.dataset.key;
+                row.querySelector('.plus').addEventListener('click', () => { cart[k].quantity++; updateCartUI(); });
+                row.querySelector('.minus').addEventListener('click', () => { cart[k].quantity--; if (cart[k].quantity <= 0) delete cart[k]; updateCartUI(); });
+            });
+        }
+
         function updateCartUI() {
             document.querySelectorAll('.item-row').forEach(row => {
                 const uuid = row.dataset.uuid;
@@ -791,19 +892,37 @@
                     row.classList.remove('border-success');
                 }
             });
-            
+
             // Generate hidden inputs for form submission
             const container = document.getElementById('cartHiddenInputs');
             container.innerHTML = '';
             let index = 0;
-            for (const [uuid, item] of Object.entries(cart)) {
-                container.innerHTML += `<input type="hidden" name="items[${index}][subcategory_uuid]" value="${uuid}">`;
+            for (const [key, item] of Object.entries(cart)) {
+                if (!item || item.quantity <= 0) continue;
+                const safeName = esc(item.name);
+                if (key.startsWith('custom:')) {
+                    container.innerHTML += `<input type="hidden" name="items[${index}][custom]" value="1">`;
+                } else {
+                    container.innerHTML += `<input type="hidden" name="items[${index}][subcategory_uuid]" value="${key}">`;
+                }
                 container.innerHTML += `<input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">`;
-                const safeName = String(item.name).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 container.innerHTML += `<input type="hidden" name="items[${index}][name]" value="${safeName}">`;
                 index++;
             }
+            renderCustomList();
+            updateSelBar();
+            saveCart();   // the selection survives leaving the page (e.g. Book Now pressed again)
         }
+
+        // bring back what was selected before (kept 24 hours; custom items and still-active items only)
+        try {
+            const saved = JSON.parse(localStorage.getItem(CART_KEY) || 'null');
+            if (saved && saved.cart && Date.now() - saved.at < 24 * 3600 * 1000) {
+                Object.entries(saved.cart).forEach(([k, v]) => {
+                    if (v && v.quantity > 0 && (k.startsWith('custom:') || document.querySelector('.item-row[data-uuid="' + k + '"]'))) cart[k] = v;
+                });
+            }
+        } catch (e) {}
 
         document.querySelectorAll('.btn-plus').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -811,12 +930,13 @@
                 const row = this.closest('.item-row');
                 const uuid = row.dataset.uuid;
                 const name = row.dataset.name;
-                
+
                 if (!cart[uuid]) {
                     cart[uuid] = { quantity: 0, name: name, image: row.querySelector('img') ? row.querySelector('img').src : null };
                 }
                 cart[uuid].quantity++;
                 updateCartUI();
+                sdToast('Added ' + name + ' - ' + cartCount() + (cartCount() === 1 ? ' item' : ' items') + ' selected');
             });
         });
 
@@ -825,7 +945,7 @@
                 e.preventDefault();
                 const row = this.closest('.item-row');
                 const uuid = row.dataset.uuid;
-                
+
                 if (cart[uuid] && cart[uuid].quantity > 0) {
                     cart[uuid].quantity--;
                     if (cart[uuid].quantity === 0) {
@@ -835,7 +955,7 @@
                 updateCartUI();
             });
         });
-
+        document.getElementById('selNext').addEventListener('click', () => document.querySelector('#step-1 .next-step').click());
         // Category chip + search work together
         let activeFilter = 'All';
         function updateCatHero() {
@@ -846,16 +966,60 @@
             const img = document.getElementById('catHeroImg');
             if (chip.dataset.img) { img.src = chip.dataset.img; img.style.display = ''; } else { img.style.display = 'none'; }
         }
-        function applyItemFilters() {
-            updateCatHero();
-            const term = (document.getElementById('itemSearch').value || '').toLowerCase();
-            document.querySelectorAll('.item-row').forEach(row => {
-                const okCat = activeFilter === 'All' || row.dataset.category === activeFilter;
-                const okName = row.dataset.name.toLowerCase().includes(term);
-                row.style.display = (okCat && okName) ? 'flex' : 'none';
-            });
+        // Search that forgives spelling mistakes ("plastik", "newspapr", "iorn")
+        const normText = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+        function editDistance(a, b) {   // Damerau-Levenshtein: a swapped pair of letters counts as one mistake
+            const d = [];
+            for (let i = 0; i <= a.length; i++) { d[i] = [i]; }
+            for (let j = 1; j <= b.length; j++) { d[0][j] = j; }
+            for (let i = 1; i <= a.length; i++) {
+                for (let j = 1; j <= b.length; j++) {
+                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+                    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+                }
+            }
+            return d[a.length][b.length];
+        }
+        function fuzzyMatch(name, term) {
+            const n = normText(name), t = normText(term);
+            if (!t || n.includes(t)) return true;
+            const words = n.split(' ');
+            return t.split(' ').every(tok => words.some(w => w.includes(tok) || (tok.length >= 4 && editDistance(w.slice(0, tok.length + 1), tok) <= (tok.length >= 7 ? 2 : 1))));
         }
 
+        function applyItemFilters() {
+            updateCatHero();
+            const rawTerm = (document.getElementById('itemSearch').value || '').trim();
+            let visible = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                const okCat = activeFilter === 'All' || row.dataset.category === activeFilter;
+                const okName = fuzzyMatch(row.dataset.name, rawTerm);
+                const show = okCat && okName;
+                row.style.display = show ? 'flex' : 'none';
+                if (show) visible++;
+            });
+            // nothing matches what they typed: let them add it themselves
+            const box = document.getElementById('noItemBox');
+            if (rawTerm.length >= 2 && visible === 0) {
+                document.getElementById('noItemTerm').textContent = '"' + rawTerm + '"';
+                box.style.display = 'block';
+            } else {
+                box.style.display = 'none';
+            }
+        }
+        document.getElementById('btnAddCustom').addEventListener('click', function () {
+            const raw = (document.getElementById('itemSearch').value || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+            if (raw.length < 2) return;
+            const name = raw.charAt(0).toUpperCase() + raw.slice(1);
+            const key = 'custom:' + normText(raw).replace(/ /g, '-').slice(0, 50);
+            if (!cart[key]) cart[key] = { quantity: 0, name: name, image: null, custom: true };
+            cart[key].quantity++;
+            updateCartUI();
+            sdToast('Added ' + name + ' - ' + cartCount() + (cartCount() === 1 ? ' item' : ' items') + ' selected');
+            document.getElementById('itemSearch').value = '';
+            applyItemFilters();
+        });
         // Filter functionality
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -883,6 +1047,8 @@
             });
             if (any) updateCartUI();
         })();
+        updateCartUI();
+
         // Auto-select the subcategory chosen on the previous page (?subcategory=uuid)
         const preUuid = new URLSearchParams(window.location.search).get('subcategory');
         if (preUuid) {
@@ -906,19 +1072,46 @@
             if (chip) { chip.click(); chip.scrollIntoView && chip.scrollIntoView({ inline: 'center', block: 'nearest' }); }
         }
 
-        // Filter icon in the search box: sort the visible items A-Z / Z-A
-        let sortAsc = true;
-        document.getElementById('sortToggle').addEventListener('click', function () {
-            const list = document.getElementById('itemsList');
-            const rows = Array.from(list.querySelectorAll('.item-row'));
-            rows.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name) * (sortAsc ? 1 : -1));
-            rows.forEach(r => list.appendChild(r));
-            this.title = sortAsc ? 'Sorted A to Z (tap for Z to A)' : 'Sorted Z to A (tap for A to Z)';
-            sortAsc = !sortAsc;
-        });
-
+        // Filter icon in the search box: a visible menu (A to Z, Z to A, selected items first)
+        (function () {
+            const btn = document.getElementById('sortToggle'), menu = document.getElementById('sortMenu'), list = document.getElementById('itemsList');
+            const close = () => { menu.style.display = 'none'; btn.setAttribute('aria-expanded', 'false'); };
+            function applySort(mode) {
+                const rows = Array.from(list.querySelectorAll('.item-row'));
+                rows.sort((a, b) => {
+                    if (mode === 'sel') {
+                        const d = ((cart[b.dataset.uuid] && cart[b.dataset.uuid].quantity) ? 1 : 0) - ((cart[a.dataset.uuid] && cart[a.dataset.uuid].quantity) ? 1 : 0);
+                        if (d) return d;
+                    }
+                    return a.dataset.name.localeCompare(b.dataset.name) * (mode === 'za' ? -1 : 1);
+                });
+                rows.forEach(r => list.appendChild(r));
+                menu.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.sort === mode));
+                btn.classList.toggle('is-on', mode !== 'az');
+            }
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                const open = menu.style.display === 'none';
+                menu.style.display = open ? 'block' : 'none';
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            menu.addEventListener('click', e => { const b = e.target.closest('button[data-sort]'); if (b) { applySort(b.dataset.sort); close(); } });
+            document.addEventListener('click', e => { if (!e.target.closest('#sortMenu') && !e.target.closest('#sortToggle')) close(); });
+        })();
         // Search functionality
         document.getElementById('itemSearch').addEventListener('input', applyItemFilters);
+
+        // door / floor / landmark + the address, as one readable line
+        function fullAddress() {
+            const door = (document.getElementById('door_no').value || '').trim();
+            const floor = document.getElementById('floor').value;
+            const landmark = (document.getElementById('landmark').value || '').trim();
+            const parts = [];
+            if (door) parts.push('Door/Flat ' + door);
+            if (floor) parts.push(/floor/i.test(floor) ? floor : floor + ' floor');
+            parts.push((document.getElementById('pickup_location').value || '').trim());
+            return parts.filter(Boolean).join(', ') + (landmark ? ' (Landmark: ' + landmark + ')' : '');
+        }
 
         // Navigation Logic
         function renderStep2Summary() {
@@ -930,7 +1123,7 @@
                 const img = it.image ? '<img src="' + esc(it.image) + '" alt="">' : '<i class="fa-solid fa-box text-success"></i>';
                 return '<div class="sd-pick"><div class="ph">' + img + '</div><div><b>' + esc(it.name) + '</b><span>Qty: ' + it.quantity + '</span></div></div>';
             }).join('');
-            document.getElementById('sumLocation').textContent = (document.getElementById('pickup_location').value || '-');
+            document.getElementById('sumLocation').textContent = fullAddress() || '-';
             document.getElementById('sumPin').textContent = (document.getElementById('pin_code').value || '-');
         }
         document.querySelectorAll('#periodPills .period-pill').forEach(p => p.addEventListener('click', function () {
@@ -948,6 +1141,7 @@
             if (Number(step) === 2) renderStep2Summary();
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
             document.getElementById(`step-${step}`).classList.add('active');
+            updateSelBar();
             
             // Update Indicators
             for(let i=1; i<=3; i++) {
@@ -1296,7 +1490,7 @@
                         msg = 'Auto-location requires a secure connection (HTTPS) or localhost. Please type your address manually.';
                     }
                     showLocationError(msg);
-                }, { enableHighAccuracy: true, timeout: 10000 });
+                }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 });
             } else { btn.innerHTML = originalText; showLocationError('Geolocation not supported by your browser.'); }
         });
 
@@ -1308,6 +1502,27 @@
             const hide = () => { box.style.display = 'none'; box.innerHTML = ''; };
             const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+            // Photon (OpenStreetMap data) finds localities even with partial / misspelt words; Nominatim is the backup
+            async function searchPlaces(q) {
+                try {
+                    const r = await fetch('https://photon.komoot.io/api/?limit=8&lang=en&bbox=68.1,6.5,97.5,35.7&q=' + encodeURIComponent(q));
+                    const j = await r.json();
+                    const list = (j.features || []).filter(f => String((f.properties || {}).countrycode || 'IN').toUpperCase() === 'IN').map(f => {
+                        const p = f.properties || {};
+                        const street = p.street ? ((p.housenumber ? p.housenumber + ' ' : '') + p.street) : '';
+                        const parts = [p.name, street, p.district || p.locality, p.city, p.state, p.postcode].filter(Boolean);
+                        return { display_name: parts.filter((x, i) => parts.indexOf(x) === i).join(', '), address: { postcode: p.postcode || '' } };
+                    }).filter(x => x.display_name);
+                    if (list.length) return list;
+                } catch (e) {}
+                try {
+                    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=in&q=' + encodeURIComponent(q), { headers: { 'Accept-Language': 'en' } });
+                    const list = await r.json();
+                    if (Array.isArray(list)) return list;
+                } catch (e) {}
+                return [];
+            }
+
             input.addEventListener('input', function () {
                 clearTimeout(timer);
                 const q = input.value.trim();
@@ -1315,8 +1530,7 @@
                 timer = setTimeout(async () => {
                     const my = ++seq;
                     try {
-                        const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=in&q=' + encodeURIComponent(q), { headers: { 'Accept-Language': 'en' } });
-                        const list = await r.json();
+                        const list = await searchPlaces(q);
                         if (my !== seq) return; // a newer search is already running
                         if (!Array.isArray(list) || !list.length) { box.innerHTML = '<div class="list-group-item small text-muted">No places found. You can still type the full address.</div>'; box.style.display = 'block'; return; }
                         box.innerHTML = list.map((p, i) => '<button type="button" class="list-group-item list-group-item-action small" data-i="' + i + '"><i class="fa-solid fa-location-dot me-2 text-success"></i>' + esc(p.display_name) + '</button>').join('');
@@ -1342,6 +1556,9 @@
             // "Use my location" fills the address too: don't re-open suggestions for that text
             document.getElementById('btnDetectLocation').addEventListener('click', () => { lastQuery = ''; hide(); });
         })();
+
+        document.getElementById('btnTakePhoto').addEventListener('click', () => document.getElementById('cameraUpload').click());
+        document.getElementById('btnGallery').addEventListener('click', () => document.getElementById('imageUpload').click());
 
         const MAX_IMG_BYTES = 2 * 1024 * 1024;
         const MAX_IMG_COUNT = 10;
@@ -1445,7 +1662,7 @@
                 `;
             }
             document.getElementById('prev-total-items').innerText = `${totalItems} Items`;
-            document.getElementById('prev-address').innerText = document.getElementById('pickup_location').value + ' - ' + pinInput.value;
+            document.getElementById('prev-address').innerText = fullAddress() + ' - ' + pinInput.value;
             
             // Format Date & Time
             const dateStr = document.getElementById('input_pickup_date').value;
@@ -1472,6 +1689,7 @@
                 localStorage.setItem(DRAFT_KEY, JSON.stringify({
                     cart, pickup_location: document.getElementById('pickup_location').value,
                     pin_code: pinInput.value, notes: document.getElementById('notes').value,
+                    door_no: document.getElementById('door_no').value, floor: document.getElementById('floor').value, landmark: document.getElementById('landmark').value,
                     date: document.getElementById('input_pickup_date').value, dateDisplay: selectedDateDisplayStr,
                     time: document.getElementById('input_pickup_time').value,
                     images: [...document.querySelectorAll('#hiddenImagesContainer input')].map(i => i.value), at: Date.now()
@@ -1488,6 +1706,9 @@
                     if (d.pickup_location) document.getElementById('pickup_location').value = d.pickup_location;
                     if (d.pin_code) { pinInput.value = d.pin_code; pinInput.dispatchEvent(new Event('input')); }
                     if (d.notes) document.getElementById('notes').value = d.notes;
+                    if (d.door_no) document.getElementById('door_no').value = d.door_no;
+                    if (d.floor) document.getElementById('floor').value = d.floor;
+                    if (d.landmark) document.getElementById('landmark').value = d.landmark;
                     if (d.date) {
                         document.getElementById('input_pickup_date').value = d.date;
                         selectedDateDisplayStr = d.dateDisplay || d.date;
@@ -1542,6 +1763,7 @@
         const btnSuccessOkay = document.getElementById('btnSuccessOkay');
         if(btnSuccessOkay) {
             btnSuccessOkay.addEventListener('click', function() {
+                try { localStorage.removeItem(CART_KEY); } catch (e) {}
                 document.getElementById('pickupForm').submit();
             });
         }
